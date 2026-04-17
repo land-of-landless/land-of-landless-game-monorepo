@@ -1,0 +1,12 @@
+node_modules/
+.yarn/
+.env
+.env.*
+build/
+
+.codegpt
+.vscode/settings.json
+
+.DS_store
+
+logs

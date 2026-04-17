@@ -1,0 +1,66 @@
+name: CI
+
+on:
+    pull_request:
+        branches: [main]
+    push:
+        branches: [main]
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    ci:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [23]
+                redis-version: ["7.4.0-v8"] # Valid tag for redis-stack-server; use 'latest' if preferred
+
+        services:
+            redis-stack-server:
+                image: redis/redis-stack-server:${{ matrix.redis-version }}
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+                ports:
+                    - 6379:6379 # Only the server port; no 8001 for RedisInsight
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Wait for Redis Stack Server to be ready
+              run: |
+                  # Install redis-tools for health check
+                  sudo apt-get update
+                  sudo apt-get install -y redis-tools
+                  # Wait loop for reliability
+                  for i in {1..30}; do
+                    if redis-cli -h localhost -p 6379 ping | grep -q PONG; then
+                      echo "Redis Stack Server is ready!"
+                      exit 0
+                    fi
+                    echo "Waiting for Redis Stack Server... ($i/30)"
+                    sleep 1
+                  done
+                  echo "Redis Stack Server failed to start"
+                  exit 1
+
+            - name: Build
+              run: npm run build
+
+            - name: Run CI
+              run: npm run ci:local
+              # Optional: Pass env if needed, e.g., env: REDIS_URL: redis://localhost:6379
