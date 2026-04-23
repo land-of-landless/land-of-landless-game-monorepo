@@ -1,16 +1,15 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import PaymentController from "../controllers/payment";
-import { INVALID_SOURCE_IP, PAYMENT_UNAUTHENTICATED_REQUEST } from "../errors";
+import PaymentController from "../controllers/payment.ts";
+import { INVALID_SOURCE_IP, PAYMENT_UNAUTHENTICATED_REQUEST } from "../errors/index.ts";
 import { auth } from "@colyseus/auth";
-import { appConfig, isDevelopment } from "@/config/environment";
+import { appConfig, isDevelopment } from "@/config/environment.js";
 import {
     validateBody,
     paymentCallbackSchema,
     processInvoiceSchema,
     ProcessInvoiceInput,
-} from "@/validators/schemas";
-import { WebhookResponseBody } from "@/daos/helioPay";
+} from "@/validators/schemas.js";
+import { WebhookResponseBody } from "@/daos/helioPay/index.js";
 
 const paymentRouter = Router();
 
@@ -38,7 +37,7 @@ paymentRouter.post(
     //     .isIn(itemIndexInputs),
 
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -66,7 +65,7 @@ paymentRouter.post(
     auth.middleware(),
     validateBody(processInvoiceSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {

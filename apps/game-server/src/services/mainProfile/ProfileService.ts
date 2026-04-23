@@ -1,33 +1,34 @@
-import MainProfileDAO from "@/daos/redis/mainProfile";
-import { MainProfile } from "@/models/redis/mainProfile";
-import { MineDAO } from "@/daos/redis/mine";
-import { FactoryDAO } from "@/daos/redis/factory";
-import { mainProfileRepository } from "@/daos/redis/repositories/index";
-import { ERRORS } from "@/common/errors/appError";
+import MainProfileDAO from "@/daos/redis/mainProfile.js";
+import { MainProfile } from "@/models/redis/mainProfile.js";
+import { MineDAO } from "@/daos/redis/mine.js";
+import { FactoryDAO } from "@/daos/redis/factory.js";
+import { mainProfileRepository } from "@/daos/redis/repositories/index.js";
+import { ERRORS } from "@/common/errors/appError.js";
 import _ from "lodash";
 import {
     BASE_REWARDS,
     gemsPerMinute,
     LOOT_BOX_TIME_TO_OPEN,
-} from "@/constants/mainProfile";
+} from "@/constants/mainProfile.js";
 import {
     ENERGY_GENERATOR_BASE_ENERGY_GENERATION_RATE,
     ENERGY_GENERATOR_INCREASE_PER_PANEL,
     ENERGY_GENERATOR_MAX_ENERGY_GENERATION_RATE,
-} from "@/constants/energyGenerator";
+} from "@/constants/energyGenerator.js";
 import {
     MINE_MAX_MINER_COUNT,
     MINE_MAX_MINERAL_GENERATION_RATE,
     MINE_UPGRADE_INFO,
     MINE_MINERAL_GENERATION_PER_EXPLORER,
-} from "@/constants/mine";
+    MINE_UPGRADE_LEVEL_TYPE,
+} from "@/constants/mine.js";
 import {
     LootBoxType,
     MINI_GAMES_ENERGY_COST,
     MINI_GAMES_ID_TYPE,
     miniGameLootBoxNameToNumericIdsMap,
-} from "@/constants/miniGames";
-import logger from "@/utils/logger";
+} from "@/constants/miniGames.js";
+import logger from "@/utils/logger.js";
 import {
     checkValForProfanity,
     isProfane,
@@ -35,14 +36,10 @@ import {
     isProfaneProfanityDev,
     isProfaneSightengineML,
     isProfaneSightenginePattern,
-} from "@/utils/profanity";
-import {
-    MINE_MINER_ID_TYPE,
-    MINE_UPGRADE_LEVEL_TYPE,
-} from "@land-of-landless/lol-game-shared-config";
+} from "@/utils/profanity.js";
 
 export default class ProfileService {
-    static async checkValForProfanity(val: string) {
+    static async checkValForProfanity(val: string, filters?: string[]) {
         // Check local filter first (fast)
         if (isProfane(val)) return true;
         // Then check all async filters in parallel

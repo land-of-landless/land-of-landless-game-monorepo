@@ -1,5 +1,5 @@
 import { Schema, InferSchemaType } from "mongoose";
-import { billingDBConn } from "@/daos/mongodb/connectDB";
+import { billingDBConn } from "@/daos/mongodb/connectDB.js";
 
 const BillingWalletSchema = new Schema(
     {

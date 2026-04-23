@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import FactoryController from "../controllers/factory";
+import FactoryController from "../controllers/factory.ts";
 import { auth } from "@colyseus/auth";
 import {
     validateBody,
@@ -9,7 +8,7 @@ import {
     factoryBuildItemSchema,
     FactoryUpgradeInput,
     FactoryBuildItemInput,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const factoryRouter = Router();
 
@@ -17,7 +16,7 @@ factoryRouter.get(
     "/:userId",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -30,7 +29,7 @@ factoryRouter.post(
     auth.middleware(),
     validateBody(factoryUpgradeSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -43,7 +42,7 @@ factoryRouter.post(
     auth.middleware(),
     validateBody(factoryBuildItemSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {

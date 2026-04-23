@@ -5,11 +5,11 @@ import {
     isDevelopment,
     isProduction,
     isTest,
-} from "@/config/environment";
+} from "@/config/environment.js";
 
-import logger from "@/utils/logger";
-import { ApiResponse } from "@/api/v1/utils/response";
-import { checkRateLimit, globalRateLimit } from "@/utils/customRateLimiters";
+import logger from "@/utils/logger.js";
+import { ApiResponse } from "@/api/v1/utils/response.js";
+import { checkRateLimit, globalRateLimit } from "@/utils/customRateLimiters.js";
 import _ from "lodash";
 
 const paymentCallbackAllowList: string[] =

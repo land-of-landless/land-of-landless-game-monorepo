@@ -1,14 +1,13 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
 import { auth } from "@colyseus/auth";
-import LabController from "../controllers/lab";
+import LabController from "../controllers/lab.ts";
 import {
     validateBody,
     labUpgradeSchema,
     labUpgradeItemSchema,
     LabUpgradeInput,
     LabUpgradeItemInput,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const labRouter = Router();
 
@@ -16,7 +15,7 @@ labRouter.get(
     "/:userId",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -29,7 +28,7 @@ labRouter.post(
     auth.middleware(),
     validateBody(labUpgradeSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -42,7 +41,7 @@ labRouter.post(
     auth.middleware(),
     validateBody(labUpgradeItemSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {

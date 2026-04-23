@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ApiResponse } from "../utils/response";
-import ProfileAggregationService from "@/services/mainProfile/ProfileAggregationService";
-import { ERRORS } from "@/common/errors/appError";
+import { ApiResponse } from "../utils/response.ts";
+import ProfileAggregationService from "@/services/mainProfile/ProfileAggregationService.js";
+import { ERRORS } from "@/common/errors/appError.js";
 import _ from "lodash";
-import ProfileService from "@/services/mainProfile/ProfileService";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
 
 /**
  * Controller class for handling general profile-related API endpoints
@@ -19,7 +18,7 @@ export default class GeneralController {
      * @param next - Express next function for middleware chain
      */
     static async getAllProfiles(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -57,7 +56,7 @@ export default class GeneralController {
      * @param next - Express next function for middleware chain
      */
     static async updateAllProfilesForUser(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {

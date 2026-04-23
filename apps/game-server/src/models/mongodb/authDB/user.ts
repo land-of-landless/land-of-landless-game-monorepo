@@ -1,6 +1,6 @@
 import { Schema, InferSchemaType, model } from "mongoose";
-import { authDBConn } from "@/daos/mongodb/connectDB";
-import { OAuthProfile } from "./OAuthProfile";
+import { authDBConn } from "@/daos/mongodb/connectDB.js";
+import { OAuthProfile } from "./OAuthProfile.ts";
 
 // Define a sub-schema for OAuth profile data
 const OAuthProfileSchema = new Schema<OAuthProfile>(

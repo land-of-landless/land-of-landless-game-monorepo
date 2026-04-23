@@ -1,20 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ShopPurchaseInput } from "@/validators/schemas";
-import { ApiResponse } from "../utils/response";
-import ShopService from "@/services/shop/ShopService";
-import BillingDAO from "@/daos/redis/billing";
+import { ShopPurchaseInput } from "@/validators/schemas.js";
+import { ApiResponse } from "../utils/response.ts";
+import ShopService from "@/services/shop/ShopService.js";
+import BillingDAO from "@/daos/redis/billing.js";
 import {
     billingInvoiceFetchRateLimit,
     billingPurchaseRateLimit,
     checkRateLimit,
-} from "@/utils/customRateLimiters";
+} from "@/utils/customRateLimiters.js";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError";
+import { ERRORS } from "@/common/errors/appError.js";
 
 export default class ShopController {
     static async purchase(
-        req: Request<ParamsDictionary, any, ShopPurchaseInput>,
+        req: Request<any, any, ShopPurchaseInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -44,7 +43,7 @@ export default class ShopController {
     }
 
     static async getInvoice(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -71,7 +70,7 @@ export default class ShopController {
     }
 
     static async getBillingInfo(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {

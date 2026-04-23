@@ -1,16 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { MineDAO } from "@/daos/redis/mine";
-import MineService from "@/services/mine/MineService";
-import { MineUpgradeInput } from "@/validators/schemas";
-import { MINE_MINER_ID_TYPE } from "@/constants/mine";
-import { ApiResponse } from "../utils/response";
+import { MineDAO } from "@/daos/redis/mine.js";
+import MineService from "@/services/mine/MineService.js";
+import { MineUpgradeInput } from "@/validators/schemas.js";
+import { MINE_MINER_ID_TYPE } from "@/constants/mine.js";
+import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError";
+import { ERRORS } from "@/common/errors/appError.js";
 
 export class mineController {
     static async getMineProfile(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -31,7 +30,7 @@ export class mineController {
     }
 
     static async upgrade(
-        req: Request<ParamsDictionary, any, MineUpgradeInput>,
+        req: Request<any, any, MineUpgradeInput>,
         res: Response,
         next: NextFunction,
     ) {

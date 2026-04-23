@@ -1,15 +1,14 @@
-import LabService from "@/services/lab/LabService";
+import LabService from "@/services/lab/LabService.js";
 import { Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ERRORS } from "@/common/errors/appError";
-import { LAB_UPGRADE_ITEM_TYPE } from "@/constants/lab";
-import { LabUpgradeInput, LabUpgradeItemInput } from "@/validators/schemas";
-import { ApiResponse } from "../utils/response";
+import { ERRORS } from "@/common/errors/appError.js";
+import { LAB_UPGRADE_ITEM_TYPE } from "@/constants/lab.js";
+import { LabUpgradeInput, LabUpgradeItemInput } from "@/validators/schemas.js";
+import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
 
 export default class LabController {
     static async getLabProfile(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -26,7 +25,7 @@ export default class LabController {
     }
 
     static async upgradeLab(
-        req: Request<ParamsDictionary, any, LabUpgradeInput>,
+        req: Request<any, any, LabUpgradeInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -66,7 +65,7 @@ export default class LabController {
     }
 
     static async upgradeItem(
-        req: Request<ParamsDictionary, any, LabUpgradeItemInput>,
+        req: Request<any, any, LabUpgradeItemInput>,
         res: Response,
         next: NextFunction,
     ) {

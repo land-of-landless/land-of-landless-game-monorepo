@@ -1,5 +1,5 @@
 import axios from "axios";
-import { appConfig } from "@/config/environment";
+import { appConfig } from "@/config/environment.js";
 
 const HelioPayAxiosInstance = axios.create({
     baseURL: appConfig.helio.baseUrl,

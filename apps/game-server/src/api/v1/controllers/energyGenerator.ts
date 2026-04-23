@@ -1,15 +1,14 @@
 import { Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator";
-import EnergyGeneratorService from "@/services/energyGenerator/EnergyGeneratorService";
-import { EnergyGeneratorUpgradeInput } from "../../../validators/schemas";
-import { ApiResponse } from "../utils/response";
+import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
+import EnergyGeneratorService from "@/services/energyGenerator/EnergyGeneratorService.js";
+import { EnergyGeneratorUpgradeInput } from "../../../validators/schemas.js";
+import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError";
+import { ERRORS } from "@/common/errors/appError.ts";
 
 export default class EnergyGeneratorController {
     static async getEnergyGeneratorProfile(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -31,7 +30,7 @@ export default class EnergyGeneratorController {
     }
 
     static async upgradeEnergyGenerator(
-        req: Request<ParamsDictionary, any, EnergyGeneratorUpgradeInput>,
+        req: Request<any, any, EnergyGeneratorUpgradeInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -65,11 +64,7 @@ export default class EnergyGeneratorController {
         }
     }
 
-    static async addPanel(
-        req: Request<ParamsDictionary>,
-        res: Response,
-        next: NextFunction,
-    ) {
+    static async addPanel(req: Request, res: Response, next: NextFunction) {
         const userId = req.auth!.userId;
 
         try {

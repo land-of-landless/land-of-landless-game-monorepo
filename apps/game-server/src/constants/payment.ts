@@ -1,4 +1,4 @@
-import { SHOP_GEM_ITEMS_INDEX, SHOP_Item_Type } from "./shop";
+import { SHOP_GEM_ITEMS_INDEX, SHOP_Item_Type } from "./shop.js";
 
 //types
 export type AdditionalJson = {

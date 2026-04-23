@@ -8,9 +8,9 @@
 
 import OpenAI from "openai";
 import { createHash } from "crypto";
-import { appConfig } from "@/config/environment";
-import { redisFastClient as redisClient } from "@/daos/redis/connectRedis";
-import logger from "@/utils/logger";
+import { appConfig } from "@/config/environment.js";
+import { redisFastClient as redisClient } from "@/daos/redis/connectRedis/index.js";
+import logger from "@/utils/logger.js";
 
 // ---------------------------------------------------------------------------
 // Types

@@ -1,4 +1,4 @@
-import { MINE_MINER_ID_TYPE, MINE_UPGRADE_LEVEL_TYPE } from "@/constants";
+import { MINE_MINER_ID_TYPE, MINE_UPGRADE_LEVEL_TYPE } from "@/constants/index.js";
 import { Schema, Entity } from "redis-om";
 
 // levels : 1 to 3

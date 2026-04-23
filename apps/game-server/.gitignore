@@ -1,12 +1,6 @@
-node_modules/
-.yarn/
-.env
-.env.*
-build/
-
-.codegpt
-.vscode/settings.json
-
-.DS_store
-
+node_modules
+build
+.colyseus-cloud.json
+.devmode.json
 logs
+

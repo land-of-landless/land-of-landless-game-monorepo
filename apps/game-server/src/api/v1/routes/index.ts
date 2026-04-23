@@ -1,15 +1,15 @@
 import { Router } from "express";
-import mainProfileRouter from "./mainProfile";
-import miniGamesRouter from "./miniGames";
-import shopRouter from "./shop";
-import paymentRouter from "./payment";
-import energyGeneratorRouter from "./energyGenerator";
-import mineRouter from "./mine";
-import factoryRouter from "./factory";
-import labRouter from "./lab";
-import launchSiteRouter from "./launchSite";
-import generalRouter from "./general";
-import systemHealthRouter from "./system-health";
+import mainProfileRouter from "./mainProfile.ts";
+import miniGamesRouter from "./miniGames.ts";
+import shopRouter from "./shop.ts";
+import paymentRouter from "./payment.ts";
+import energyGeneratorRouter from "./energyGenerator.ts";
+import mineRouter from "./mine.ts";
+import factoryRouter from "./factory.ts";
+import labRouter from "./lab.ts";
+import launchSiteRouter from "./launchSite.ts";
+import generalRouter from "./general.ts";
+import systemHealthRouter from "./system-health.ts";
 
 const v1Router = Router();
 

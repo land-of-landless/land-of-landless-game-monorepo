@@ -1,17 +1,17 @@
-import HelioPay, { GETChargeDetails } from "@/daos/helioPay";
-import BillingDAO from "@/daos/redis/billing";
-import ShopService from "@/services/shop/ShopService";
-import { AdditionalJson } from "@/constants/payment";
+import HelioPay, { GETChargeDetails } from "@/daos/helioPay/index.js";
+import BillingDAO from "@/daos/redis/billing.js";
+import ShopService from "@/services/shop/ShopService.js";
+import { AdditionalJson } from "@/constants/payment.js";
 import _ from "lodash";
-import { paymentLogger } from "@/utils/logger";
+import { paymentLogger } from "@/utils/logger.js";
 import {
     PAYMENT_INVALID_PAYLINK,
     PAYMENT_INVALID_USER,
     PAYMENT_INVALID_INVOICE,
     PAYMENT_INVOICE_NOT_PAID,
     INVALID_INPUT,
-} from "@/api/v1/errors/index";
-import { appConfig } from "@/config/environment";
+} from "@/api/v1/errors/index.js";
+import { appConfig } from "@/config/environment.js";
 
 /**
  * PaymentService handles payment processing and validation logic.

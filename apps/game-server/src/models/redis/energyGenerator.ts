@@ -1,4 +1,4 @@
-import { ENERGY_GENERATOR_LEVELS_TYPE } from "@/constants/energyGenerator";
+import { ENERGY_GENERATOR_LEVELS_TYPE } from "@/constants/energyGenerator.js";
 import { Schema, Entity } from "redis-om";
 
 export interface EnergyGenerator extends Entity {

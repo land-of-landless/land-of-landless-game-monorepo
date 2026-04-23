@@ -5,7 +5,7 @@
  */
 
 import winston from "winston";
-import { appConfig, isDevelopment, isProduction } from "@/config/environment";
+import { appConfig, isDevelopment, isProduction } from "@/config/environment.js";
 import path from "path";
 import fs from "fs";
 

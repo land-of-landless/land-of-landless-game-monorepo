@@ -1,9 +1,9 @@
 import _ from "lodash";
 import BillingWalletModel, {
     BillingWalletType,
-} from "@/models/mongodb/billingDB/wallet";
+} from "@/models/mongodb/billingDB/wallet.js";
 import {
-    FilterQuery,
+    QueryFilter,
     ProjectionType,
     QueryOptions,
     UpdateQuery,
@@ -24,7 +24,7 @@ export default class BillingWalletDAO {
     }
 
     static async findWallet(
-        filter: FilterQuery<BillingWalletType>,
+        filter: QueryFilter<BillingWalletType>,
         projection?: ProjectionType<BillingWalletType>,
         queryOptions?: QueryOptions<BillingWalletType>,
     ) {
@@ -42,7 +42,7 @@ export default class BillingWalletDAO {
     }
 
     static async updateWallet(
-        filter: FilterQuery<BillingWalletType>,
+        filter: QueryFilter<BillingWalletType>,
         updateDoc:
             | UpdateQuery<BillingWalletType>
             | UpdateWithAggregationPipeline,

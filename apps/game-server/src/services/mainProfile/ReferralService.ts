@@ -1,11 +1,11 @@
-import ProfileService from "@/services/mainProfile/ProfileService";
-import { REFERRAL_REWARDS } from "@/constants/mainProfile";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
+import { REFERRAL_REWARDS } from "@/constants/mainProfile.js";
 import {
     REFERRAL_ALREADY_USED,
     REFERRAL_CODE_INVALID,
     REFERRAL_SELF_USE,
     PROFILE_NOT_FOUND,
-} from "@/api/v1/errors/index";
+} from "@/api/v1/errors/index.js";
 import _ from "lodash";
 
 export default class ReferralService {

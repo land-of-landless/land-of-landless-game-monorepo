@@ -5,7 +5,9 @@
  */
 
 import { z } from "zod";
-import { LAUNCHABLE_ITEMS } from "@/constants/launchSite";
+import { LAUNCHABLE_ITEMS } from "@/constants/launchSite.js";
+import { ALLOWED_FLAGS } from "@/constants/flags.js";
+
 
 // ===== COMMON SCHEMAS =====
 
@@ -178,21 +180,20 @@ export const profileLootBoxSchema = z.object({
     operation: lootBoxOperationSchema,
 });
 
-import { ALLOWED_FLAGS } from "@/constants/flags";
 import {
     isProfane,
     isProfaneHive,
     isProfaneProfanityDev,
     isProfaneSightenginePattern,
     isProfaneSightengineML,
-} from "@/utils/profanity";
+} from "@/utils/profanity.js";
 import {
     PROFILE_NAME_MAX_LENGTH,
     PROFILE_NAME_MIN_LENGTH,
     PROFILE_NAME_REGEX,
     PROFILE_PFP_MAX_INDEX,
     PROFILE_PFP_MIN_INDEX,
-} from "@/constants/mainProfile";
+} from "@/constants/mainProfile.js";
 export const updateProfileSchema = z.object({
     name: z
         .string()

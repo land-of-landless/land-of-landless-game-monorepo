@@ -1,18 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { WebhookResponseBody } from "@/daos/helioPay";
-import { INVALID_PAYMENT_CALLBACK } from "../errors";
+import { WebhookResponseBody } from "@/daos/helioPay/index.js";
+import { INVALID_PAYMENT_CALLBACK } from "../errors/index.ts";
 import {
     PaymentCallbackInput,
     ProcessInvoiceInput,
-} from "@/validators/schemas";
-import { ApiResponse } from "../utils/response";
-import PaymentService from "@/services/payment/PaymentService";
-import ShopService from "@/services/shop/ShopService";
+} from "@/validators/schemas.js";
+import { ApiResponse } from "../utils/response.ts";
+import PaymentService from "@/services/payment/PaymentService.js";
+import ShopService from "@/services/shop/ShopService.js";
 
 export default class PaymentController {
     static async processPaymentCallback(
-        req: Request<ParamsDictionary, any, PaymentCallbackInput>,
+        req: Request<any, any, PaymentCallbackInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -38,7 +37,7 @@ export default class PaymentController {
     }
 
     static async processInvoice(
-        req: Request<ParamsDictionary, any, ProcessInvoiceInput>,
+        req: Request<any, any, ProcessInvoiceInput>,
         res: Response,
         next: NextFunction,
     ) {

@@ -1,4 +1,4 @@
-import { FACTORY_ITEMS_COST_INFO } from "./factory";
+import { FACTORY_ITEMS_COST_INFO } from "./factory.ts";
 
 /**
  * The maximum number of minerals a user can have.

@@ -2,7 +2,7 @@ import {
     Factory_Item_Type,
     FACTORY_LEVELS_INDEX,
     FACTORY_SECONDARY_Item_INDEX_Type,
-} from "@/constants/factory";
+} from "@/constants/factory.js";
 import { Schema, Entity } from "redis-om";
 
 /**

@@ -4,7 +4,7 @@
  * and validates required configuration on startup
  */
 
-import { RATE_LIMITS_CONFIG } from "@/constants";
+import { RATE_LIMITS_CONFIG } from "@/constants/index.js";
 
 export interface AppConfig {
     nodeEnv: string;
