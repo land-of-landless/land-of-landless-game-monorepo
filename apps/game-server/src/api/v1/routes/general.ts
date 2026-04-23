@@ -1,18 +1,13 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { auth } from "@colyseus/auth";
-import { ParamsDictionary } from "express-serve-static-core";
-import GeneralController from "../controllers/general";
+import GeneralController from "../controllers/general.ts";
 
 const generalProfileRouter = Router();
 
 generalProfileRouter.get(
     "/all-user-profiles/:userId",
     auth.middleware(),
-    async (
-        req: Request<ParamsDictionary>,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         await GeneralController.getAllProfiles(req, res, next);
     },
 );
@@ -20,11 +15,7 @@ generalProfileRouter.get(
 generalProfileRouter.get(
     "/all-user-profiles/authenticated",
     auth.middleware(),
-    async (
-        req: Request<ParamsDictionary>,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         await GeneralController.getAllProfiles(req, res, next);
     },
 );
@@ -32,11 +23,7 @@ generalProfileRouter.get(
 generalProfileRouter.post(
     "/update-all-profiles/authenticated",
     auth.middleware(),
-    async (
-        req: Request<ParamsDictionary>,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         await GeneralController.updateAllProfilesForUser(req, res, next);
     },
 );
@@ -44,11 +31,7 @@ generalProfileRouter.post(
 generalProfileRouter.post(
     "/update-all-profiles/:userId",
     auth.middleware(),
-    async (
-        req: Request<ParamsDictionary>,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         await GeneralController.updateAllProfilesForUser(req, res, next);
     },
 );

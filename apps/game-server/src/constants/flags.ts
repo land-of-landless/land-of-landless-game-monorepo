@@ -13,7 +13,7 @@ export const EXCEPTION_FLAGS = [
 ];
 
 // Custom flags
-export const CUSTOM_FLAGS = [
+export const CUSTOM_FLAGS: string[] = [
     // Add custom flags here, e.g., "PIRATE", "COMPANY_X"
 ];
 

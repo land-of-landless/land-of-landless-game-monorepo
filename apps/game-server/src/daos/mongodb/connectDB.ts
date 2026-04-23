@@ -7,7 +7,7 @@ import {
     Document,
 } from "mongodb";
 import mongoose from "mongoose";
-import { dbLogger } from "../../utils/logger";
+import { dbLogger } from "../../utils/logger.ts";
 import _ from "lodash";
 import Redis from "ioredis";
 

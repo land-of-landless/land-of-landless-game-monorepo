@@ -1,14 +1,14 @@
 // generate a redis-om repository for userSchema and export it
 import { Repository } from "redis-om";
-import { redisLogicalClient } from "@/daos/redis/connectRedis";
-import billingSchema from "@/models/redis/billing";
-import mainProfileSchema from "@/models/redis/mainProfile";
-import miniGamesSchema from "@/models/redis/miniGames";
-import energyGeneratorSchema from "@/models/redis/energyGenerator";
-import mineSchema from "@/models/redis/mine";
-import factorySchema from "@/models/redis/factory";
-import labSchema from "@/models/redis/lab";
-import launchSiteSchema from "@/models/redis/launchSite";
+import { redisLogicalClient } from "@/daos/redis/connectRedis/index.js";
+import billingSchema from "@/models/redis/billing.js";
+import mainProfileSchema from "@/models/redis/mainProfile.js";
+import miniGamesSchema from "@/models/redis/miniGames.js";
+import energyGeneratorSchema from "@/models/redis/energyGenerator.js";
+import mineSchema from "@/models/redis/mine.js";
+import factorySchema from "@/models/redis/factory.js";
+import labSchema from "@/models/redis/lab.js";
+import launchSiteSchema from "@/models/redis/launchSite.js";
 
 export const billingRepository = new Repository(
     billingSchema,

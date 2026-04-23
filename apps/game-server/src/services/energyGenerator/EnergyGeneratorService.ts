@@ -1,15 +1,15 @@
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator";
-import { energyGeneratorRepository } from "@/daos/redis/repositories/index";
-import ProfileService from "@/services/mainProfile/ProfileService";
+import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
+import { energyGeneratorRepository } from "@/daos/redis/repositories/index.js";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     ENERGY_GENERATOR_COST_PER_PANEL,
     ENERGY_GENERATOR_LEVELS_TYPE,
     ENERGY_GENERATOR_MAX_LEVEL,
     ENERGY_GENERATOR_UPGRADE_INFO,
-} from "@/constants/energyGenerator";
-import { turnTimeInMsToGemsToBePaid } from "@/utils/index";
-import { ERRORS } from "@/common/errors/appError";
-import logger from "@/utils/logger";
+} from "@/constants/energyGenerator.js";
+import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
+import { ERRORS } from "@/common/errors/appError.js";
+import logger from "@/utils/logger.js";
 
 /**
  * Service class for handling Energy Generator business logic.

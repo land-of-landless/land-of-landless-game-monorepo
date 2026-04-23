@@ -1,8 +1,8 @@
-import { LaunchSite } from "@/models/redis/launchSite";
+import { LaunchSite } from "@/models/redis/launchSite.js";
 import _ from "lodash";
-import { launchSiteRepository } from "./repositories/index";
-import { ERRORS } from "@/common/errors/appError";
-import logger from "@/utils/logger";
+import { launchSiteRepository } from "./repositories/index.ts";
+import { ERRORS } from "@/common/errors/appError.js";
+import logger from "@/utils/logger.js";
 
 /**
  * Data Access Object for Launch Site-related operations.

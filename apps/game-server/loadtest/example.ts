@@ -1,4 +1,4 @@
-import { Client, Room } from "colyseus.js";
+import { Client, Room, CloseCode } from "@colyseus/sdk";
 import { cli, Options } from "@colyseus/loadtest";
 
 export async function main(options: Options) {
@@ -9,15 +9,15 @@ export async function main(options: Options) {
 
     console.log("joined successfully!");
 
-    room.onMessage("message-type", (payload) => {
+    room.onMessage("message-type", (payload: any) => {
         // logic
     });
 
-    room.onStateChange((state) => {
+    room.onStateChange((state: any) => {
         console.log("state change:", state);
     });
 
-    room.onLeave((code) => {
+    room.onLeave((code: number) => {
         console.log("left");
     });
 }

@@ -9,19 +9,19 @@ import {
     SHOP_COIN_ITEMS_INDEX,
     SHOP_MAX_GEM_ITEM_INDEX,
     MAX_PURCHASE_INVOICE_REQUEST_PER_HOUR,
-} from "@/constants/shop";
-import { ENERGY_GENERATOR_MAX_ENERGY_VALUE_WITH_GAME_PASS } from "@/constants/energyGenerator";
-import BillingDAO from "@/daos/redis/billing";
-import ProfileService from "@/services/mainProfile/ProfileService";
+} from "@/constants/shop.js";
+import { ENERGY_GENERATOR_MAX_ENERGY_VALUE_WITH_GAME_PASS } from "@/constants/energyGenerator.js";
+import BillingDAO from "@/daos/redis/billing.js";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     mainProfileRepository,
     billingRepository,
-} from "@/daos/redis/repositories/index";
-import InvoiceService from "@/services/payment/InvoiceService";
+} from "@/daos/redis/repositories/index.js";
+import InvoiceService from "@/services/payment/InvoiceService.js";
 import _ from "lodash";
-import { paymentLogger, logger } from "@/utils/logger";
-import { INVALID_INPUT } from "@/api/v1/errors/index";
-import { ERRORS } from "@/common/errors/appError";
+import { paymentLogger, logger } from "@/utils/logger.js";
+import { INVALID_INPUT } from "@/api/v1/errors/index.js";
+import { ERRORS } from "@/common/errors/appError.js";
 
 /**
  * ShopService handles purchase flows and shop-related business logic

@@ -17,44 +17,43 @@ import {
     validateEnvironment,
     isTest,
     isDevelopment,
-} from "@/config/environment";
-import logger, { paymentLogger } from "@/utils/logger";
+} from "@/config/environment.js";
+
+import logger, { paymentLogger } from "@/utils/logger.js";
 
 // --- Express Middlewares ---
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
-// @ts-ignore
 import compression from "compression";
-// @ts-ignore
-import globalRateLimiterMiddleWare from "@/middlewares/globalRateLimiter";
-import { errorHandler, notFoundHandler } from "@/middlewares/errorHandler";
+import globalRateLimiterMiddleWare from "@/middlewares/globalRateLimiter.js";
+import { errorHandler, notFoundHandler } from "@/middlewares/errorHandler.js";
 
 // Auth module
 import { auth } from "@colyseus/auth";
-import "./config/auth";
+import "./config/auth.js";
 
 /**
  *
  * Import your Room files
  */
-import { MyRoom } from "@/rooms/MyRoom";
+import { MyRoom } from "@/rooms/MyRoom.js";
 import { RedisPresence } from "colyseus";
 import { RedisDriver } from "@colyseus/redis-driver";
 import {
     connectFastRedisInstance,
     connectLogicalRedisInstance,
-} from "@/daos/redis/connectRedis";
-import { createRedisIndexes } from "@/daos/redis/repositories/index";
+} from "@/daos/redis/connectRedis/index.js";
+import { createRedisIndexes } from "@/daos/redis/repositories/index.js";
 
 // --- API and Service Imports ---
-import v1Router from "@/api/v1/routes";
-import HelioPay, { FetchWebhooksForAPayLinkWebhook } from "@/daos/helioPay";
+import v1Router from "@/api/v1/routes/index.js";
+import HelioPay, { FetchWebhooksForAPayLinkWebhook } from "@/daos/helioPay/index.js";
 import _ from "lodash";
-import basicAuthMiddleware from "@/middlewares/basicPassAuth";
-import { clientIpMiddleware } from "@/middlewares/clientIpExtractor";
-import { convertMsToStringTime } from "./utils/time";
-import { AppError, ERRORS } from "./common/errors/appError";
+import basicAuthMiddleware from "@/middlewares/basicPassAuth.js";
+import { clientIpMiddleware } from "@/middlewares/clientIpExtractor.js";
+import { convertMsToStringTime } from "./utils/time.js";
+import { AppError, ERRORS } from "./common/errors/appError.js";
 
 export default defineServer({
     rooms: {},

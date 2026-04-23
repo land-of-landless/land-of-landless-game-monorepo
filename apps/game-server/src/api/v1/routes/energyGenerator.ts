@@ -1,13 +1,12 @@
 import { Router } from "express";
 import { Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import EnergyGeneratorController from "../controllers/energyGenerator";
+import EnergyGeneratorController from "../controllers/energyGenerator.ts";
 import { auth } from "@colyseus/auth";
 import {
     validateBody,
     energyGeneratorUpgradeSchema,
     EnergyGeneratorUpgradeInput,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const energyGeneratorRouter = Router();
 
@@ -15,7 +14,7 @@ energyGeneratorRouter.get(
     "/:userId",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -32,7 +31,7 @@ energyGeneratorRouter.post(
     auth.middleware(),
     validateBody(energyGeneratorUpgradeSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -44,7 +43,7 @@ energyGeneratorRouter.post(
     "/add-panel",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {

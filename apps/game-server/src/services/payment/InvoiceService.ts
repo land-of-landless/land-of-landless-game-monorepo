@@ -1,14 +1,14 @@
-import HelioPay, { GETChargeDetails } from "@/daos/helioPay";
-import BillingDAO from "@/daos/redis/billing";
+import HelioPay, { GETChargeDetails } from "@/daos/helioPay/index.js";
+import BillingDAO from "@/daos/redis/billing.js";
 import _ from "lodash";
-import { SHOP_PASS_ITEMS_INDEX } from "@/constants/shop";
-import { paymentLogger } from "@/utils/logger";
+import { SHOP_PASS_ITEMS_INDEX } from "@/constants/shop.js";
+import { paymentLogger } from "@/utils/logger.js";
 import {
     PAYMENT_INVALID_USER,
     PAYMENT_INVALID_INVOICE,
     PAYMENT_INVOICE_NOT_PAID,
-} from "@/api/v1/errors/index";
-import { appConfig } from "@/config/environment";
+} from "@/api/v1/errors/index.js";
+import { appConfig } from "@/config/environment.js";
 
 /**
  * InvoiceService handles invoice management logic including

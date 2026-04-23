@@ -7,16 +7,15 @@
  */
 
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
 import { auth } from "@colyseus/auth";
-import LaunchSiteController from "../controllers/launchSite";
+import LaunchSiteController from "../controllers/launchSite.ts";
 import {
     validateBody,
     launchSiteUpgradeSchema,
     launchItemSchema,
     LaunchSiteUpgradeInput,
     LaunchItemInput,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const router = Router();
 
@@ -25,7 +24,7 @@ router.get(
     "/profile",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -38,7 +37,7 @@ router.post(
     "/upgrade/start",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -52,7 +51,7 @@ router.post(
     auth.middleware(),
     validateBody(launchSiteUpgradeSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -66,7 +65,7 @@ router.post(
     auth.middleware(),
     validateBody(launchItemSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {

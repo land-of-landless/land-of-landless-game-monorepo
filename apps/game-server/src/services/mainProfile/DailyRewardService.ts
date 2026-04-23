@@ -1,14 +1,14 @@
-import ProfileService from "@/services/mainProfile/ProfileService";
-import { mainProfileRepository } from "@/daos/redis/repositories/index";
-import { ERRORS } from "@/common/errors/appError";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
+import { mainProfileRepository } from "@/daos/redis/repositories/index.js";
+import { ERRORS } from "@/common/errors/appError.js";
 import {
     DAILY_REWARD_COOLDOWN_HOURS,
     DAILY_CLAIM_REWARDS,
     DAILY_REWARD_MAX_CONSECUTIVE_HOURS,
     DAILY_REWARD_CLAIM_COUNTER,
     DAILY_REWARD_RESET_CYCLE_DAYS,
-} from "@/constants/mainProfile";
-import logger from "@/utils/logger";
+} from "@/constants/mainProfile.js";
+import logger from "@/utils/logger.js";
 
 export default class DailyRewardService {
     /**

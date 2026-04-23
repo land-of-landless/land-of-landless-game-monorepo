@@ -1,7 +1,7 @@
 // import oxaPayAxiosInstance from "@/axios/oxaPayAxiosInstance";
-import HelioPayAxiosInstance from "@/axios/HelioPayAxiosInstance";
-import { paymentLogger } from "../../utils/logger";
-import { appConfig, isDevelopment } from "@/config/environment";
+import HelioPayAxiosInstance from "@/axios/HelioPayAxiosInstance.js";
+import { paymentLogger } from "../../utils/logger.ts";
+import { appConfig, isDevelopment } from "@/config/environment.js";
 
 export type PaylinkEventPayload = {
     event: PaylinkEvents; // e.g. 'CREATED'

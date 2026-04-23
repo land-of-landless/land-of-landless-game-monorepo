@@ -1,6 +1,6 @@
 import _ from "lodash";
 import {
-    FilterQuery,
+    QueryFilter,
     ProjectionType,
     QueryOptions,
     UpdateQuery,
@@ -9,7 +9,7 @@ import {
 } from "mongoose";
 import BillingTransactionModel, {
     BillingTransactionType,
-} from "@/models/mongodb/billingDB/transaction";
+} from "@/models/mongodb/billingDB/transaction.js";
 
 export default class BillingTransactionDAO {
     static async createTransaction(

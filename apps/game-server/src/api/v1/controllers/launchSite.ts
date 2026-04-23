@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite";
-import LaunchSiteService from "@/services/launchSite/LaunchSiteService";
-import { LaunchSiteUpgradeInput, LaunchItemInput } from "@/validators/schemas";
-import { LAUNCH_SITE_NOT_FOUND } from "@/api/v1/errors/index";
-import { ApiResponse } from "../utils/response";
+import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
+import LaunchSiteService from "@/services/launchSite/LaunchSiteService.js";
+import { LaunchSiteUpgradeInput, LaunchItemInput } from "@/validators/schemas.js";
+import { LAUNCH_SITE_NOT_FOUND } from "@/api/v1/errors/index.js";
+import { ApiResponse } from "../utils/response.ts";
 
 /**
  * Controller for handling Launch Site-related API requests.
@@ -15,7 +14,7 @@ export default class LaunchSiteController {
      * Retrieves the launch site profile for the authenticated user.
      */
     static async getLaunchSiteProfile(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -44,7 +43,7 @@ export default class LaunchSiteController {
      * Starts the upgrade process for the launch site.
      */
     static async upgradeStart(
-        req: Request<ParamsDictionary, any, LaunchSiteUpgradeInput>,
+        req: Request<any, any, LaunchSiteUpgradeInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -65,7 +64,7 @@ export default class LaunchSiteController {
      * Completes the upgrade process for the launch site.
      */
     static async upgradeEnd(
-        req: Request<ParamsDictionary, any, LaunchSiteUpgradeInput>,
+        req: Request<any, any, LaunchSiteUpgradeInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -87,7 +86,7 @@ export default class LaunchSiteController {
      * Launches an item from the launch site.
      */
     static async launchItem(
-        req: Request<ParamsDictionary, any, LaunchItemInput>,
+        req: Request<any, any, LaunchItemInput>,
         res: Response,
         next: NextFunction,
     ) {

@@ -1,4 +1,4 @@
-import { gemsPerMinute } from "@/constants/mainProfile";
+import { gemsPerMinute } from "@/constants/mainProfile.js";
 
 /**
  * Converts time in milliseconds to the number of gems to be paid

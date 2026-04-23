@@ -1,8 +1,8 @@
-import { billingRepository } from "@/daos/redis/repositories/index";
-import { Billing } from "@/models/redis/billing";
+import { billingRepository } from "@/daos/redis/repositories/index.js";
+import { Billing } from "@/models/redis/billing.js";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError";
-import logger from "@/utils/logger";
+import { ERRORS } from "@/common/errors/appError.js";
+import logger from "@/utils/logger.js";
 
 /**
  * Data Access Object for Billing-related operations.

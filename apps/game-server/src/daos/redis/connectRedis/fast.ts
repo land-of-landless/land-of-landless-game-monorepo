@@ -1,14 +1,14 @@
-import { createClient } from "redis";
-import { appConfig, isTest } from "@/config/environment";
-import { dbLogger } from "@/utils/logger";
+import { createClient, RedisClientType } from "redis";
+import { appConfig, isTest } from "@/config/environment.js";
+import { dbLogger } from "@/utils/logger.js";
 
-const redisFastClient = createClient({
+const redisFastClient: RedisClientType = createClient({
     username: appConfig.redis.fastInstance.user,
     password: appConfig.redis.fastInstance.pass,
     socket: {
         host: appConfig.redis.fastInstance.host,
         port: appConfig.redis.fastInstance.port,
-        reconnectStrategy: (retries) => Math.min(retries * 50, 300),
+        reconnectStrategy: (retries: number) => Math.min(retries * 50, 300),
     },
     disableOfflineQueue: true, // IMPORTANT for rate limiting
 });
@@ -17,7 +17,7 @@ async function connectFastRedisInstance() {
     await redisFastClient.connect();
 }
 
-redisFastClient.on("error", (err) =>
+redisFastClient.on("error", (err: any) =>
     dbLogger.error("RedisFast error", { err }),
 );
 

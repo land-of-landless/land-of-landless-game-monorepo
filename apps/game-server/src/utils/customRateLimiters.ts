@@ -3,10 +3,10 @@ import {
     RateLimiterMemory,
     RateLimiterRes,
 } from "rate-limiter-flexible";
-import { appConfig, isTest } from "@/config/environment";
-import { redisFastClient } from "@/daos/redis/connectRedis";
-import { ERRORS } from "@/common/errors/appError";
-import { convertMsToStringTime } from "./time";
+import { appConfig, isTest } from "@/config/environment.js";
+import { redisFastClient } from "@/daos/redis/connectRedis/index.js";
+import { ERRORS } from "@/common/errors/appError.js";
+import { convertMsToStringTime } from "./time.ts";
 import { logger } from "colyseus";
 
 export const checkRateLimit = async (

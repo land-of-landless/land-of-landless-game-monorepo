@@ -10,11 +10,12 @@
  */
 import { listen } from "@colyseus/tools";
 import _ from "lodash";
-import logger from "./utils/logger";
-import { appConfig } from "./config/environment";
+import logger from "./utils/logger.js";
+import { appConfig } from "./config/environment.js";
 
 // Import Colyseus config
-import app from "./app.config";
+import app from "./app.config.js";
+
 
 // Environment validation and port configuration
 const DEFAULT_PORT = 2567;

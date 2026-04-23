@@ -1,16 +1,15 @@
 import { NextFunction, Request, Response } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import MainProfileDAO from "../../../daos/redis/mainProfile";
-import { ApiResponse } from "../utils/response";
-import ReferralService from "@/services/mainProfile/ReferralService";
-import DailyRewardService from "@/services/mainProfile/DailyRewardService";
-import ProfileService from "@/services/mainProfile/ProfileService";
+import MainProfileDAO from "../../../daos/redis/mainProfile.ts";
+import { ApiResponse } from "../utils/response.ts";
+import ReferralService from "@/services/mainProfile/ReferralService.js";
+import DailyRewardService from "@/services/mainProfile/DailyRewardService.js";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     ProfileLootBoxInput,
     UpdateProfileInput,
     UseReferralCodeInput,
-} from "@/validators/schemas";
-import { ERRORS } from "@/common/errors/appError";
+} from "@/validators/schemas.js";
+import { ERRORS } from "@/common/errors/appError.js";
 import _ from "lodash";
 import {
     isProfane,
@@ -18,13 +17,13 @@ import {
     isProfaneProfanityDev,
     isProfaneSightengineML,
     isProfaneSightenginePattern,
-} from "@/utils/profanity";
+} from "@/utils/profanity.js";
 import {
     checkRateLimit,
     referralAndDailyRewardRateLimit,
     userPreferencesRateLimit,
-} from "@/utils/customRateLimiters";
-import { convertMsToStringTime } from "@/utils/time";
+} from "@/utils/customRateLimiters.js";
+import { convertMsToStringTime } from "@/utils/time.js";
 
 /**
  * Controller class for handling profile-related API endpoints
@@ -38,7 +37,7 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async getMainProfile(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -72,7 +71,7 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async updatePreferences(
-        req: Request<ParamsDictionary, any, UpdateProfileInput>,
+        req: Request<any, any, UpdateProfileInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -107,7 +106,7 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async openLootBox(
-        req: Request<ParamsDictionary, any, ProfileLootBoxInput>,
+        req: Request<any, any, ProfileLootBoxInput>,
         res: Response,
         next: NextFunction,
     ) {
@@ -151,7 +150,7 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async claimDailyReward(
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) {
@@ -183,7 +182,7 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async useReferralCode(
-        req: Request<ParamsDictionary, any, UseReferralCodeInput>,
+        req: Request<any, any, UseReferralCodeInput>,
         res: Response,
         next: NextFunction,
     ) {

@@ -1,8 +1,8 @@
-import { labRepository } from "./repositories/index";
-import { Lab } from "@/models/redis/lab";
+import { labRepository } from "./repositories/index.ts";
+import { Lab } from "@/models/redis/lab.js";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError";
-import logger from "@/utils/logger";
+import { ERRORS } from "@/common/errors/appError.js";
+import logger from "@/utils/logger.js";
 
 /**
  * Data Access Object for Lab-related operations.

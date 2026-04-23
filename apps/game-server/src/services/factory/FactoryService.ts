@@ -1,7 +1,7 @@
-import { FactoryDAO } from "@/daos/redis/factory";
-import ProfileService from "@/services/mainProfile/ProfileService";
-import { turnTimeInMsToGemsToBePaid } from "@/utils";
-import { Factory } from "@/models/redis/factory";
+import { FactoryDAO } from "@/daos/redis/factory.js";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
+import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
+import { Factory } from "@/models/redis/factory.js";
 import {
     FACTORY_BUILDING_PADS,
     Factory_Item_Type,
@@ -15,13 +15,13 @@ import {
     Factory_Rocket_Secondary_Item_Id,
     Factory_Spaceship_Secondary_Item_Id,
     Factory_Built_Item_Id,
-} from "@/constants/factory";
-import LabService from "@/services/lab/LabService";
+} from "@/constants/factory.js";
+import LabService from "@/services/lab/LabService.js";
 import _ from "lodash";
-import logger from "@/utils/logger";
-import { ERRORS } from "@/common/errors/appError";
-import { LAB_ITEMS_UPGRADE_INFO } from "@/constants";
-import { factoryRepository } from "@/daos/redis/repositories";
+import logger from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError.js";
+import { LAB_ITEMS_UPGRADE_INFO } from "@/constants/index.js";
+import { factoryRepository } from "@/daos/redis/repositories/index.js";
 
 /**
  * Service for Factory-related operations.

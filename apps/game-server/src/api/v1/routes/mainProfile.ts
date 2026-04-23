@@ -1,8 +1,7 @@
 // import router from express
 import { auth } from "@colyseus/auth";
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import ProfileController from "@/api/v1/controllers/mainProfile";
+import ProfileController from "@/api/v1/controllers/mainProfile.js";
 import {
     validateBody,
     profileLootBoxSchema,
@@ -11,7 +10,7 @@ import {
     UpdateProfileInput,
     useReferralCodeSchema,
     UseReferralCodeInput,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const mainProfileRouter = Router();
 
@@ -19,7 +18,7 @@ mainProfileRouter.get(
     "/authenticated",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -31,7 +30,7 @@ mainProfileRouter.get(
     "/:userId",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -44,7 +43,7 @@ mainProfileRouter.post(
     auth.middleware(),
     validateBody(updateProfileSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -57,7 +56,7 @@ mainProfileRouter.post(
     auth.middleware(),
     validateBody(profileLootBoxSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -69,7 +68,7 @@ mainProfileRouter.post(
     "/daily-reward/claim",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -82,7 +81,7 @@ mainProfileRouter.post(
     auth.middleware(),
     validateBody(useReferralCodeSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {

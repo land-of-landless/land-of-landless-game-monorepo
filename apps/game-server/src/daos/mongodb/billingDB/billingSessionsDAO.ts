@@ -1,9 +1,9 @@
 import _ from "lodash";
 import BillingSessionModel, {
     BillingSessionType,
-} from "@/models/mongodb/billingDB/sessions";
+} from "@/models/mongodb/billingDB/sessions.js";
 import {
-    FilterQuery,
+    QueryFilter,
     ProjectionType,
     QueryOptions,
     UpdateQuery,
@@ -22,7 +22,7 @@ export default class BillingSessionDAO {
     }
 
     static async updateSession(
-        filter: FilterQuery<BillingSessionType>,
+        filter: QueryFilter<BillingSessionType>,
         updateDoc:
             | UpdateQuery<BillingSessionType>
             | UpdateWithAggregationPipeline,
@@ -41,7 +41,7 @@ export default class BillingSessionDAO {
     }
 
     static async findSession(
-        filter: FilterQuery<BillingSessionType>,
+        filter: QueryFilter<BillingSessionType>,
         projection?: ProjectionType<BillingSessionType>,
         queryOptions?: QueryOptions<BillingSessionType>,
     ) {
@@ -57,7 +57,7 @@ export default class BillingSessionDAO {
         }
     }
 
-    static async doesSessionExist(filter: FilterQuery<BillingSessionType>) {
+    static async doesSessionExist(filter: QueryFilter<BillingSessionType>) {
         try {
             let session = await BillingSessionModel.exists(filter).exec();
 
@@ -68,7 +68,7 @@ export default class BillingSessionDAO {
     }
 
     static async deleteSession(
-        filter: FilterQuery<BillingSessionType>,
+        filter: QueryFilter<BillingSessionType>,
         queryOptions?: QueryOptions<BillingSessionType>,
     ) {
         try {

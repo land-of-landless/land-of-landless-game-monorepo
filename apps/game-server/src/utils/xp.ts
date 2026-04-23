@@ -1,4 +1,4 @@
-import logger from "./logger";
+import logger from "./logger.ts";
 
 /**
  * Configuration interface for XP calculation parameters

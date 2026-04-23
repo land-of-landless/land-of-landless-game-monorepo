@@ -1,7 +1,7 @@
 import _ from "lodash";
-import AccountModel, { AccountType } from "@/models/mongodb/authDB/account";
+import AccountModel, { AccountType } from "@/models/mongodb/authDB/account.js";
 import {
-    FilterQuery,
+    QueryFilter,
     ProjectionType,
     QueryOptions,
     UpdateQuery,
@@ -10,7 +10,7 @@ import {
 
 export default class AccountsDAO {
     static async findAccount(
-        filter: FilterQuery<AccountType>,
+        filter: QueryFilter<AccountType>,
         projection?: ProjectionType<AccountType>,
         queryOptions?: QueryOptions<AccountType>,
     ) {

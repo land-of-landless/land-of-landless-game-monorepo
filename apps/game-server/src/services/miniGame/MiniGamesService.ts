@@ -1,17 +1,17 @@
-import ProfileService from "@/services/mainProfile/ProfileService";
-import MiniGamesDAO from "@/daos/redis/miniGames";
-import { LootBoxType } from "@/constants";
-import { MINI_GAMES_ENERGY_COST } from "@/constants/miniGames";
+import ProfileService from "@/services/mainProfile/ProfileService.js";
+import MiniGamesDAO from "@/daos/redis/miniGames.js";
+import { LootBoxType } from "@/constants/index.js";
+import { MINI_GAMES_ENERGY_COST } from "@/constants/miniGames.js";
 import {
     NOT_ENOUGH_ENERGY,
     NOT_ENOUGH_SPACE_FOR_LOOTBOX,
     PROFILE_NOT_FOUND,
     MINIGAME_INVALID_OPERATION,
     MINIGAME_MISSING_GUESS,
-} from "@/api/v1/errors/index";
-import { gameLogger } from "@/utils/logger";
-import { ERRORS } from "@/common/errors/appError";
-import logger from "@/utils/logger";
+} from "@/api/v1/errors/index.js";
+import { gameLogger } from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError.js";
+import logger from "@/utils/logger.js";
 
 export default class MiniGamesService {
     /**
@@ -304,8 +304,8 @@ export default class MiniGamesService {
                 );
 
                 const null_box_indexes = miniGame3_boxes_in_phase
-                    .map((box, index) => (box === 0 ? index : -1))
-                    .filter((index) => index !== -1);
+                    .map((box: number, index: number) => (box === 0 ? index : -1))
+                    .filter((index: number) => index !== -1);
 
                 const selectedBox = miniGame3_boxes_in_phase[userGuess - 1];
                 let user_lost = false;

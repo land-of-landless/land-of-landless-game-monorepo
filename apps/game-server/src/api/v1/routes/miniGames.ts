@@ -1,7 +1,6 @@
 import { auth } from "@colyseus/auth";
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import MiniGamesController from "../controllers/miniGames";
+import MiniGamesController from "../controllers/miniGames.ts";
 import {
     validateBody,
     miniGame1Schema,
@@ -11,7 +10,7 @@ import {
     MiniGame3Input,
     miniGame4Schema,
     MiniGame4Input,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const miniGamesRouter = Router();
 
@@ -20,7 +19,7 @@ miniGamesRouter.post(
     auth.middleware(),
     // validateBody(miniGame1Schema),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -33,7 +32,7 @@ miniGamesRouter.post(
     auth.middleware(),
     validateBody(miniGame2Schema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -46,7 +45,7 @@ miniGamesRouter.post(
     auth.middleware(),
     validateBody(miniGame3Schema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -59,7 +58,7 @@ miniGamesRouter.post(
     auth.middleware(),
     validateBody(miniGame4Schema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {

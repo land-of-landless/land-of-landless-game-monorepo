@@ -1,12 +1,11 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
 import { auth } from "@colyseus/auth";
-import { mineController } from "../controllers/mine";
+import { mineController } from "../controllers/mine.ts";
 import {
     validateBody,
     mineUpgradeSchema,
     MineUpgradeInput,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const mineRouter = Router();
 
@@ -14,7 +13,7 @@ mineRouter.get(
     "/:userId",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -27,7 +26,7 @@ mineRouter.post(
     auth.middleware(),
     validateBody(mineUpgradeSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {

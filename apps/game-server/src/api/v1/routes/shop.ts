@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import ShopController from "../controllers/shop";
+import ShopController from "../controllers/shop.ts";
 import { auth } from "@colyseus/auth";
 import {
     validateBody,
@@ -8,7 +7,7 @@ import {
     invoiceSchema,
     ShopPurchaseInput,
     InvoiceInput,
-} from "@/validators/schemas";
+} from "@/validators/schemas.js";
 
 const shopRouter = Router();
 
@@ -17,7 +16,7 @@ shopRouter.post(
     auth.middleware(),
     validateBody(shopPurchaseSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -32,7 +31,7 @@ shopRouter.post(
     auth.middleware(),
     validateBody(invoiceSchema),
     async (
-        req: Request<ParamsDictionary, any, any>,
+        req: Request<any, any, any>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -44,7 +43,7 @@ shopRouter.get(
     "/billing-info",
     auth.middleware(),
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {

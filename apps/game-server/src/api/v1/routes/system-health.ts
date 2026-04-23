@@ -1,13 +1,12 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { ApiResponse } from "../utils/response";
+import { ApiResponse } from "../utils/response.ts";
 
 const systemHealthRouter = Router();
 
 systemHealthRouter.get(
     "/ip",
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -22,7 +21,7 @@ systemHealthRouter.get(
 systemHealthRouter.get(
     "/ping",
     async (
-        req: Request<ParamsDictionary>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {

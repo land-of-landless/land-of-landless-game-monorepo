@@ -1,30 +1,30 @@
-import BillingDAO from "@/daos/redis/billing";
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator";
-import MiniGamesDAO from "@/daos/redis/miniGames";
-import MainProfileDAO from "@/daos/redis/mainProfile";
+import BillingDAO from "@/daos/redis/billing.js";
+import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
+import MiniGamesDAO from "@/daos/redis/miniGames.js";
+import MainProfileDAO from "@/daos/redis/mainProfile.js";
 import { auth } from "@colyseus/auth";
-import { authLogger } from "../utils/logger";
+import { authLogger } from "../utils/logger.js";
 import _ from "lodash";
 import crypto from "crypto";
 import {
     MINE_MAX_MINERAL_GENERATION_RATE,
     MINE_MAX_MINERALS_VALUE,
-} from "@/constants/mine";
-import { MineDAO } from "@/daos/redis/mine";
-import { FactoryDAO } from "@/daos/redis/factory";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite";
-import { LabDAO } from "@/daos/redis/lab";
+} from "@/constants/mine.js";
+import { MineDAO } from "@/daos/redis/mine.js";
+import { FactoryDAO } from "@/daos/redis/factory.js";
+import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
+import { LabDAO } from "@/daos/redis/lab.js";
 import {
     lolSoldierProfilePics,
     lolSoldierNames,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_2,
-} from "@/constants/mainProfile";
+} from "@/constants/mainProfile.js";
 import {
     ENERGY_GENERATOR_BASE_ENERGY_GENERATION_RATE,
     ENERGY_GENERATOR_MAX_ENERGY_VALUE,
-} from "@/constants";
-import { appConfig, isDevelopment } from "@/config/environment";
+} from "@/constants/index.js";
+import { appConfig, isDevelopment } from "@/config/environment.js";
 
 /**
  * This file configures the authentication layer for the application using `@colyseus/auth`.

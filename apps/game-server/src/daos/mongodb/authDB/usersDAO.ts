@@ -1,9 +1,9 @@
 import _ from "lodash";
 import { MongoClient, Db, Collection } from "mongodb";
-import { dbLogger } from "../../../utils/logger";
-import UserModel, { UserType } from "@/models/mongodb/authDB/user";
+import { dbLogger } from "../../../utils/logger.ts";
+import UserModel, { UserType } from "@/models/mongodb/authDB/user.js";
 import {
-    FilterQuery,
+    QueryFilter,
     ProjectionType,
     QueryOptions,
     UpdateQuery,
@@ -12,7 +12,7 @@ import {
 
 export default class UsersDAO {
     static async findUser(
-        filter: FilterQuery<UserType>,
+        filter: QueryFilter<UserType>,
         projection?: ProjectionType<UserType>,
         queryOptions?: QueryOptions<UserType>,
     ) {
@@ -50,7 +50,7 @@ export default class UsersDAO {
     }
 
     static async updateUser(
-        filter: FilterQuery<UserType>,
+        filter: QueryFilter<UserType>,
         updateDoc: UpdateQuery<UserType> | UpdateWithAggregationPipeline,
         queryOptions?: QueryOptions<UserType>,
     ) {

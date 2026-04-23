@@ -1,1 +1,1 @@
-export * from "./globalRateLimiter";
+export * from "./globalRateLimiter.ts";

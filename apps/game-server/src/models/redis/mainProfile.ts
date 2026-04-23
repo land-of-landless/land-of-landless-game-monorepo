@@ -1,4 +1,4 @@
-import { DAILY_REWARD_CLAIM_COUNTER, LootBoxType } from "@/constants";
+import { DAILY_REWARD_CLAIM_COUNTER, LootBoxType } from "@/constants/index.js";
 import { Schema, Entity } from "redis-om";
 
 // 1 is for the new worker bot
