@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Phone -->
+  <rect x="90" y="20" width="120" height="200" rx="10" fill="#1E1E1E" stroke="#4A4A4A" stroke-width="2"/>
+  <rect x="100" y="30" width="100" height="180" rx="5" fill="#2A2A2A"/>
+  
+  <!-- Screen Content -->
+  <rect x="110" y="40" width="80" height="140" rx="3" fill="#1A1A1A"/>
+  
+  <!-- Game Controller -->
+  <rect x="50" y="80" width="30" height="60" rx="4" fill="#2A2A2A" stroke="#4A4A4A" stroke-width="1"/>
+  <rect x="60" y="90" width="10" height="10" rx="2" fill="#4A4A4A"/>
+  <rect x="60" y="120" width="10" height="10" rx="2" fill="#4A4A4A"/>
+  
+  <rect x="220" y="80" width="30" height="60" rx="4" fill="#2A2A2A" stroke="#4A4A4A" stroke-width="1"/>
+  <rect x="230" y="90" width="10" height="10" rx="2" fill="#4A4A4A"/>
+  <rect x="230" y="120" width="10" height="10" rx="2" fill="#4A4A4A"/>
+  
+  <!-- Game Elements -->
+  <circle cx="150" cy="90" r="15" fill="#4A90E2"/>
+  <circle cx="150" cy="90" r="10" fill="#2A5A9C"/>
+  
+  <rect x="140" cy="140" width="20" height="20" rx="3" fill="#E94F64" transform="rotate(45 140 140)"/>
+  
+  <!-- Warning Icon -->
+  <path d="M150 50C152.21 50 154 51.79 154 54V70C154 72.21 152.21 74 150 74C147.79 74 146 72.21 146 70V54C146 51.79 147.79 50 150 50Z" fill="#FFC107"/>
+  <circle cx="150" cy="78" r="2" fill="#FFC107"/>
+  
+  <!-- Text -->
+  <text x="150" y="190" font-family="Arial, sans-serif" font-size="8" text-anchor="middle" fill="#888">Try on a larger screen for the best experience</text>
+</svg>
