@@ -1,0 +1,10 @@
+# .husky/pre-push
+
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Example using pnpm + Turborepo (recommended for monorepos)
+pnpm dlx turbo run test --filter="...[origin/main]"
+
+# If you don't use Turborepo, you can use pnpm's --filter with a change list:
+# pnpm exec changeset status --since=origin/main | xargs pnpm run test --filter
