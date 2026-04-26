@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import React, { useEffect, useMemo, useState } from "react";
+import { useDetectGPU } from "@react-three/drei";
 import SmallScreenDescription from "@/components/MobileView/SmallScreenDescription";
 
 // Set to true to force small screen mode for testing
@@ -14,12 +15,16 @@ export default function Home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSmallScreen, setIsSmallScreen] = useState(true);
+  const GPUTier = useDetectGPU();
+
+  const deviceTier = useMemo(() => {
+    // Tier 3: high-end, 2: mid, 1: low, 0: fallback
+    return GPUTier.tier || 1;
+  }, [GPUTier]);
 
   useEffect(() => {
     // Check screen size
     const checkScreenSize = () => {
-      console.log("Checking screen size...");
-      console.log("Window width:", window.innerWidth);
       const isSmall = FORCE_SMALL_SCREEN || window.innerWidth < 960;
       setIsSmallScreen(isSmall);
       setIsLoading(false);
@@ -32,6 +37,7 @@ export default function Home() {
 
     // Initial check
     checkScreenSize();
+    // useDeviceTier();
 
     // Add event listener for window resize
     window.addEventListener("resize", checkScreenSize);
