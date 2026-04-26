@@ -23,27 +23,12 @@ import { useState } from "react";
 // });
 
 export default function Play() {
-  const [dpr, setDpr] = useState(1.5);
-
   return (
-    <Canvas dpr={dpr}>
+    <Canvas dpr={[0.8, 2]}>
       <PerformanceMonitor
-        onIncline={() => {
-          console.log("Things are smooth, let's crank it up!");
-          setDpr(2); // Increase DPR
-        }}
-        onDecline={() => {
-          console.log("FPS is dropping, reducing quality...");
-          setDpr(1); // Reduce DPR
-        }}
         // Custom bounds: trigger incline/decline if FPS falls outside 45-60
         bounds={(refreshRate) => [45, 60]}
-        flipflops={3} // If it flips between states 3 times, it's unstable
-        onFallback={() => {
-          // If performance is unstable, set a safe baseline
-          console.warn("Performance unstable. Locking to low quality.");
-          setDpr(1);
-        }}
+        flipflops={5} // If it flips between states 5 times, it's unstable
       >
         <AdaptiveDpr />
         <AdaptiveEvents />
