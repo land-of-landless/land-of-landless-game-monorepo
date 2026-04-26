@@ -1,19 +1,11 @@
 import React from "react";
 
 import Image from "next/image";
-import { useRouter } from "next/router";
 
 const SmallScreenDescription = () => {
-  const router = useRouter();
-
-  const handleTryAnyway = () => {
-    // Force redirect to game with a query parameter
-    router.push("/p?force=true");
-  };
-
   return (
     <div className="flex flex-col justify-center items-center h-screen p-6 text-center bg-black text-white">
-      <div className="max-w-[500px] mb-8">
+      <div className="max-w-125 mb-8">
         <h1 className="font-bold mb-4 text-4xl">
           Game Optimized for Larger Screens
         </h1>
