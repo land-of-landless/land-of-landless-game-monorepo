@@ -66,15 +66,13 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
 
-      <ScreenSizeProvider>
-        <QueryClientProvider client={queryClient}>
-          <ReactQueryDevtools initialIsOpen={false} />
-          <KeyboardControls map={map}>
-            <ToastContainer />
-            <Component {...pageProps} />
-          </KeyboardControls>
-        </QueryClientProvider>
-      </ScreenSizeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
+        <KeyboardControls map={map}>
+          <ToastContainer />
+          <Component {...pageProps} />
+        </KeyboardControls>
+      </QueryClientProvider>
     </>
   );
 }
