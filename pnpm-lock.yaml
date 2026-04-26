@@ -314,6 +314,9 @@ importers:
       yuka:
         specifier: ^0.7.8
         version: 0.7.8
+      zustand:
+        specifier: ^5.0.12
+        version: 5.0.12(@types/react@18.3.12)(react@18.3.1)(use-sync-external-store@1.6.0(react@18.3.1))
     devDependencies:
       '@serwist/next':
         specifier: ^9.5.7

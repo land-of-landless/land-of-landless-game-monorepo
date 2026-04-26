@@ -57,7 +57,7 @@ export default function Home() {
   // This will be shown very briefly before the redirect happens
   return (
     <div className="flex justify-center items-center h-screen bg-black text-white">
-      <p>Loading game...</p>
+      <p>Checking if your device is compatible...</p>
     </div>
   );
 }
