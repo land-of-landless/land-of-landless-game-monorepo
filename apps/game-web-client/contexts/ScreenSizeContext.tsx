@@ -14,7 +14,7 @@ interface ScreenSizeContextType {
 }
 
 const ScreenSizeContext = createContext<ScreenSizeContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const useScreenSize = (): ScreenSizeContextType => {
@@ -42,7 +42,7 @@ export const ScreenSizeProvider = ({ children }: { children: ReactNode }) => {
     const updateScreenSize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
-      const isSmallScreen = width < 960; // Match Material-UI's md breakpoint
+      const isSmallScreen = width < 960;
 
       setScreenSize({
         width,
