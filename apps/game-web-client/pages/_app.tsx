@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 import Head from "next/head";
 import type { AppProps } from "next/app";
-import { ScreenSizeProvider } from "@/contexts/ScreenSizeContext";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { KeyboardControls } from "@react-three/drei";
@@ -26,21 +25,21 @@ type KeyboardControlsEntry<T extends string = string> = {
 export default function App({ Component, pageProps }: AppProps) {
   enum Controls {
     forward = "forward",
-    back = "back",
-    left = "left",
-    right = "right",
-    space = "space",
-    shift = "shift",
+    backward = "backward",
+    leftward = "leftward",
+    rightward = "rightward",
+    jump = "jump",
+    run = "run",
   }
 
   const map = useMemo<KeyboardControlsEntry<Controls>[]>(
     () => [
       { name: Controls.forward, keys: ["ArrowUp", "KeyW"] },
-      { name: Controls.back, keys: ["ArrowDown", "KeyS"] },
-      { name: Controls.left, keys: ["ArrowLeft", "KeyA"] },
-      { name: Controls.right, keys: ["ArrowRight", "KeyD"] },
-      { name: Controls.space, keys: ["Space"] },
-      { name: Controls.shift, keys: ["ShiftLeft", "ShiftRight"] },
+      { name: Controls.backward, keys: ["ArrowDown", "KeyS"] },
+      { name: Controls.leftward, keys: ["ArrowLeft", "KeyA"] },
+      { name: Controls.rightward, keys: ["ArrowRight", "KeyD"] },
+      { name: Controls.jump, keys: ["Space"] },
+      { name: Controls.run, keys: ["ShiftLeft", "ShiftRight"] },
     ],
     [],
   );
@@ -57,6 +56,31 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#FFFFFF" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={APP_NAME} />
+        <meta property="og:title" content={APP_NAME} />
+        <meta property="og:description" content={APP_DESCRIPTION} />
+        <meta property="og:url" content="https://landoflandless.com" />
+        <meta
+          property="og:image"
+          content="https://landoflandless.com/icons/og-image.png"
+        />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="en_US" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@LandOfLandless" />
+        <meta name="twitter:title" content={APP_NAME} />
+        <meta name="twitter:description" content={APP_DESCRIPTION} />
+        <meta
+          name="twitter:image"
+          content="https://landoflandless.com/icons/og-image.png"
+        />
+
         <link
           rel="apple-touch-icon"
           sizes="180x180"
