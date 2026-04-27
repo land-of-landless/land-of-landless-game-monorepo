@@ -5,11 +5,8 @@ import ProfileController from "@/api/v1/controllers/mainProfile.js";
 import {
     validateBody,
     profileLootBoxSchema,
-    ProfileLootBoxInput,
     updateProfileSchema,
-    UpdateProfileInput,
     useReferralCodeSchema,
-    UseReferralCodeInput,
 } from "@/validators/schemas.js";
 
 const mainProfileRouter = Router();
@@ -43,7 +40,7 @@ mainProfileRouter.post(
     auth.middleware(),
     validateBody(updateProfileSchema),
     async (
-        req: Request<any, any, any>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -56,7 +53,7 @@ mainProfileRouter.post(
     auth.middleware(),
     validateBody(profileLootBoxSchema),
     async (
-        req: Request<any, any, any>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
@@ -81,7 +78,7 @@ mainProfileRouter.post(
     auth.middleware(),
     validateBody(useReferralCodeSchema),
     async (
-        req: Request<any, any, any>,
+        req: Request,
         res: Response,
         next: NextFunction,
     ) => {
