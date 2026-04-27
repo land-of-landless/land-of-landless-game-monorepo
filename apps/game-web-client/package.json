@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@colyseus/react": "^0.1.14",
+    "@colyseus/sdk": "^0.17.40",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@mantine/core": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
@@ -30,6 +31,7 @@
     "axios": "^1.15.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "colyseus.js": "^0.16.22",
     "detect-gpu": "^5.0.70",
     "ecctrl": "^1.0.97",
     "framer-motion": "^12.38.0",

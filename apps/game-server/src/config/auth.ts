@@ -3,11 +3,9 @@ import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
 import MiniGamesDAO from "@/daos/redis/miniGames.js";
 import MainProfileDAO from "@/daos/redis/mainProfile.js";
 import { auth } from "@colyseus/auth";
-import { authLogger } from "../utils/logger.js";
 import _ from "lodash";
 import crypto from "crypto";
 import {
-    MINE_MAX_MINERAL_GENERATION_RATE,
     MINE_MAX_MINERALS_VALUE,
 } from "@/constants/mine.js";
 import { MineDAO } from "@/daos/redis/mine.js";
@@ -137,19 +135,20 @@ export async function authCallback(data: any, provider: string) {
 
         // Define here to be accessible in the catch block for better logging.
         // Create a consistent, private user ID by hashing the unique identifier (`sub`) from the OAuth provider.
-        let subSha256Hash: string | null = crypto
+        const subSha256Hash: string | null = crypto
             .createHash("sha256")
             .update(profile.sub)
             .digest("hex")
             .slice(0, 32);
 
-        let processedUserId: string = subSha256Hash;
+        const processedUserId: string = subSha256Hash;
 
         // Check if a user with this ID already exists.
         const fetchedUser =
             await MainProfileDAO.findProfileByUserId(processedUserId);
 
         if (!_.isNil(fetchedUser)) {
+            // --- Existing User Login Flow ---
             // If the user exists, return their ID.
             return {
                 userId: fetchedUser.userId,
