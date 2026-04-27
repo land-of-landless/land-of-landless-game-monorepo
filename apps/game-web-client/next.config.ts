@@ -13,6 +13,7 @@ const revision =
 const withSerwist = withSerwistInit({
   swSrc: "web-workers/sw.ts",
   swDest: "public/sw.js",
+  maximumFileSizeToCacheInBytes: 50 * 1024 * 1024, // Set the limit to 50 MB
   disable: process.env.NODE_ENV === "development",
   additionalPrecacheEntries: [{ url: "/~offline", revision }],
 });
@@ -24,6 +25,25 @@ const nextConfig: NextConfig = {
   output: "export",
   images: {
     unoptimized: true,
+  },
+  // Enables minification which makes the code harder to read.
+  swcMinify: true,
+
+  // Disables generation of source maps for client bundles in production.
+  productionBrowserSourceMaps: false,
+
+  webpack: (config, { isServer }) => {
+    // Add a rule to handle audio files
+    config.module.rules.push({
+      test: /\.(mp3|wav|ogg|m4a|flac)$/i, // Target common audio formats
+      type: "asset/resource", // Use Webpack 5's built-in asset module
+      generator: {
+        // Output files to the 'static/media' folder with a content hash in the name
+        filename: "static/media/[name].[hash][ext]",
+      },
+    });
+
+    return config;
   },
 };
 
