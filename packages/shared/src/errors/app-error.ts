@@ -1,4 +1,4 @@
-import { HTTP_STATUS } from '../constants/index.js'
+import { HTTP_STATUS } from '../constants'
 
 export const ErrorCodes = {
   NOT_FOUND: 'NOT_FOUND',
