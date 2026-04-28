@@ -43,6 +43,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@repo/shared": "workspace:*",
     "@colyseus/auth": "^0.17.9",
     "@colyseus/monitor": "^0.17.8",
     "@colyseus/playground": "^0.17.12",
