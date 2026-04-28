@@ -13,6 +13,7 @@ import {
 import Ecctrl, { EcctrlJoystick } from "ecctrl";
 import { Suspense } from "react";
 import { useGameStore, useGameComputed } from "../stores/gameStore";
+import { Perf } from "r3f-perf";
 
 /**
  * Zustand Store UI Component
@@ -99,7 +100,7 @@ export default function Play() {
   return (
     <div className="w-full h-screen bg-slate-900 overflow-hidden">
       {/* Mobile Joystick */}
-      <EcctrlJoystick />
+      {/* <EcctrlJoystick /> */}
 
       <Canvas
         shadows
@@ -109,6 +110,10 @@ export default function Play() {
         eventSource={typeof window !== "undefined" ? document.body : undefined}
       >
         <Suspense fallback={null}>
+          {/* position it in bottom */}
+          <Perf position="bottom-left" />
+
+          {/* <Environment preset="city" /> */}
           <Sky sunPosition={[100, 20, 100]} />
 
           <PerformanceMonitor bounds={(refreshRate) => [45, 60]} flipflops={5}>
@@ -123,7 +128,7 @@ export default function Play() {
               shadow-mapSize={[1024, 1024]}
             />
 
-            <Physics debug={false} gravity={[0, -9.81, 0]}>
+            <Physics debug={false} timeStep={"vary"} gravity={[0, -9.81, 0]}>
               {/* Character Controller */}
               <Ecctrl
                 position={[0, 2, 0]}

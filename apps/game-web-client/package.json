@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbo",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "lint:fix": "eslint --fix"
   },
   "dependencies": {
-    "@colyseus/react": "^0.1.14",
+    "@colyseus/react": "^0.1.15",
     "@colyseus/sdk": "^0.17.40",
     "@ducanh2912/next-pwa": "^10.2.9",
     "@mantine/core": "^8.3.18",

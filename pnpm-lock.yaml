@@ -82,6 +82,9 @@ importers:
       '@colyseus/tools':
         specifier: ^0.17.0
         version: 0.17.19(@colyseus/core@0.17.41)(@colyseus/ws-transport@0.17.13(@colyseus/core@0.17.41)(bufferutil@4.1.0)(express@4.22.1))
+      '@repo/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       axios:
         specifier: ^1.15.0
         version: 1.15.0
@@ -201,8 +204,8 @@ importers:
   apps/game-web-client:
     dependencies:
       '@colyseus/react':
-        specifier: ^0.1.14
-        version: 0.1.14(@colyseus/schema@4.0.20(typescript@5.9.2))(@colyseus/sdk@0.17.40(@colyseus/core@0.17.41)(bufferutil@4.1.0)(typescript@5.9.2)(zod@4.3.6))(@colyseus/shared-types@0.17.6)(react@18.3.1)
+        specifier: ^0.1.15
+        version: 0.1.15(@colyseus/schema@4.0.20(typescript@5.9.2))(@colyseus/sdk@0.17.40(@colyseus/core@0.17.41)(bufferutil@4.1.0)(typescript@5.9.2)(zod@4.3.6))(@colyseus/shared-types@0.17.6)(react@18.3.1)
       '@colyseus/sdk':
         specifier: ^0.17.40
         version: 0.17.40(@colyseus/core@0.17.41)(bufferutil@4.1.0)(typescript@5.9.2)(zod@4.3.6)
@@ -448,6 +451,9 @@ importers:
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       tsup:
         specifier: ^8.0.0
         version: 8.5.1(@swc/core@1.15.18)(jiti@2.6.1)(postcss@8.5.9)(tsx@4.21.0)(typescript@5.9.2)(yaml@2.8.3)
@@ -1071,8 +1077,8 @@ packages:
       zod:
         optional: true
 
-  '@colyseus/react@0.1.14':
-    resolution: {integrity: sha512-lvc+hl/FcEAi9BuA1YrdWdOiJhQ20ibJc9u63seMcGD+ioxfmdOeiSHNkLCw1j6bbFH3RZMeL+buEQHBonZppg==}
+  '@colyseus/react@0.1.15':
+    resolution: {integrity: sha512-GGUsXgk5NeEMr9Pm4XiV3WDFFjOGVqIQXFAaKlko4S7Hpt3oVczYeKY6GTvRsGOi/Cpa2o/20Ae5HkLecb58GA==}
     peerDependencies:
       '@colyseus/schema': ^4.0.8
       '@colyseus/sdk': ^0.17.26
@@ -8118,7 +8124,7 @@ snapshots:
     optionalDependencies:
       zod: 4.3.6
 
-  '@colyseus/react@0.1.14(@colyseus/schema@4.0.20(typescript@5.9.2))(@colyseus/sdk@0.17.40(@colyseus/core@0.17.41)(bufferutil@4.1.0)(typescript@5.9.2)(zod@4.3.6))(@colyseus/shared-types@0.17.6)(react@18.3.1)':
+  '@colyseus/react@0.1.15(@colyseus/schema@4.0.20(typescript@5.9.2))(@colyseus/sdk@0.17.40(@colyseus/core@0.17.41)(bufferutil@4.1.0)(typescript@5.9.2)(zod@4.3.6))(@colyseus/shared-types@0.17.6)(react@18.3.1)':
     dependencies:
       '@colyseus/schema': 4.0.20(typescript@5.9.2)
       '@colyseus/sdk': 0.17.40(@colyseus/core@0.17.41)(bufferutil@4.1.0)(typescript@5.9.2)(zod@4.3.6)
