@@ -137,6 +137,11 @@ export default function Play() {
                 camInitDis={-10}
                 camMaxDis={-20}
                 camMinDis={-0.1}
+                camFollowMult={1000} // give a big number here, so the camera follows the target (character) instantly
+                camLerpMult={1000} // give a big number here, so the camera lerp to the followCam position instantly
+                turnVelMultiplier={1} // Turning speed same as moving speed
+                turnSpeed={100} // give it big turning speed to prevent turning wait time
+                mode="CameraBasedMovement" // character's rotation will follow camera's rotation in this mode
               >
                 <mesh castShadow>
                   <capsuleGeometry args={[0.4, 0.7]} />
