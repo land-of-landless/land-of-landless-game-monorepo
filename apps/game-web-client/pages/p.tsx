@@ -11,7 +11,7 @@ import {
   ContactShadows,
 } from "@react-three/drei";
 import Ecctrl, { EcctrlJoystick } from "ecctrl";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useGameStore, useGameComputed } from "../stores/gameStore";
 import { Perf } from "r3f-perf";
 
@@ -97,6 +97,7 @@ const PhysicsBall = ({ position }: any) => (
 );
 
 export default function Play() {
+  // const [dpr, setDpr] = useState(1);
   return (
     <div className="w-full h-screen bg-slate-900 overflow-hidden">
       {/* Mobile Joystick */}
@@ -104,8 +105,8 @@ export default function Play() {
 
       <Canvas
         shadows
+        // dpr={dpr}
         camera={{ position: [0, 10, 20], fov: 45 }}
-        dpr={[1, 2]}
         gl={{ antialias: true }}
         eventSource={typeof window !== "undefined" ? document.body : undefined}
       >
@@ -116,7 +117,19 @@ export default function Play() {
           {/* <Environment preset="city" /> */}
           <Sky sunPosition={[100, 20, 100]} />
 
-          <PerformanceMonitor bounds={(refreshRate) => [45, 60]} flipflops={5}>
+          <PerformanceMonitor
+            bounds={(refreshRate) => [45, 60]}
+            flipflops={5}
+            // onFallback={(a) => {
+            //   console.log("Fallback: DPR set to 1");
+            //   setDpr(1);
+            // }}
+            // onChange={({ factor }) => {
+            //   const targetDpr = 1 + 1 * factor;
+            //   setDpr(targetDpr);
+            //   console.log("factor", factor, "target DPR", targetDpr);
+            // }}
+          >
             <AdaptiveDpr />
             <AdaptiveEvents />
 
@@ -142,6 +155,7 @@ export default function Play() {
                 turnVelMultiplier={1} // Turning speed same as moving speed
                 turnSpeed={100} // give it big turning speed to prevent turning wait time
                 mode="CameraBasedMovement" // character's rotation will follow camera's rotation in this mode
+                // mode="FixedCamera" // character's rotation will follow camera's rotation in this mode
               >
                 <mesh castShadow>
                   <capsuleGeometry args={[0.4, 0.7]} />
