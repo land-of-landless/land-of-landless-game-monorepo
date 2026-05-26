@@ -1,0 +1,167 @@
+/* Home.module.css */
+
+.page {
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  padding: 2rem 1.5rem 1.75rem;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-alt) 100%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 0%, rgba(108, 92, 231, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.heroEyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary-light);
+  margin-bottom: 0.4rem;
+}
+
+.heroTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
+}
+
+.heroName {
+  color: var(--color-primary-light);
+}
+
+.heroSubtitle {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Currency row ── */
+.currencyRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.currencyCard {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.currencyIcon {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.currencyValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-gold);
+}
+
+.currencyLabel {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Quick actions ── */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.actionCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--transition-fast), border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.actionCard:hover {
+  background: var(--color-surface-alt);
+  border-color: var(--color-primary);
+  transform: translateX(3px);
+  text-decoration: none;
+}
+
+.actionIcon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.actionTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.actionDesc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.actionChevron {
+  margin-left: auto;
+  font-size: 1.4rem;
+  color: var(--color-text-dim);
+}
+
+/* ── XP bar ── */
+.xpSection {
+  padding: 1rem 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.xpHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.xpBar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.xpFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}

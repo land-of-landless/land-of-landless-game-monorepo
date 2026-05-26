@@ -46,7 +46,7 @@ export const MINE_MAX_MINERAL_GENERATION_RATE =
  * Information about upgrading miners.
  * Each level has a cost in coins, an energy generation rate, and the time it takes to upgrade.
  */
-export const MINE_UPGRADE_INFO: MINE_UPGRADE_INFO_TYPE = {
+export const MINE_UPGRADE_INFO: MineUpgradeInfo = {
     1: {
         coinCost: 25000,
         energyGenerationRate: 10,
@@ -101,14 +101,14 @@ export const MINE_UPGRADE_INFO: MINE_UPGRADE_INFO_TYPE = {
 // input validation
 
 // types
-export type MINE_UPGRADE_LEVEL_TYPE = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type MineUpgradeLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
-export type MINE_UPGRADE_INFO_TYPE = {
-    [K in MINE_UPGRADE_LEVEL_TYPE]: {
+export type MineUpgradeInfo = {
+    [K in MineUpgradeLevel]: {
         coinCost: number;
         energyGenerationRate: number;
         time: number; // in milliseconds
     };
 };
 
-export type MINE_MINER_ID_TYPE = 1 | 2 | 3;
+export type MineMinerId = 1 | 2 | 3;

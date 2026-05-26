@@ -4,17 +4,18 @@ import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
 import { Factory } from "@/models/redis/factory.js";
 import {
     FACTORY_BUILDING_PADS,
-    Factory_Item_Type,
+    FactoryItem,
     FACTORY_ITEMS_COST_INFO,
-    FACTORY_LEVELS_INDEX,
+    FactoryLevel,
     FACTORY_MAX_BUILDING_PADS,
     FACTORY_MAX_LEVEL,
     FACTORY_UPGRADE_INFO,
-    padIdType,
-    FACTORY_SECONDARY_Item_INDEX_Type,
-    Factory_Rocket_Secondary_Item_Id,
-    Factory_Spaceship_Secondary_Item_Id,
-    Factory_Built_Item_Id,
+    PadId,
+    FactorySecondaryItemIndex,
+    FactoryRocketSecondaryItemId,
+    FactorySpaceShipSecondaryItemId,
+    FACTORY_BUILT_ITEM_IDS,
+    FACTORY_SPACESHIP_SECONDARY_ITEM_IDS,
 } from "@/constants/factory.js";
 import LabService from "@/services/lab/LabService.js";
 import _ from "lodash";
@@ -57,7 +58,7 @@ export default class FactoryService {
                 throw ERRORS.VALIDATION("An item is currently being built");
             }
 
-            const newLevel = (factoryProfile.level + 1) as FACTORY_LEVELS_INDEX;
+            const newLevel = (factoryProfile.level + 1) as FactoryLevel;
             const coinsToBePaid = FACTORY_UPGRADE_INFO[newLevel].coinCost;
 
             await ProfileService.deductCoins(userId, coinsToBePaid);
@@ -106,7 +107,7 @@ export default class FactoryService {
                 throw ERRORS.VALIDATION("Max level reached");
             }
 
-            const newLevel = (factoryProfile.level + 1) as FACTORY_LEVELS_INDEX;
+            const newLevel = (factoryProfile.level + 1) as FactoryLevel;
             const timeToWait = FACTORY_UPGRADE_INFO[newLevel].time;
 
             const now = new Date();
@@ -156,9 +157,9 @@ export default class FactoryService {
      */
     static async buildItemStart(
         userId: string,
-        itemId: Factory_Item_Type,
-        padId: padIdType,
-        secondaryItemId?: FACTORY_SECONDARY_Item_INDEX_Type,
+        itemId: FactoryItem,
+        padId: PadId,
+        secondaryItemId?: FactorySecondaryItemIndex,
     ): Promise<string> {
         try {
             const factoryProfile = await FactoryDAO.findFactoryByUserId(userId);
@@ -179,7 +180,7 @@ export default class FactoryService {
                 throw ERRORS.VALIDATION("Factory is being upgraded");
             }
 
-            if (!Factory_Built_Item_Id.includes(itemId)) {
+            if (!FACTORY_BUILT_ITEM_IDS.includes(itemId)) {
                 throw ERRORS.VALIDATION("Invalid itemId");
             }
 
@@ -189,8 +190,8 @@ export default class FactoryService {
                 }
 
                 if (
-                    !Factory_Spaceship_Secondary_Item_Id.includes(
-                        secondaryItemId,
+                    !FACTORY_SPACESHIP_SECONDARY_ITEM_IDS.includes(
+                        secondaryItemId as FactorySpaceShipSecondaryItemId,
                     )
                 ) {
                     throw ERRORS.VALIDATION("Invalid secondaryItemId");
@@ -302,7 +303,7 @@ export default class FactoryService {
 
             if (itemId === "spaceship") {
                 factoryProfile.builder_pad_items_being_built_secondary[padId] =
-                    secondaryItemId as FACTORY_SECONDARY_Item_INDEX_Type;
+                    secondaryItemId as FactorySecondaryItemIndex;
             }
 
             factoryProfile.builder_pad_items_being_built[padId] = itemId;
@@ -328,8 +329,8 @@ export default class FactoryService {
      */
     static async buildItemEnd(
         userId: string,
-        itemId: Factory_Item_Type,
-        padId: padIdType,
+        itemId: FactoryItem,
+        padId: PadId,
         skipWithGem: boolean,
     ): Promise<Factory> {
         try {
@@ -347,7 +348,7 @@ export default class FactoryService {
                 throw ERRORS.VALIDATION("Pad is inactive");
             }
 
-            if (!Factory_Built_Item_Id.includes(itemId)) {
+            if (!FACTORY_BUILT_ITEM_IDS.includes(itemId)) {
                 throw ERRORS.VALIDATION("Invalid itemId");
             }
 
@@ -431,7 +432,7 @@ export default class FactoryService {
      */
     static async deductItemForLaunchSite(
         userId: string,
-        itemId: Factory_Item_Type,
+        itemId: FactoryItem,
         updateType: "beforeLaunch" | "afterLaunch" = "beforeLaunch",
     ): Promise<void> {
         try {

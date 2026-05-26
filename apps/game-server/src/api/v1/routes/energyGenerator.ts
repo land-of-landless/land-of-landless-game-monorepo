@@ -4,7 +4,7 @@ import EnergyGeneratorController from "../controllers/energyGenerator.ts";
 import { auth } from "@colyseus/auth";
 import {
     validateBody,
-    energyGeneratorUpgradeSchema,
+    ENERGY_GENERATOR_UPGRADE_SCHEMA,
     EnergyGeneratorUpgradeInput,
 } from "@/validators/schemas.js";
 
@@ -29,7 +29,7 @@ energyGeneratorRouter.get(
 energyGeneratorRouter.post(
     "/upgrade",
     auth.middleware(),
-    validateBody(energyGeneratorUpgradeSchema),
+    validateBody(ENERGY_GENERATOR_UPGRADE_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,

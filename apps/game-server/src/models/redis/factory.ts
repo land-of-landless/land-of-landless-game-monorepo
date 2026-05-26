@@ -1,7 +1,7 @@
 import {
-    Factory_Item_Type,
-    FACTORY_LEVELS_INDEX,
-    FACTORY_SECONDARY_Item_INDEX_Type,
+    FactoryItem,
+    FactoryLevel,
+    FactorySecondaryItemIndex,
 } from "@/constants/factory.js";
 import { Schema, Entity } from "redis-om";
 
@@ -14,7 +14,7 @@ export interface Factory extends Entity {
     userId: string;
 
     /** Current factory level (0 for initial state) */
-    level: FACTORY_LEVELS_INDEX | 0;
+    level: FactoryLevel | 0;
 
     /** Timer for factory upgrade process (ISO string) */
     factory_upgrade_timer: string;
@@ -23,11 +23,11 @@ export interface Factory extends Entity {
     builder_pad_building_timers: string[];
 
     /** Array of items currently being built on builder pads */
-    builder_pad_items_being_built: (Factory_Item_Type | "")[];
+    builder_pad_items_being_built: (FactoryItem | "")[];
 
     /** Array of secondary items being built with their type indices */
     builder_pad_items_being_built_secondary: (
-        | FACTORY_SECONDARY_Item_INDEX_Type
+        | FactorySecondaryItemIndex
         | -1
     )[];
 

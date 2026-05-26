@@ -35,6 +35,53 @@ export const config = [
   {
     rules: {
       "no-console": "off",
+      '@typescript-eslint/naming-convention': [
+      'error',
+      // Convention for variables, parameters, functions (camelCase)
+      {
+        selector: ['variable', 'parameter', 'function'],
+        format: ['camelCase'],
+      },
+      // Convention for class methods (camelCase)
+      {
+        selector: 'method',
+        format: ['camelCase'],
+      },
+      // Convention for properties (camelCase)
+      {
+        selector: 'property',
+        format: ['camelCase'],
+      },
+      // Convention for classes, interfaces, types, enums (PascalCase)
+      {
+        selector: ['class', 'interface', 'typeAlias', 'enum', 'typeParameter'],
+        format: ['PascalCase'],
+      },
+      // Convention for enum members (PascalCase)
+      {
+        selector: 'enumMember',
+        format: ['PascalCase'],
+      },
+      // Allow leading underscore for unused parameters (common pattern)
+      {
+        selector: 'parameter',
+        modifiers: ['unused'],
+        format: ['camelCase'],
+        leadingUnderscore: 'allow',
+      },
+      // Global constants (SCREAMING_SNAKE_CASE)
+      {
+        selector: 'variable',
+        modifiers: ['global', 'const'],
+        format: ['camelCase', 'UPPER_CASE'],
+      },
+      // For top‑level, exported constants you might want UPPER_CASE only
+      {
+        selector: 'variable',
+        modifiers: ['exported', 'const'],
+        format: ['UPPER_CASE'],
+      },
+    ],
     },
   },
 ];

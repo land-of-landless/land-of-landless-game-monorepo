@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { MineDAO } from "@/daos/redis/mine.js";
 import MineService from "@/services/mine/MineService.js";
 import { MineUpgradeInput } from "@/validators/schemas.js";
-import { MINE_MINER_ID_TYPE } from "@/constants/mine.js";
+import { MineMinerId } from "@/constants/mine.js";
 import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -36,7 +36,7 @@ export class mineController {
     ) {
         try {
             const operation = req.body.operation;
-            const mineId = req.body.mineId as MINE_MINER_ID_TYPE;
+            const mineId = req.body.mineId as MineMinerId;
             const userId = req.auth!.userId;
 
             if (operation === "start") {

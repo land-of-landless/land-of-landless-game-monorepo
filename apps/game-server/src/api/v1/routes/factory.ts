@@ -4,8 +4,8 @@ import FactoryController from "../controllers/factory.ts";
 import { auth } from "@colyseus/auth";
 import {
     validateBody,
-    factoryUpgradeSchema,
-    factoryBuildItemSchema,
+    FACTORY_UPGRADE_SCHEMA,
+    FACTORY_BUILD_ITEM_SCHEMA,
     FactoryUpgradeInput,
     FactoryBuildItemInput,
 } from "@/validators/schemas.js";
@@ -27,7 +27,7 @@ factoryRouter.get(
 factoryRouter.post(
     "/upgrade",
     auth.middleware(),
-    validateBody(factoryUpgradeSchema),
+    validateBody(FACTORY_UPGRADE_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,
@@ -40,7 +40,7 @@ factoryRouter.post(
 factoryRouter.post(
     "/build-item",
     auth.middleware(),
-    validateBody(factoryBuildItemSchema),
+    validateBody(FACTORY_BUILD_ITEM_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,

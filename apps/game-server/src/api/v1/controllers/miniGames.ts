@@ -7,6 +7,7 @@ import {
 } from "@/validators/schemas.js";
 import MiniGamesService from "@/services/miniGame/MiniGamesService.js";
 import _ from "lodash";
+import { ERRORS } from "@/common/errors/appError.ts";
 
 export default class MiniGamesController {
     static async runGame1(
@@ -16,12 +17,7 @@ export default class MiniGamesController {
     ) {
         try {
             if (_.isNil(req.auth)) {
-                return ApiResponse.error(
-                    res,
-                    401,
-                    "Unauthorized",
-                    "Unauthorized",
-                );
+                return ERRORS.UNAUTHORIZED();
             }
 
             const result = await MiniGamesService.runGame1(req.auth.userId);
@@ -32,18 +28,13 @@ export default class MiniGamesController {
     }
 
     static async runGame2(
-        req: Request<any, any, MiniGame2Input>,
+        req: Request<unknown, unknown, MiniGame2Input>,
         res: Response,
         next: NextFunction,
     ) {
         try {
             if (_.isNil(req.auth)) {
-                return ApiResponse.error(
-                    res,
-                    401,
-                    "Unauthorized",
-                    "Unauthorized",
-                );
+                return ERRORS.UNAUTHORIZED();
             }
 
             const { operation, userGuess } = req.body;
@@ -59,18 +50,13 @@ export default class MiniGamesController {
     }
 
     static async runGame3(
-        req: Request<any, any, MiniGame3Input>,
+        req: Request<unknown, unknown, MiniGame3Input>,
         res: Response,
         next: NextFunction,
     ) {
         try {
             if (_.isNil(req.auth)) {
-                return ApiResponse.error(
-                    res,
-                    401,
-                    "Unauthorized",
-                    "Unauthorized",
-                );
+                return ERRORS.UNAUTHORIZED();
             }
 
             const { operation, userGuess } = req.body;
@@ -86,18 +72,13 @@ export default class MiniGamesController {
     }
 
     static async runGame4(
-        req: Request<any, any, MiniGame4Input>,
+        req: Request<unknown, unknown, MiniGame4Input>,
         res: Response,
         next: NextFunction,
     ) {
         try {
             if (_.isNil(req.auth)) {
-                return ApiResponse.error(
-                    res,
-                    401,
-                    "Unauthorized",
-                    "Unauthorized",
-                );
+                return ERRORS.UNAUTHORIZED()
             }
 
             const { operation, userGuess } = req.body;

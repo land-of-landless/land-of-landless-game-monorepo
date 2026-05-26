@@ -11,20 +11,124 @@ import {
   ContactShadows,
 } from "@react-three/drei";
 import Ecctrl, { EcctrlJoystick } from "ecctrl";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { useGameStore, useGameComputed } from "../stores/gameStore";
 import { Perf } from "r3f-perf";
+import { useFullscreen, useSpeech } from "rooks";
+import { Maximize, Minimize, Volume2, StopCircle } from "lucide-react";
+import { playPageFontClassName } from "@/lib/fonts";
+
+/**
+ * Text-to-Speech UI Component
+ */
+const SpeechUI = () => {
+  const [text, setText] = useState("Hello, welcome to Land of Landless!");
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceIndex, setSelectedVoiceIndex] = useState<number>(181);
+
+  useEffect(() => {
+    const updateVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+    };
+
+    updateVoices();
+    window.speechSynthesis.onvoiceschanged = updateVoices;
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+  const selectedVoice = voices[selectedVoiceIndex] || null;
+
+  const { start, stop, isPlaying } = useSpeech({
+    text,
+    voiceURI: selectedVoice?.voiceURI,
+    // voice: selectedVoice,
+    // language: "de-DE",
+    language: selectedVoice?.lang || "en-US",
+  });
+
+  return (
+    <div className="absolute bottom-5 right-5 text-white bg-black/60 p-4 rounded-lg flex flex-col gap-2 min-w-[250px] z-50 pointer-events-auto border border-white/10 shadow-xl backdrop-blur-sm">
+      <h2 className="font-display text-sm font-bold text-blue-400 flex items-center gap-2">
+        <Volume2 size={16} />
+        Voice Generator
+      </h2>
+
+      {voices.length > 0 && (
+        <select
+          value={selectedVoiceIndex}
+          onChange={(e) => setSelectedVoiceIndex(parseInt(e.target.value))}
+          className="bg-slate-800/80 border border-slate-600 rounded p-1 text-[10px] text-white focus:outline-none"
+        >
+          {voices.map((voice, index) => (
+            <option key={index} value={index}>
+              {voice.name} ({voice.lang})
+            </option>
+          ))}
+        </select>
+      )}
+
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className="bg-slate-800/80 border border-slate-600 rounded p-2 text-xs text-white focus:outline-none focus:border-blue-500 h-20 resize-none"
+        placeholder="Enter text to speak..."
+      />
+
+      <div className="flex gap-2">
+        <button
+          onClick={start}
+          disabled={isPlaying || !text.trim()}
+          className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded text-xs font-bold transition ${
+            isPlaying || !text.trim()
+              ? "bg-slate-600 cursor-not-allowed opacity-50"
+              : "bg-blue-600 hover:bg-blue-500"
+          }`}
+        >
+          <Volume2 size={14} />
+          {isPlaying ? "Speaking..." : "Speak"}
+        </button>
+
+        <button
+          onClick={stop}
+          disabled={!isPlaying}
+          className={`flex items-center justify-center gap-2 px-3 py-2 rounded text-xs font-bold transition ${
+            !isPlaying
+              ? "bg-slate-700 cursor-not-allowed opacity-30"
+              : "bg-red-600 hover:bg-red-500"
+          }`}
+          title="Stop speaking"
+        >
+          <StopCircle size={14} />
+          Stop
+        </button>
+      </div>
+    </div>
+  );
+};
 
 /**
  * Zustand Store UI Component
  */
-const GameUI = () => {
+const GameUI = ({
+  isFullscreenEnabled,
+  toggleFullscreen,
+  isFullscreenAvailable,
+}: {
+  isFullscreenEnabled: boolean;
+  toggleFullscreen: () => void;
+  isFullscreenAvailable: boolean;
+}) => {
   const { health, coins, takeDamage, heal, addCoins } = useGameStore();
   const { isDead, healthPercentage, totalScore } = useGameComputed();
 
   return (
-    <div className="absolute top-5 right-5 text-white bg-black/60 p-4 rounded-lg font-mono flex flex-col gap-2 min-w-[200px] z-50">
-      <h2 className="text-lg font-bold text-yellow-400">Player Stats</h2>
+    <div className="absolute top-5 right-5 text-white bg-black/60 p-4 rounded-lg flex flex-col gap-2 min-w-[200px] z-50">
+      <h2 className="font-display text-lg font-bold text-yellow-400">
+        Player Stats
+      </h2>
 
       <div className="w-full bg-gray-700 h-3 rounded mt-1 overflow-hidden">
         <div
@@ -68,15 +172,45 @@ const GameUI = () => {
           +10 🪙
         </button>
       </div>
+
+      {isFullscreenAvailable && (
+        <button
+          onClick={toggleFullscreen}
+          className="mt-2 flex items-center justify-center gap-2 bg-slate-700/80 hover:bg-slate-600 px-3 py-2 rounded-lg text-sm font-bold transition pointer-events-auto border border-slate-500/50"
+          title={isFullscreenEnabled ? "Exit Fullscreen" : "Enter Fullscreen"}
+        >
+          {isFullscreenEnabled ? (
+            <>
+              <Minimize size={16} />
+              <span>Exit Fullscreen</span>
+            </>
+          ) : (
+            <>
+              <Maximize size={16} />
+              <span>Go Fullscreen</span>
+            </>
+          )}
+        </button>
+      )}
     </div>
   );
+};
+
+type ObstacleProps = {
+  position: [number, number, number];
+  args?: [number, number, number];
+  color?: string;
 };
 
 /**
  * Obstacle Component
  */
-const Obstacle = ({ position, args = [2, 2, 2], color = "orange" }: any) => (
-  <RigidBody position={position}>
+const Obstacle = ({
+  position,
+  args = [2, 2, 2],
+  color = "orange",
+}: ObstacleProps) => (
+  <RigidBody position={position} friction={0.7}>
     <mesh castShadow receiveShadow>
       <boxGeometry args={args} />
       <meshStandardMaterial color={color} />
@@ -87,8 +221,8 @@ const Obstacle = ({ position, args = [2, 2, 2], color = "orange" }: any) => (
 /**
  * Ball Component (Physics test)
  */
-const PhysicsBall = ({ position }: any) => (
-  <RigidBody position={position} colliders="ball">
+const PhysicsBall = ({ position }: { position: [number, number, number] }) => (
+  <RigidBody position={position} colliders="ball" friction={0.7}>
     <mesh castShadow>
       <sphereGeometry args={[0.5, 32, 32]} />
       <meshStandardMaterial color="cyan" roughness={0} metalness={0.5} />
@@ -98,13 +232,21 @@ const PhysicsBall = ({ position }: any) => (
 
 export default function Play() {
   // const [dpr, setDpr] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { isFullscreenAvailable, isFullscreenEnabled, toggleFullscreen } =
+    useFullscreen({ target: containerRef });
+
   return (
-    <div className="w-full h-screen bg-slate-900 overflow-hidden">
+    <div
+      ref={containerRef}
+      className={`play-page ${playPageFontClassName} w-full h-screen bg-slate-900 overflow-hidden`}
+    >
       {/* Mobile Joystick */}
       {/* <EcctrlJoystick /> */}
 
       <Canvas
         shadows
+        // dpr={1}
         // dpr={dpr}
         camera={{ position: [0, 10, 20], fov: 45 }}
         gl={{ antialias: true }}
@@ -156,6 +298,8 @@ export default function Play() {
                 turnSpeed={100} // give it big turning speed to prevent turning wait time
                 mode="CameraBasedMovement" // character's rotation will follow camera's rotation in this mode
                 // mode="FixedCamera" // character's rotation will follow camera's rotation in this mode
+                disableControl={false}
+                disableFollowCam={false}
               >
                 <mesh castShadow>
                   <capsuleGeometry args={[0.4, 0.7]} />
@@ -164,15 +308,15 @@ export default function Play() {
               </Ecctrl>
 
               {/* Ground & Environment */}
-              <RigidBody type="fixed">
-                <Grid
+              <RigidBody type="fixed" friction={0.7}>
+                {/* <Grid
                   infiniteGrid
                   fadeDistance={50}
                   fadeStrength={5}
                   sectionSize={1}
                   sectionColor="#444"
                   cellColor="#222"
-                />
+                /> */}
                 <mesh receiveShadow position={[0, -0.5, 0]}>
                   <boxGeometry args={[100, 1, 100]} />
                   <meshStandardMaterial color="#1a1a1a" />
@@ -202,6 +346,7 @@ export default function Play() {
                 type="fixed"
                 rotation={[-Math.PI / 6, 0, 0]}
                 position={[0, 0.5, -25]}
+                friction={0.7}
               >
                 <mesh receiveShadow>
                   <boxGeometry args={[5, 0.5, 10]} />
@@ -232,25 +377,25 @@ export default function Play() {
               <PhysicsBall position={[-2, 10, -5]} />
 
               {/* Walls to stay in bounds */}
-              <RigidBody type="fixed" position={[0, 2, 50]}>
+              <RigidBody type="fixed" position={[0, 2, 50]} friction={0.7}>
                 <mesh>
                   <boxGeometry args={[100, 5, 1]} />
                   <meshBasicMaterial visible={false} />
                 </mesh>
               </RigidBody>
-              <RigidBody type="fixed" position={[0, 2, -50]}>
+              <RigidBody type="fixed" position={[0, 2, -50]} friction={0.7}>
                 <mesh>
                   <boxGeometry args={[100, 5, 1]} />
                   <meshBasicMaterial visible={false} />
                 </mesh>
               </RigidBody>
-              <RigidBody type="fixed" position={[50, 2, 0]}>
+              <RigidBody type="fixed" position={[50, 2, 0]} friction={0.7}>
                 <mesh>
                   <boxGeometry args={[1, 5, 100]} />
                   <meshBasicMaterial visible={false} />
                 </mesh>
               </RigidBody>
-              <RigidBody type="fixed" position={[-50, 2, 0]}>
+              <RigidBody type="fixed" position={[-50, 2, 0]} friction={0.7}>
                 <mesh>
                   <boxGeometry args={[1, 5, 100]} />
                   <meshBasicMaterial visible={false} />
@@ -273,15 +418,23 @@ export default function Play() {
       </Canvas>
 
       {/* UI Overlay */}
-      <div className="absolute top-5 left-5 text-white bg-black/50 p-4 rounded-lg pointer-events-none font-mono z-50">
-        <h1 className="text-xl font-bold mb-2">LOL: Land of Landless</h1>
+      <div className="absolute top-5 left-5 text-white bg-black/50 p-4 rounded-lg pointer-events-none z-50">
+        <h1 className="font-display text-xl font-bold mb-2">
+          LOL: Land of Landless
+        </h1>
         <p className="text-sm opacity-80">WASD / ↑↓←→ : Move</p>
         <p className="text-sm opacity-80">SPACE : Jump</p>
         <p className="text-sm opacity-80">SHIFT : Sprint</p>
         <p className="text-sm opacity-80">MOUSE : Orbit Camera</p>
       </div>
 
-      <GameUI />
+      <GameUI
+        isFullscreenEnabled={isFullscreenEnabled}
+        toggleFullscreen={toggleFullscreen}
+        isFullscreenAvailable={isFullscreenAvailable}
+      />
+
+      <SpeechUI />
     </div>
   );
 }

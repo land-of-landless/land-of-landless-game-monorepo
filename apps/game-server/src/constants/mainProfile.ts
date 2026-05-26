@@ -1,4 +1,14 @@
 /**
+ * The maximum index for loot boxes in a premium user's inventory
+ */
+export const LOOT_BOX_MAX_INDEX_PREMIUM_USER = 5;
+
+/**
+ * The maximum index for loot boxes in a regular user's inventory
+ */
+export const LOOT_BOX_MAX_INDEX_REGULAR_USER = 4;
+
+/**
  * The cooldown period for the daily reward, in hours.
  */
 export const DAILY_REWARD_COOLDOWN_HOURS = 24;
@@ -17,40 +27,40 @@ export const DAILY_REWARD_RESET_CYCLE_DAYS = 7;
  * The amount of rewards given as a daily reward. in a weekly cycle
  */
 export const DAILY_CLAIM_REWARDS: {
-    [key in DAILY_CLAIM_REWARDS_KEY]: {
+    [key in DailyRewardCounterKey]: {
         coins: number;
         gems: number;
     };
 } = {
-    0: {
+    day0: {
         coins: 0,
         gems: 0,
     },
-    1: {
+    day1: {
         coins: 500,
         gems: 0,
     },
-    2: {
+    day2: {
         coins: 1000,
         gems: 1,
     },
-    3: {
+    day3: {
         coins: 3000,
         gems: 3,
     },
-    4: {
+    day4: {
         coins: 5000,
         gems: 5,
     },
-    5: {
+    day5: {
         coins: 7000,
         gems: 7,
     },
-    6: {
+    day6: {
         coins: 9000,
         gems: 10,
     },
-    7: {
+    day7: {
         coins: 12000,
         gems: 15,
     },
@@ -66,34 +76,34 @@ export const REFERRAL_REFERRER_REWARD_GEMS = 10;
  */
 export const REFERRAL_REFEREE_REWARD_COINS = 50;
 
+export type ReferralRewards = {
+    referrer: {
+        coins: number;
+        gems: number;
+        energy: number;
+    };
+    referee: {
+        coins: number;
+        gems: number;
+        energy: number;
+    };
+};
+
 /**
  * rewards for referral
  */
-export const REFERRAL_REWARDS = {
-    REFERRER: {
+export const REFERRAL_REWARDS: ReferralRewards = {
+    referrer: {
         coins: 10000,
         gems: 10,
         energy: 4,
     },
 
-    REFEREE: {
+    referee: {
         coins: 10000,
         gems: 60,
         energy: 4,
     },
-};
-
-/**
- * The time it takes to open a loot box, in milliseconds.
- * The key is the loot box ID, and the value is the time.
- */
-export const LOOT_BOX_TIME_TO_OPEN = {
-    COMMON: 1 * 60 * 60 * 1000,
-    UNCOMMON: 2 * 60 * 60 * 1000,
-    RARE: 6 * 60 * 60 * 1000,
-    EPIC: 18 * 60 * 60 * 1000,
-    LEGENDARY: 18 * 60 * 60 * 1000,
-    CUSTOM: 18 * 60 * 60 * 1000,
 };
 
 /**
@@ -121,7 +131,7 @@ export const XP_PER_LEVEL = [
 /**
  * The number of gems a user receives per minute.
  */
-export const gemsPerMinute = 1;
+export const GEMS_PER_MINUTE = 1;
 
 export const PROFILE_MAX_NUM_OF_TRASH_TYPE_1 = 60;
 export const PROFILE_MAX_NUM_OF_TRASH_TYPE_2 = 5;
@@ -141,7 +151,7 @@ export const PROFILE_NAME_REGEX = /^[a-zA-Z0-9 ]*$/;
  * A list of names for the LOL soldiers.
  * Filtered to comply with name validation rules.
  */
-export const lolSoldierNames: string[] = [
+export const PROFILE_DEFAULT_NAMES: string[] = [
     "Jaxx Nebula",
     "Kael Nova",
     "Rylan Zenith",
@@ -286,31 +296,31 @@ export const lolSoldierNames: string[] = [
     "Zephyr Raider",
     "Rhys Warrior",
 ].filter(
-    (name) =>
+    name =>
         name.length >= PROFILE_NAME_MIN_LENGTH &&
         name.length <= PROFILE_NAME_MAX_LENGTH &&
-        PROFILE_NAME_REGEX.test(name),
+        PROFILE_NAME_REGEX.test(name)
 );
-
-/**
- * Profile picture validation constants.
- */
-export const PROFILE_PFP_MIN_INDEX = 1;
-export const PROFILE_PFP_MAX_INDEX = 20;
 
 /**
  * A list of profile picture IDs for the LOL soldiers.
  */
-export const lolSoldierProfilePics: number[] = [
+export const PROFILE_PFP_IDS: number[] = [
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 ];
+
+/**
+ * The minimum and maximum index for profile pictures.
+ */
+export const PROFILE_PFP_MIN_INDEX = 1;
+export const PROFILE_PFP_MAX_INDEX = PROFILE_PFP_IDS.length;
 
 // input validation
 
 /**
  * The valid operations for a loot box.
  */
-export const lootBoxOperationInputs = [
+export const LOOT_BOX_OPERATION_INPUT = [
     "start",
     "end",
     "end-with-gems",
@@ -318,12 +328,42 @@ export const lootBoxOperationInputs = [
 ];
 
 // type
-export type LootBox_Operation_Type =
+export type LootBoxOperation =
     | "start"
     | "end"
     | "end-with-gems"
     | "end-with-key";
 
-export type DAILY_CLAIM_REWARDS_KEY = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export enum LootBoxOperationEnum {
+    Start = "start",
+    End = "end",
+    EndWithGems = "end-with-gems",
+    EndWithKey = "end-with-key",
+}
 
-export type DAILY_REWARD_CLAIM_COUNTER = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type DailyRewardsClaimKey =
+    | "day0"
+    | "day1"
+    | "day2"
+    | "day3"
+    | "day4"
+    | "day5"
+    | "day6"
+    | "day7";
+export type DailyRewardCounterKey =
+    | "day0"
+    | "day1"
+    | "day2"
+    | "day3"
+    | "day4"
+    | "day5"
+    | "day6"
+    | "day7";
+
+export type LootBoxRewards = {
+    coins: number;
+    gems: number;
+    xp: number;
+    tickets: number;
+    lootBoxKeys: number;
+};

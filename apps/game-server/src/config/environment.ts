@@ -25,13 +25,13 @@ export interface AppConfig {
             port: number;
         };
     };
-    helio: {
+    oxapay: {
         baseUrl: string;
-        apiKey: string;
-        apiSecret: string;
-        payLink: string;
-        webhookSecret: string;
+        merchantApiKey: string;
         callbackUrl: string;
+        returnUrl: string;
+        defaultCurrency: string;
+        sandbox: boolean;
     };
     cors: {
         origin: string;
@@ -115,33 +115,33 @@ export const appConfig: AppConfig = {
             port: parseInt(process.env.REDIS_FAST_DB_PORT || "6379", 10),
         },
     },
-    helio: {
-        baseUrl: process.env.HELIO_BASE_URL || "",
-        apiKey: process.env.HELIO_API_KEY!,
-        apiSecret: process.env.HELIO_API_SECRET || "",
-        payLink: process.env.HELIO_DYNAMIC_PAY_LINK!,
-        webhookSecret: process.env.HELIO_GLOBAL_WEBHOOK_SECRET!,
-        callbackUrl: process.env.HELIO_DYNAMIC_PAY_LINK_CALLBACK_URL!,
+    oxapay: {
+        baseUrl: process.env.OXAPAY_BASE_URL || "https://api.oxapay.com",
+        merchantApiKey: process.env.OXAPAY_MERCHANT_API_KEY || "",
+        callbackUrl: process.env.OXAPAY_CALLBACK_URL || "",
+        returnUrl: process.env.OXAPAY_RETURN_URL || "",
+        defaultCurrency: process.env.OXAPAY_DEFAULT_CURRENCY || "USD",
+        sandbox: process.env.OXAPAY_SANDBOX === "true",
     },
     cors: {
         origin: process.env.CORS_ORIGIN || "*",
     },
     rateLimit: {
         global: {
-            windowMs: RATE_LIMITS_CONFIG.MAIN_PROFILE.USER_PREFERENCES.windowMs,
-            max: RATE_LIMITS_CONFIG.MAIN_PROFILE.USER_PREFERENCES.max,
+            windowMs: RATE_LIMITS_CONFIG.mainProfile.userPreferences.windowMs,
+            max: RATE_LIMITS_CONFIG.mainProfile.userPreferences.max,
         },
         mainProfile: {
             userPreferences: {
                 windowMs:
-                    RATE_LIMITS_CONFIG.MAIN_PROFILE.USER_PREFERENCES.windowMs,
-                max: RATE_LIMITS_CONFIG.MAIN_PROFILE.USER_PREFERENCES.max,
+                    RATE_LIMITS_CONFIG.mainProfile.userPreferences.windowMs,
+                max: RATE_LIMITS_CONFIG.mainProfile.userPreferences.max,
             },
             refAndDailyReward: {
                 windowMs:
-                    RATE_LIMITS_CONFIG.MAIN_PROFILE.REFERRAL_AND_DAILY_REWARD
+                    RATE_LIMITS_CONFIG.mainProfile.referralAndDailyReward
                         .windowMs,
-                max: RATE_LIMITS_CONFIG.MAIN_PROFILE.REFERRAL_AND_DAILY_REWARD
+                max: RATE_LIMITS_CONFIG.mainProfile.referralAndDailyReward
                     .max,
             },
         },
@@ -200,10 +200,6 @@ export const appConfig: AppConfig = {
  */
 export function validateEnvironment(): void {
     const required = [
-        "HELIO_API_KEY",
-        "HELIO_DYNAMIC_PAY_LINK",
-        "HELIO_GLOBAL_WEBHOOK_SECRET",
-        "HELIO_DYNAMIC_PAY_LINK_CALLBACK_URL",
         "HIVE_API_KEY",
         "HIVE_ACCESS_KEY", // Make explicit requirement as per user
         "SIGHT_ENGINE_API_USER",
@@ -214,10 +210,22 @@ export function validateEnvironment(): void {
 
     if (appConfig.nodeEnv === "production") {
         required.push(
+            "OXAPAY_MERCHANT_API_KEY",
+            "OXAPAY_CALLBACK_URL",
             "REDIS_DB_HOST",
             "REDIS_DB_USER",
             "REDIS_DB_PASS",
             "REDIS_DB_PORT",
+        );
+    }
+
+    if (
+        isDevelopment() &&
+        (!process.env.OXAPAY_MERCHANT_API_KEY ||
+            !process.env.OXAPAY_CALLBACK_URL)
+    ) {
+        console.warn(
+            "⚠️  OXAPAY_MERCHANT_API_KEY and/or OXAPAY_CALLBACK_URL are not set — money purchases will fail until configured.",
         );
     }
 

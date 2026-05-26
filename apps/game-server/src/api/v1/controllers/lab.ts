@@ -1,7 +1,7 @@
 import LabService from "@/services/lab/LabService.js";
 import { Request, Response, NextFunction } from "express";
 import { ERRORS } from "@/common/errors/appError.js";
-import { LAB_UPGRADE_ITEM_TYPE } from "@/constants/lab.js";
+import { LabUpgradeItem } from "@/constants/lab.js";
 import { LabUpgradeInput, LabUpgradeItemInput } from "@/validators/schemas.js";
 import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
@@ -70,7 +70,7 @@ export default class LabController {
         next: NextFunction,
     ) {
         try {
-            const itemId = req.body.itemId as LAB_UPGRADE_ITEM_TYPE;
+            const itemId = req.body.itemId as LabUpgradeItem;
             const userId = req.auth!.userId;
 
             await LabService.upgradeItem(userId, itemId);

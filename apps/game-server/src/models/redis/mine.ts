@@ -1,4 +1,4 @@
-import { MINE_MINER_ID_TYPE, MINE_UPGRADE_LEVEL_TYPE } from "@/constants/index.js";
+import { MineMinerId, MineUpgradeLevel } from "@/constants/index.js";
 import { Schema, Entity } from "redis-om";
 
 // levels : 1 to 3
@@ -10,16 +10,16 @@ export interface Mine extends Entity {
     userId: string;
     miners_info: {
         miner1: {
-            level: MINE_UPGRADE_LEVEL_TYPE | 0; // 0 means not built yet
+            level: MineUpgradeLevel | 0; // 0 means not built yet
         };
         miner2: {
-            level: MINE_UPGRADE_LEVEL_TYPE | 0; // 0 means not built yet
+            level: MineUpgradeLevel | 0; // 0 means not built yet
         };
         miner3: {
-            level: MINE_UPGRADE_LEVEL_TYPE | 0; // 0 means not built yet
+            level: MineUpgradeLevel | 0; // 0 means not built yet
         };
     };
-    being_upgraded_miner_id: MINE_MINER_ID_TYPE | -1; // -1 for not having one being upgraded or null
+    being_upgraded_miner_id: MineMinerId | -1; // -1 for not having one being upgraded or null
     upgrade_timer: string;
 }
 

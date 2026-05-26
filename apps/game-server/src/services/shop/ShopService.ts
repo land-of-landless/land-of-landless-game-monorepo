@@ -3,12 +3,12 @@ import {
     SHOP_COIN_ITEMS,
     SHOP_PASS_ITEMS,
     SHOP_ROBOT_ITEMS,
-    SHOP_GEM_ITEMS_INDEX,
-    SHOP_PASS_ITEMS_INDEX,
-    SHOP_ROBOT_ITEMS_INDEX,
-    SHOP_COIN_ITEMS_INDEX,
     SHOP_MAX_GEM_ITEM_INDEX,
-    MAX_PURCHASE_INVOICE_REQUEST_PER_HOUR,
+    type ShopItemType,
+    type ShopGemItemIndex,
+    type ShopPassItemIndex,
+    type ShopRobotItemIndex,
+    type ShopCoinItemIndex,
 } from "@/constants/shop.js";
 import { ENERGY_GENERATOR_MAX_ENERGY_VALUE_WITH_GAME_PASS } from "@/constants/energyGenerator.js";
 import BillingDAO from "@/daos/redis/billing.js";
@@ -18,10 +18,50 @@ import {
     billingRepository,
 } from "@/daos/redis/repositories/index.js";
 import InvoiceService from "@/services/payment/InvoiceService.js";
-import _ from "lodash";
+import type {
+    CreateInvoiceResult,
+    ProviderInvoice,
+    ProviderInvoiceStatus,
+} from "@/services/payment/paymentProviderTypes.js";
 import { paymentLogger, logger } from "@/utils/logger.js";
 import { INVALID_INPUT } from "@/api/v1/errors/index.js";
 import { ERRORS } from "@/common/errors/appError.js";
+
+type MoneyPurchaseResult = CreateInvoiceResult & {
+    invoiceId: string;
+    itemType: ShopItemType;
+    itemIndex: number;
+};
+
+function parseShopItemType(value: string): ShopItemType {
+    if (
+        value === "gem" ||
+        value === "robot" ||
+        value === "game_pass" ||
+        value === "coin"
+    ) {
+        return value;
+    }
+    throw INVALID_INPUT("Invalid item type");
+}
+
+function toMoneyPurchaseResult(
+    chargeId: string,
+    itemType: ShopItemType,
+    itemIndex: number,
+    payUrl: string | null,
+): MoneyPurchaseResult {
+    const url = payUrl ?? "";
+    return {
+        invoiceId: chargeId,
+        chargeId,
+        trackId: chargeId,
+        itemType,
+        itemIndex,
+        pageUrl: url,
+        payUrl: url,
+    };
+}
 
 /**
  * ShopService handles purchase flows and shop-related business logic
@@ -33,15 +73,18 @@ export default class ShopService {
      * @param itemIndex - Index of the item
      * @returns Price in the appropriate currency
      */
-    static calculatePrice(itemType: string, itemIndex: number): number {
+    static calculatePrice(itemType: ShopItemType, itemIndex: number): number {
         if (itemType === "gem") {
-            return SHOP_GEM_ITEMS[itemIndex as SHOP_GEM_ITEMS_INDEX].cost;
-        } else if (itemType === "game_pass") {
-            return SHOP_PASS_ITEMS[itemIndex as SHOP_PASS_ITEMS_INDEX].cost;
-        } else if (itemType === "robot") {
-            return SHOP_ROBOT_ITEMS[itemIndex as SHOP_ROBOT_ITEMS_INDEX].cost;
-        } else if (itemType === "coin") {
-            return SHOP_COIN_ITEMS[itemIndex as SHOP_COIN_ITEMS_INDEX].cost;
+            return SHOP_GEM_ITEMS[itemIndex as ShopGemItemIndex].cost;
+        }
+        if (itemType === "game_pass") {
+            return SHOP_PASS_ITEMS[itemIndex as ShopPassItemIndex].cost;
+        }
+        if (itemType === "robot") {
+            return SHOP_ROBOT_ITEMS[itemIndex as ShopRobotItemIndex].cost;
+        }
+        if (itemType === "coin") {
+            return SHOP_COIN_ITEMS[itemIndex as ShopCoinItemIndex].cost;
         }
 
         throw INVALID_INPUT("Invalid item type");
@@ -55,10 +98,13 @@ export default class ShopService {
      */
     static async validatePurchase(
         userId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
     ): Promise<void> {
-        // Check if user is trying to buy game pass when they already have one
+        if (itemType === "game_pass" && itemIndex !== 0) {
+            throw INVALID_INPUT("Invalid game pass item index");
+        }
+
         if (itemType === "game_pass") {
             const userProfile = await ProfileService.getProfile(userId);
             if (!userProfile) {
@@ -82,18 +128,18 @@ export default class ShopService {
      */
     static async purchaseWithGems(
         userId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
     ): Promise<{ result: string }> {
         if (itemType === "robot") {
             await this.addWorkerRobot(
                 userId,
-                itemIndex as SHOP_ROBOT_ITEMS_INDEX,
+                itemIndex as ShopRobotItemIndex,
             );
         } else if (itemType === "coin") {
             await this.purchaseCoins(
                 userId,
-                itemIndex as SHOP_COIN_ITEMS_INDEX,
+                itemIndex as ShopCoinItemIndex,
             );
         } else {
             throw INVALID_INPUT("Invalid item type for gem purchase");
@@ -113,7 +159,7 @@ export default class ShopService {
      */
     static async addWorkerRobot(
         userId: string,
-        workerRobotIndex: SHOP_ROBOT_ITEMS_INDEX,
+        workerRobotIndex: ShopRobotItemIndex,
     ) {
         try {
             const fetchedUserProfile = await ProfileService.getProfile(userId);
@@ -133,7 +179,7 @@ export default class ShopService {
             }
 
             // Get the gem cost from constants and check if the user can afford it.
-            let amountOfGemToBePaid = SHOP_ROBOT_ITEMS[workerRobotIndex].cost;
+            const amountOfGemToBePaid = SHOP_ROBOT_ITEMS[workerRobotIndex].cost;
 
             if (fetchedUserProfile.gems < amountOfGemToBePaid) {
                 throw ERRORS.VALIDATION("Not enough gems");
@@ -161,7 +207,7 @@ export default class ShopService {
      */
     static async purchaseCoins(
         userId: string,
-        coinItemIndex: SHOP_COIN_ITEMS_INDEX,
+        coinItemIndex: ShopCoinItemIndex,
     ) {
         try {
             const fetchedUserProfile = await ProfileService.getProfile(userId);
@@ -171,8 +217,8 @@ export default class ShopService {
             }
 
             // Get the gem cost and coin amount from constants.
-            let amountOfGemToBePaid = SHOP_COIN_ITEMS[coinItemIndex].cost;
-            let amountOfCoinsToBeAdded =
+            const amountOfGemToBePaid = SHOP_COIN_ITEMS[coinItemIndex].cost;
+            const amountOfCoinsToBeAdded =
                 SHOP_COIN_ITEMS[coinItemIndex].coinAmount;
 
             // Check if the user has enough gems.
@@ -277,13 +323,9 @@ export default class ShopService {
      */
     static async purchaseWithMoney(
         userId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
-    ): Promise<{
-        invoiceId: string;
-        itemType: string;
-        itemIndex: number;
-    }> {
+    ): Promise<MoneyPurchaseResult> {
         // Validate purchase
         await this.validatePurchase(userId, itemType, itemIndex);
 
@@ -343,34 +385,27 @@ export default class ShopService {
     private static async handleExistingInvoice(
         userId: string,
         chargeId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
-    ): Promise<{
-        invoiceId: string;
-        itemType: string;
-        itemIndex: number;
-    }> {
-        const chargeDetail = await InvoiceService.validateInvoice(chargeId);
+    ): Promise<MoneyPurchaseResult> {
+        const invoice = await InvoiceService.validateInvoice(chargeId);
 
-        // If paylinkTx is null, invoice is unpaid - return it
-        if (_.isNil(chargeDetail.paylinkTx)) {
-            return {
-                invoiceId: chargeId,
+        if (invoice.status === "pending" || invoice.status === "paying") {
+            return toMoneyPurchaseResult(
+                chargeId,
                 itemType,
                 itemIndex,
-            };
+                invoice.payUrl,
+            );
         }
 
-        const status = chargeDetail.paylinkTx.meta.transactionStatus;
-
-        // If paid, process it manually
-        if (status === "SUCCESS") {
+        if (invoice.status === "paid") {
             await this.handleInvoiceStatus(
                 userId,
                 chargeId,
                 itemType,
                 itemIndex,
-                status,
+                invoice.status,
             );
             await InvoiceService.dropInvoice(
                 userId,
@@ -385,8 +420,7 @@ export default class ShopService {
             throw INVALID_INPUT("a previous payment got processed, try again");
         }
 
-        // If failed, drop it
-        if (status === "FAILED") {
+        if (invoice.status === "failed" || invoice.status === "expired") {
             await InvoiceService.dropInvoice(
                 userId,
                 chargeId,
@@ -396,18 +430,19 @@ export default class ShopService {
             paymentLogger.warn("Previous payment failed during retry", {
                 userId,
                 chargeId,
+                status: invoice.status,
             });
             throw INVALID_INPUT(
                 "previous failed payment got removed, try again",
             );
         }
 
-        // Return the existing invoice
-        return {
-            invoiceId: chargeId,
+        return toMoneyPurchaseResult(
+            chargeId,
             itemType,
             itemIndex,
-        };
+            invoice.payUrl,
+        );
     }
 
     /**
@@ -420,10 +455,10 @@ export default class ShopService {
      */
     static async processPurchase(
         userId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
         payBy: "gem" | "money",
-    ): Promise<any> {
+    ): Promise<{ result: string } | MoneyPurchaseResult> {
         if (payBy === "gem") {
             return await this.purchaseWithGems(userId, itemType, itemIndex);
         } else if (payBy === "money") {
@@ -439,7 +474,10 @@ export default class ShopService {
      * @param invoiceId - Invoice ID in format "chargeId|itemType|itemIndex"
      * @returns Invoice details from payment provider
      */
-    static async getInvoiceDetails(userId: string, invoiceId: string) {
+    static async getInvoiceDetails(
+        _userId: string,
+        invoiceId: string,
+    ): Promise<ProviderInvoice> {
         const invoiceChunks = invoiceId.split("|");
 
         if (invoiceChunks.length !== 3) {
@@ -473,10 +511,10 @@ export default class ShopService {
             }
 
             // Reconstruct the invoice ID to match the format stored in the ongoing list.
-            let targetInvoiceId = `${storedTrackId}|${storedItemType}|${storedItemIndex}`;
+            const targetInvoiceId = `${storedTrackId}|${storedItemType}|${storedItemIndex}`;
 
-            let ongoingInvoices = billingProfile.ongoingInvoices;
-            let finishedInvoices = billingProfile.finishedInvoices;
+            const ongoingInvoices = billingProfile.ongoingInvoices;
+            const finishedInvoices = billingProfile.finishedInvoices;
 
             let flag = false;
             // Verify that the invoice exists in the ongoing list before processing.
@@ -501,7 +539,9 @@ export default class ShopService {
             }
 
             // --- Apply Purchase to User Profile ---
-            if (storedItemType === "gem") {
+            const itemType = parseShopItemType(storedItemType);
+
+            if (itemType === "gem") {
                 if (
                     storedItemIndex < 0 ||
                     storedItemIndex > SHOP_MAX_GEM_ITEM_INDEX
@@ -511,18 +551,16 @@ export default class ShopService {
                     );
                 }
 
-                // Retrieve the amount of gems and tickets from the shop constants.
-                let gemNum =
-                    SHOP_GEM_ITEMS[storedItemIndex as SHOP_GEM_ITEMS_INDEX]
+                const gemNum =
+                    SHOP_GEM_ITEMS[storedItemIndex as ShopGemItemIndex]
                         .gemAmount;
 
-                let ticketNum =
-                    SHOP_GEM_ITEMS[storedItemIndex as SHOP_GEM_ITEMS_INDEX]
-                        .cost;
+                const ticketNum =
+                    SHOP_GEM_ITEMS[storedItemIndex as ShopGemItemIndex].cost;
 
                 // Add the purchased items to the user's main profile.
                 await this.addPurchasedGemsToProfile(userId, gemNum, ticketNum);
-            } else if (storedItemType === "game_pass") {
+            } else if (itemType === "game_pass") {
                 await this.addPurchasedGamePassToProfile(userId);
             }
 
@@ -569,12 +607,11 @@ export default class ShopService {
     static async handleInvoiceStatus(
         userId: string,
         chargeId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
-        status: string,
+        status: ProviderInvoiceStatus,
     ): Promise<void> {
-        if (status === "SUCCESS") {
-            // Process the invoice and update user profile
+        if (status === "paid") {
             await this.applyPaidInvoiceToProfile(
                 userId,
                 chargeId,
@@ -587,15 +624,14 @@ export default class ShopService {
                 itemType,
                 itemIndex,
             });
-        } else if (status === "FAILED") {
-            // Drop the invoice
+        } else if (status === "failed" || status === "expired") {
             await InvoiceService.dropInvoice(
                 userId,
                 chargeId,
                 itemType,
                 itemIndex,
             );
-            paymentLogger.info("Invoice dropped (FAILED status)", {
+            paymentLogger.info("Invoice dropped (terminal status)", {
                 userId,
                 chargeId,
                 status,
@@ -615,31 +651,25 @@ export default class ShopService {
         const invoiceChunks = invoiceId.split("|");
 
         const chargeId = invoiceChunks[0];
-        const itemType = invoiceChunks[1];
-        const itemIndex = parseInt(invoiceChunks[2]);
+        const itemType = parseShopItemType(invoiceChunks[1]);
+        const itemIndex = parseInt(invoiceChunks[2], 10);
 
-        // Validate the invoice
-        const chargeDetail = await InvoiceService.validateInvoice(chargeId);
+        const invoice = await InvoiceService.validateInvoice(chargeId);
 
-        if (_.isNil(chargeDetail.paylinkTx)) {
-            paymentLogger.warn(
-                "Invoice processing failed - missing paylinkTx",
-                {
-                    chargeId,
-                },
-            );
+        if (invoice.status === "pending" || invoice.status === "paying") {
+            paymentLogger.warn("Invoice processing failed - not paid yet", {
+                chargeId,
+                status: invoice.status,
+            });
             throw ERRORS.NOT_FOUND("Invoice not paid yet");
         }
 
-        const status = chargeDetail.paylinkTx.meta.transactionStatus;
-
-        // Handle based on status
         await this.handleInvoiceStatus(
             userId,
             chargeId,
             itemType,
             itemIndex,
-            status,
+            invoice.status,
         );
 
         return { success: true };

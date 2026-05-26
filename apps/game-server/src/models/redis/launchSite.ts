@@ -1,4 +1,4 @@
-import { LAUNCH_SITE_LEVELS_INDEX } from "@/constants/launchSite.js";
+import { LaunchSiteLevelIndex } from "@/constants/launchSite.js";
 import { Schema, Entity } from "redis-om";
 
 /**
@@ -9,7 +9,7 @@ export interface LaunchSite extends Entity {
     /** The unique identifier of the user who owns this launch site. */
     userId: string;
     /** The current level of the launch site. */
-    level: LAUNCH_SITE_LEVELS_INDEX | 0;
+    level: LaunchSiteLevelIndex | 0;
     /** A timestamp indicating when the current upgrade will be finished. Empty if no upgrade is in progress. */
     launch_site_upgrade_timer: string;
     /** The total number of satellites launched. */

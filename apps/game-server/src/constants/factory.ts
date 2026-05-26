@@ -19,7 +19,7 @@ export const FACTORY_BUILDING_PADS = {
  * Each level has a coin cost and an upgrade time.
  */
 export const FACTORY_UPGRADE_INFO: {
-    [key in FACTORY_LEVELS_INDEX]: {
+    [key in FactoryLevel]: {
         coinCost: number;
         time: number;
     };
@@ -72,7 +72,7 @@ export const FACTORY_UPGRADE_INFO: {
  * Each item has a coin cost, mineral cost, maximum count, and build time.
  */
 export const FACTORY_ITEMS_COST_INFO: {
-    [key in Factory_Item_Type]: {
+    [key in FactoryItem]: {
         coinCost: number;
         mineralCost: number;
         maxCount: number;
@@ -142,19 +142,19 @@ export const FACTORY_MAX_BUILDING_PADS = 3;
 /**
  * The secondary item IDs for the factory rocket.
  */
-export const Factory_Rocket_Secondary_Item_Id: Factory_Rocket_Secondary_Item_id_Type[] =
+export const FACTORY_ROCKET_SECONDARY_ITEM_IDS: FactoryRocketSecondaryItemId[] =
     [0, 1, 2, 3];
 
 /**
  * The secondary item IDs for the factory spaceship.
  */
-export const Factory_Spaceship_Secondary_Item_Id: Factory_SpaceShip_Secondary_Item_id_Type[] =
+export const FACTORY_SPACESHIP_SECONDARY_ITEM_IDS: FactorySpaceShipSecondaryItemId[] =
     [0, 1, 2, 3];
 
 /**
  * The built item IDs for the factory.
  */
-export const Factory_Built_Item_Id: Factory_Item_Type[] = [
+export const FACTORY_BUILT_ITEM_IDS: FactoryItem[] = [
     "rocket",
     "spaceship",
     "explorer",
@@ -168,7 +168,7 @@ export const Factory_Built_Item_Id: Factory_Item_Type[] = [
 /**
  * The inputs for building an item.
  */
-export const buildItemInputs: Factory_Item_Type[] = [
+export const BUILD_ITEM_INPUTS: FactoryItem[] = [
     "rocket",
     "spaceship",
     "explorer",
@@ -182,17 +182,17 @@ export const buildItemInputs: Factory_Item_Type[] = [
 /**
  * The inputs for building a secondary item.
  */
-export const SecondaryBuildItemInputs: FACTORY_SECONDARY_Item_INDEX_Type[] = [
+export const SECONDARY_BUILD_ITEM_INPUTS: FactorySecondaryItemIndex[] = [
     0, 1, 2, 3,
 ];
 
 /**
  * The inputs for the pad ID.
  */
-export const padIdInputs: padIdType[] = [0, 1, 2];
+export const PAD_ID_INPUTS: PadId[] = [0, 1, 2];
 
 // types
-export type Factory_Item_Type =
+export type FactoryItem =
     | "rocket"
     | "spaceship"
     | "explorer"
@@ -202,13 +202,13 @@ export type Factory_Item_Type =
     | "cyborg"
     | "dysonSphere";
 
-export type Factory_Rocket_Secondary_Item_id_Type = 0 | 1 | 2 | 3;
-export type Factory_SpaceShip_Secondary_Item_id_Type = 0 | 1 | 2 | 3;
+export type FactoryRocketSecondaryItemId = 0 | 1 | 2 | 3;
+export type FactorySpaceShipSecondaryItemId = 0 | 1 | 2 | 3;
 
-export type FACTORY_SECONDARY_Item_INDEX_Type =
-    | Factory_Rocket_Secondary_Item_id_Type
-    | Factory_SpaceShip_Secondary_Item_id_Type;
+export type FactorySecondaryItemIndex =
+    | FactoryRocketSecondaryItemId
+    | FactorySpaceShipSecondaryItemId;
 
-export type padIdType = 0 | 1 | 2;
+export type PadId = 0 | 1 | 2;
 
-export type FACTORY_LEVELS_INDEX = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type FactoryLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;

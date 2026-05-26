@@ -1,0 +1,15 @@
+/* AppLayout.module.css */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  /* Reserve space for the fixed BottomNav (≈ 64px + safe-area) */
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}

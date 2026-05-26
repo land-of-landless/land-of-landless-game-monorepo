@@ -1,64 +1,46 @@
-import HelioPay, { GETChargeDetails } from "@/daos/helioPay/index.js";
+import OxaPay from "@/daos/oxaPay/index.js";
 import BillingDAO from "@/daos/redis/billing.js";
 import ShopService from "@/services/shop/ShopService.js";
 import { AdditionalJson } from "@/constants/payment.js";
 import _ from "lodash";
 import { paymentLogger } from "@/utils/logger.js";
 import {
-    PAYMENT_INVALID_PAYLINK,
     PAYMENT_INVALID_USER,
     PAYMENT_INVALID_INVOICE,
     PAYMENT_INVOICE_NOT_PAID,
     INVALID_INPUT,
 } from "@/api/v1/errors/index.js";
-import { appConfig } from "@/config/environment.js";
+import type {
+    ProviderInvoice,
+    ProviderInvoiceStatus,
+} from "@/services/payment/paymentProviderTypes.js";
 
 /**
  * PaymentService handles payment processing and validation logic.
- * This service is framework-agnostic and can be used from controllers,
- * WebSocket handlers, or other contexts.
  */
 export default class PaymentService {
     /**
-     * Validates payment callback data from webhook
-     * @param paylinkId - The paylink ID from the webhook
-     * @param additionalJSON - Additional JSON data containing userId, itemType, itemIndex
-     * @returns Parsed additional data
-     * @throws Error if validation fails
+     * Validates payment callback data from OxaPay webhook order_id
      */
-    static validatePaymentCallback(
-        paylinkId: string,
-        additionalJSON: string | null | undefined,
-    ): AdditionalJson {
-        if (_.isNil(additionalJSON)) {
-            paymentLogger.warn("Payment callback missing additionalJSON");
-            throw INVALID_INPUT("Invalid additionalJSON");
+    static validatePaymentCallback(orderId: string | null | undefined): AdditionalJson {
+        if (_.isNil(orderId) || orderId === "") {
+            paymentLogger.warn("Payment callback missing order_id");
+            throw INVALID_INPUT("Invalid order_id");
         }
 
-        const parsedData = JSON.parse(additionalJSON) as AdditionalJson;
-
-        if (paylinkId !== appConfig.helio.payLink) {
-            paymentLogger.warn("Payment callback with invalid paylinkId", {
-                paylinkId,
-            });
-            throw PAYMENT_INVALID_PAYLINK;
+        try {
+            return OxaPay.parseOrderId(orderId);
+        } catch {
+            paymentLogger.warn("Payment callback invalid order_id JSON");
+            throw INVALID_INPUT("Invalid order_id");
         }
-
-        return parsedData;
     }
 
-    /**
-     * Verifies that a charge ID exists in user's ongoing invoices
-     * @param userId - User ID
-     * @param itemType - Type of item being purchased
-     * @param itemIndex - Index of the item
-     * @returns The charge ID if found
-     * @throws Error if user not found or invoice not found
-     */
     static async verifyInvoiceInOngoingList(
         userId: string,
         itemType: string,
         itemIndex: number,
+        expectedTrackId?: string,
     ): Promise<string> {
         const userBillingProfile = await BillingDAO.findBillingById(userId);
 
@@ -70,7 +52,7 @@ export default class PaymentService {
         }
 
         const ongoingInvoices = userBillingProfile.ongoingInvoices;
-        let targetChargeId: string = "";
+        let targetChargeId = "";
 
         for (let i = 0; i < ongoingInvoices.length; i++) {
             const invoiceInfo = ongoingInvoices[i];
@@ -79,7 +61,6 @@ export default class PaymentService {
             const storedItemType = invoiceChunks[1];
             const storedItemIndex = parseInt(invoiceChunks[2]);
 
-            // Find the one that matches
             if (itemType === storedItemType && itemIndex === storedItemIndex) {
                 targetChargeId = storedChargeId;
                 break;
@@ -95,56 +76,53 @@ export default class PaymentService {
             throw INVALID_INPUT("Invalid request - invoice not found");
         }
 
+        if (
+            expectedTrackId &&
+            targetChargeId !== expectedTrackId
+        ) {
+            paymentLogger.warn("Payment track_id mismatch with ongoing invoice", {
+                userId,
+                expectedTrackId,
+            });
+            throw INVALID_INPUT("Invalid request - invoice mismatch");
+        }
+
         return targetChargeId;
+    }
+
+    static assertInvoicePaid(invoice: ProviderInvoice): void {
+        if (invoice.status !== "paid") {
+            paymentLogger.warn("Payment invoice not paid", {
+                status: invoice.status,
+            });
+            throw PAYMENT_INVOICE_NOT_PAID;
+        }
     }
 
     /**
      * Verifies invoice status with payment provider
-     * @param chargeId - The charge ID to verify
-     * @returns Charge details from payment provider
-     * @throws Error if invoice is invalid or not paid
      */
     static async verifyInvoiceStatus(
         chargeId: string,
-    ): Promise<GETChargeDetails> {
-        const chargeDetail = await HelioPay.fetchCharge(chargeId);
+    ): Promise<ProviderInvoice> {
+        let invoice: ProviderInvoice;
 
-        // Check if invoice is valid
-        if (!_.isNil(chargeDetail.code) && chargeDetail.code !== 200) {
-            paymentLogger.warn("Payment invoice invalid code from provider", {
-                chargeId,
-                code: chargeDetail.code,
-            });
+        try {
+            invoice = await OxaPay.getPaymentInfo(chargeId);
+        } catch {
+            paymentLogger.warn("Payment invoice fetch failed", { chargeId });
             throw PAYMENT_INVALID_INVOICE;
         }
 
-        // Check if paylinkTx is null
-        if (_.isNil(chargeDetail.paylinkTx)) {
-            paymentLogger.warn("Payment invoice missing paylinkTx", {
-                chargeId,
-            });
-            throw PAYMENT_INVOICE_NOT_PAID;
+        if (!invoice.trackId) {
+            throw PAYMENT_INVALID_INVOICE;
         }
 
-        // Check if it's Paid
-        if (chargeDetail.paylinkTx.meta.transactionStatus !== "SUCCESS") {
-            paymentLogger.warn("Payment invoice not successful", {
-                chargeId,
-                status: chargeDetail.paylinkTx.meta.transactionStatus,
-            });
-            throw PAYMENT_INVOICE_NOT_PAID;
-        }
+        this.assertInvoicePaid(invoice);
 
-        return chargeDetail;
+        return invoice;
     }
 
-    /**
-     * Processes a successful payment by applying it to the user's profile
-     * @param userId - User ID
-     * @param chargeId - The charge ID
-     * @param itemType - Type of item purchased
-     * @param itemIndex - Index of the item
-     */
     static async processSuccessfulPayment(
         userId: string,
         chargeId: string,
@@ -161,48 +139,64 @@ export default class PaymentService {
 
     /**
      * Complete payment callback flow: validate, verify, and process
-     * @param paylinkId - Paylink ID from webhook
-     * @param additionalJSON - Additional JSON data
-     * @returns Success status
      */
     static async handlePaymentCallback(
-        paylinkId: string,
-        additionalJSON: string | null | undefined,
+        trackId: string,
+        orderId: string | null | undefined,
+        webhookStatus?: ProviderInvoiceStatus,
     ): Promise<{ success: boolean }> {
-        // Step 1: Validate callback data
         paymentLogger.info("Starting payment callback processing", {
-            paylinkId,
+            trackId,
+            webhookStatus,
         });
-        const { userId, itemType, itemIndex } = this.validatePaymentCallback(
-            paylinkId,
-            additionalJSON,
-        );
 
-        // Step 2: Verify invoice exists in user's ongoing invoices
+        const { userId, itemType, itemIndex } =
+            this.validatePaymentCallback(orderId);
+
         const targetChargeId = await this.verifyInvoiceInOngoingList(
             userId,
             itemType,
             itemIndex,
+            trackId,
         );
 
-        // Step 3: Verify invoice status with payment provider
-        const chargeDetail = await this.verifyInvoiceStatus(targetChargeId);
+        const statusToFulfill =
+            webhookStatus === "paid"
+                ? "paid"
+                : (
+                      await OxaPay.getPaymentInfo(targetChargeId)
+                  ).status;
 
-        // Step 4: Process successful payment
-        if (chargeDetail.paylinkTx!.meta.transactionStatus === "SUCCESS") {
-            await this.processSuccessfulPayment(
-                userId,
-                targetChargeId,
-                itemType,
-                itemIndex,
-            );
-            paymentLogger.info("Payment processed successfully", {
+        if (statusToFulfill === "pending" || statusToFulfill === "paying") {
+            paymentLogger.info("Payment callback acknowledged (not paid yet)", {
                 userId,
                 chargeId: targetChargeId,
-                itemType,
-                itemIndex,
+                status: statusToFulfill,
             });
+            return { success: true };
         }
+
+        if (statusToFulfill !== "paid") {
+            paymentLogger.info("Payment callback ignored (terminal non-paid status)", {
+                userId,
+                chargeId: targetChargeId,
+                status: statusToFulfill,
+            });
+            return { success: true };
+        }
+
+        await this.processSuccessfulPayment(
+            userId,
+            targetChargeId,
+            itemType,
+            itemIndex,
+        );
+        paymentLogger.info("Payment processed successfully", {
+            userId,
+            chargeId: targetChargeId,
+            itemType,
+            itemIndex,
+        });
 
         return { success: true };
     }

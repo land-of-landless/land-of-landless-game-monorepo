@@ -5,6 +5,7 @@ import { FactoryDAO } from "@/daos/redis/factory.js";
 import { LabDAO } from "@/daos/redis/lab.js";
 import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
 import MiniGamesDAO from "@/daos/redis/miniGames.js";
+import StatsDAO from "@/daos/redis/stats.js";
 import { dbLogger } from "@/utils/logger.js";
 
 export default class ProfileAggregationService {
@@ -23,6 +24,7 @@ export default class ProfileAggregationService {
             lab,
             launchSite,
             miniGames,
+            stats,
         ] = await Promise.all([
             ProfileService.getProfile(userId),
             MineDAO.findMineByUserId(userId),
@@ -31,6 +33,7 @@ export default class ProfileAggregationService {
             LabDAO.findLabByUserId(userId),
             LaunchSiteDAO.findLaunchSiteByUserId(userId),
             MiniGamesDAO.findMiniGamesProfileByUserId(userId),
+            StatsDAO.findStatsByUserId(userId),
         ]);
 
         return {
@@ -41,6 +44,7 @@ export default class ProfileAggregationService {
             lab,
             launchSite,
             miniGames,
+            stats,
         };
     }
 }

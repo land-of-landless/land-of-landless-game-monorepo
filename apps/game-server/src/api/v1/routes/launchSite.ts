@@ -11,8 +11,8 @@ import { auth } from "@colyseus/auth";
 import LaunchSiteController from "../controllers/launchSite.ts";
 import {
     validateBody,
-    launchSiteUpgradeSchema,
-    launchItemSchema,
+    LAUNCH_SITE_UPGRADE_SCHEMA,
+    LAUNCH_ITEM_SCHEMA,
     LaunchSiteUpgradeInput,
     LaunchItemInput,
 } from "@/validators/schemas.js";
@@ -49,7 +49,7 @@ router.post(
 router.post(
     "/upgrade/end",
     auth.middleware(),
-    validateBody(launchSiteUpgradeSchema),
+    validateBody(LAUNCH_SITE_UPGRADE_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,
@@ -63,7 +63,7 @@ router.post(
 router.post(
     "/launch",
     auth.middleware(),
-    validateBody(launchItemSchema),
+    validateBody(LAUNCH_ITEM_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,

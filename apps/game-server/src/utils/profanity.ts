@@ -57,7 +57,7 @@ const CUSTOM_PATTERNS = [
  * @param text The text to check.
  * @returns True if profanity is detected, false otherwise.
  */
-export const isProfane = (text: string): boolean => {
+export function isProfane(text: string): boolean {
     // 1. Fast check with leo-profanity
     if (filter.check(text)) {
         return true;
@@ -83,7 +83,7 @@ export const isProfane = (text: string): boolean => {
     }
 
     return false;
-};
+}
 
 /**
  * Checks if text is profane using the Hive Moderation API (v3).
@@ -92,7 +92,7 @@ export const isProfane = (text: string): boolean => {
  * @param text The text to check
  * @returns Promise<boolean> True if profane, false otherwise
  */
-export const isProfaneHive = async (text: string): Promise<boolean> => {
+export async function isProfaneHive(text: string): Promise<boolean> {
     if (!appConfig.hiveApiKey) {
         console.warn("[Hive] Skip: HIVE_API_KEY not set");
         return false;
@@ -114,7 +114,7 @@ export const isProfaneHive = async (text: string): Promise<boolean> => {
                     "x-hive-access-key": appConfig.hiveAccessKey,
                     "Content-Type": "application/json",
                 },
-            },
+            }
         );
 
         // Hive v3 response parsing
@@ -128,7 +128,7 @@ export const isProfaneHive = async (text: string): Promise<boolean> => {
                     cls.value >= 2
                 ) {
                     console.log(
-                        `[Hive] Blocked: "${text}" due to ${cls.class} (Value: ${cls.value})`,
+                        `[Hive] Blocked: "${text}" due to ${cls.class} (Value: ${cls.value})`
                     );
                     return true;
                 }
@@ -138,11 +138,11 @@ export const isProfaneHive = async (text: string): Promise<boolean> => {
     } catch (error) {
         console.error(
             "[Hive] API Error:",
-            error instanceof Error ? error.message : error,
+            error instanceof Error ? error.message : error
         );
         return false;
     }
-};
+}
 
 /**
  * Checks if text is profane using the Profanity.dev vector API.
@@ -151,12 +151,12 @@ export const isProfaneHive = async (text: string): Promise<boolean> => {
  * @param text The text to check
  * @returns Promise<boolean> True if profane, false otherwise
  */
-export const isProfaneProfanityDev = async (text: string): Promise<boolean> => {
+export async function isProfaneProfanityDev(text: string): Promise<boolean> {
     try {
         const response = await axios.post(
             "https://vector.profanity.dev",
             { message: text },
-            { headers: { "Content-Type": "application/json" } },
+            { headers: { "Content-Type": "application/json" } }
         );
 
         if (response.data?.isProfanity === true) {
@@ -167,21 +167,21 @@ export const isProfaneProfanityDev = async (text: string): Promise<boolean> => {
     } catch (error) {
         console.error(
             "[ProfanityDev] API Error:",
-            error instanceof Error ? error.message : error,
+            error instanceof Error ? error.message : error
         );
         // Fail-open: don't block on API errors
         return false;
     }
-};
+}
 
 /**
  * Checks if text contains profanity or PII using Sightengine's rule-based (pattern) moderation.
  * @param text The text to check
  * @returns Promise<boolean> True if text violates rules, false otherwise
  */
-export const isProfaneSightenginePattern = async (
-    text: string,
-): Promise<boolean> => {
+export async function isProfaneSightenginePattern(
+    text: string
+): Promise<boolean> {
     if (!appConfig.sightengineApiUser || !appConfig.sightengineApiSecret) {
         console.warn("[Sightengine Pattern] Skip: API credentials not set");
         return false;
@@ -202,28 +202,28 @@ export const isProfaneSightenginePattern = async (
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
-            },
+            }
         );
 
         const data = response.data;
         if (data.profanity?.matches?.length > 0) {
             console.log(
                 `[Sightengine Pattern] Blocked by profanity matches:`,
-                data.profanity.matches,
+                data.profanity.matches
             );
             return true;
         }
         if (data.personal?.matches?.length > 0) {
             console.log(
                 `[Sightengine Pattern] Blocked by PII matches:`,
-                data.personal.matches,
+                data.personal.matches
             );
             return true;
         }
         if (data.link?.matches?.length > 0) {
             console.log(
                 `[Sightengine Pattern] Blocked by link matches:`,
-                data.link.matches,
+                data.link.matches
             );
             return true;
         }
@@ -232,20 +232,18 @@ export const isProfaneSightenginePattern = async (
     } catch (error) {
         console.error(
             "[Sightengine Pattern] API Error:",
-            error instanceof Error ? error.message : error,
+            error instanceof Error ? error.message : error
         );
         return false;
     }
-};
+}
 
 /**
  * Checks if text is toxic using Sightengine's machine learning moderation models.
  * @param text The text to check
  * @returns Promise<boolean> True if text is flagged by ML, false otherwise
  */
-export const isProfaneSightengineML = async (
-    text: string,
-): Promise<boolean> => {
+export async function isProfaneSightengineML(text: string): Promise<boolean> {
     if (!appConfig.sightengineApiUser || !appConfig.sightengineApiSecret) {
         console.warn("[Sightengine ML] Skip: API credentials not set");
         return false;
@@ -266,7 +264,7 @@ export const isProfaneSightengineML = async (
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
-            },
+            }
         );
 
         const classes = response.data.moderation_classes;
@@ -289,11 +287,11 @@ export const isProfaneSightengineML = async (
     } catch (error) {
         console.error(
             "[Sightengine ML] API Error:",
-            error instanceof Error ? error.message : error,
+            error instanceof Error ? error.message : error
         );
         return false;
     }
-};
+}
 
 /**
  * Sanitizes a string by replacing profanity with a placeholder.
@@ -301,12 +299,9 @@ export const isProfaneSightengineML = async (
  * @param replacement The character to use for replacement (default: *).
  * @returns The sanitized text.
  */
-export const sanitizeText = (
-    text: string,
-    replacement: string = "*",
-): string => {
+export function sanitizeText(text: string, replacement: string = "*"): string {
     return filter.clean(text, replacement);
-};
+}
 
 /**
  * Adds custom words to the profanity filter.
@@ -358,10 +353,10 @@ export type OpenAiModerationResult = {
  * const result = await isProfaneOpenAiModeration("I hate you");
  * if (result.isFlagged) console.log(result.flaggedCategories);
  */
-export const isProfaneOpenAiModeration = async (
+export async function isProfaneOpenAiModeration(
     text: string,
-    apiKey?: string,
-): Promise<OpenAiModerationResult> => {
+    apiKey?: string
+): Promise<OpenAiModerationResult> {
     const FAIL_OPEN: OpenAiModerationResult = {
         isFlagged: false,
         scores: {
@@ -389,7 +384,10 @@ export const isProfaneOpenAiModeration = async (
 
     try {
         const openai = new OpenAI({ apiKey: resolvedKey });
-        const response = await openai.moderations.create({ input: text });
+        const response = await openai.moderations.create({
+            model: "omni-moderation-latest",
+            input: text,
+        });
 
         const result = response.results[0];
         if (!result) return FAIL_OPEN;
@@ -406,17 +404,17 @@ export const isProfaneOpenAiModeration = async (
     } catch (error) {
         console.error(
             "[OpenAI Moderation] API Error:",
-            error instanceof Error ? error.message : error,
+            error instanceof Error ? error.message : error
         );
         return FAIL_OPEN;
     }
-};
+}
 
-export const checkValForProfanity = async (
+export async function checkValForProfanity(
     val: string,
     tools: ProfanityCheckingTool[],
-    context?: string,
-) => {
+    context?: string
+) {
     if (tools.includes("SimpleFilter")) {
         // Check local filter first (fast)
         if (isProfane(val)) return true;
@@ -460,4 +458,4 @@ export const checkValForProfanity = async (
 
     // passed asked checks so it returns false
     return false;
-};
+}

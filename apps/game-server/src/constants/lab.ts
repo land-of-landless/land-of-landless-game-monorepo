@@ -1,11 +1,11 @@
-import { Factory_Item_Type } from "./factory.js";
+import { FactoryItem } from "./factory.js";
 
 /**
  * Information about the lab upgrade.
  * Each level has a coin cost and an upgrade time.
  */
 export const LAB_UPGRADE_INFO: {
-    [K in LAB_LEVEL_INDEX_TYPE]: {
+    [K in LabLevel]: {
         coinCost: number;
         mineralCost: number;
         time: number;
@@ -76,7 +76,7 @@ export const LAB_ITEMS_UPGRADE_INFO: {
         };
     };
 } & {
-    [K in LAB_UPGRADE_ITEM_TYPE]: {
+    [K in LabUpgradeItem]: {
         maxStep: number;
         minimumForRocketReusability?: number;
     };
@@ -155,7 +155,7 @@ export const LAB_ITEMS_UPGRADE_INFO: {
  * Each item has a minimum tech level required to build it.
  */
 export const LAB_FACTORY_ITEMS_UPGRADE_INFO: {
-    [K in Factory_Item_Type]: {
+    [K in FactoryItem]: {
         minTechToBuild: number;
     };
 } = {
@@ -193,7 +193,7 @@ export const LAB_MAX_LEVEL = 10;
 /**
  * The valid inputs for a lab upgrade item.
  */
-export const LAB_Upgrade_Item_Inputs: LAB_UPGRADE_ITEM_TYPE[] = [
+export const LAB_UPGRADE_ITEM_INPUTS: LabUpgradeItem[] = [
     "factoryTech",
     "energyGeneratorTech",
     "rocketTech",
@@ -203,7 +203,7 @@ export const LAB_Upgrade_Item_Inputs: LAB_UPGRADE_ITEM_TYPE[] = [
 ];
 
 // types
-export type LAB_UPGRADE_ITEM_TYPE =
+export type LabUpgradeItem =
     | "factoryTech"
     | "energyGeneratorTech"
     | "rocketTech"
@@ -211,6 +211,6 @@ export type LAB_UPGRADE_ITEM_TYPE =
     | "generalTech"
     | "portalTech";
 
-export type LAB_STEP_INDEX_TYPE = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type LabStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
-export type LAB_LEVEL_INDEX_TYPE = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type LabLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;

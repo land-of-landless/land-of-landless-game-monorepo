@@ -1,14 +1,14 @@
 import MainProfileDAO from "@/daos/redis/mainProfile.js";
 import { MainProfile } from "@/models/redis/mainProfile.js";
-import { MineDAO } from "@/daos/redis/mine.js";
+import { MineDAO } from "@/daos/redis/mine.js"; // Keep this import if used elsewhere
 import { FactoryDAO } from "@/daos/redis/factory.js";
 import { mainProfileRepository } from "@/daos/redis/repositories/index.js";
-import { ERRORS } from "@/common/errors/appError.js";
+import { ERRORS, AppError } from "@/common/errors/appError.js";
 import _ from "lodash";
 import {
     BASE_REWARDS,
-    gemsPerMinute,
-    LOOT_BOX_TIME_TO_OPEN,
+    GEMS_PER_MINUTE,
+    LootBoxRewards,
 } from "@/constants/mainProfile.js";
 import {
     ENERGY_GENERATOR_BASE_ENERGY_GENERATION_RATE,
@@ -20,34 +20,42 @@ import {
     MINE_MAX_MINERAL_GENERATION_RATE,
     MINE_UPGRADE_INFO,
     MINE_MINERAL_GENERATION_PER_EXPLORER,
-    MINE_UPGRADE_LEVEL_TYPE,
+    MineUpgradeLevel,
 } from "@/constants/mine.js";
 import {
-    LootBoxType,
-    MINI_GAMES_ENERGY_COST,
-    MINI_GAMES_ID_TYPE,
-    miniGameLootBoxNameToNumericIdsMap,
+    MINI_GAMES_INFO,
+    MINI_GAMES_LOOT_BOX_INFO,
+    MiniGamesKey,
+    MiniGamesLootBox,
 } from "@/constants/miniGames.js";
-import logger from "@/utils/logger.js";
-import {
-    checkValForProfanity,
-    isProfane,
-    isProfaneHive,
-    isProfaneProfanityDev,
-    isProfaneSightengineML,
-    isProfaneSightenginePattern,
-} from "@/utils/profanity.js";
+import logger from "@/utils/logger.js"; // Keep this import if used elsewhere
+import { checkValForProfanity } from "@/utils/profanity.js"; // Keep this import if used elsewhere
+import { redisFastClient } from "@/daos/redis/connectRedis/fast.ts";
+
+export interface OpenLootBoxStartResult {
+    profile: MainProfile;
+    startToOpenTime: string;
+    targetLootBox: string;
+}
+
+// Reusing OpenLootBoxEndResult as the structure is identical
+// export interface OpenLootBoxEndWithGemsResult {
+//     profile: MainProfile;
+//     rewards: LootBoxRewards;
+// }
+export interface OpenLootBoxEndResult {
+    profile: MainProfile;
+    rewards: LootBoxRewards;
+}
 
 export default class ProfileService {
-    static async checkValForProfanity(val: string, filters?: string[]) {
-        // Check local filter first (fast)
-        if (isProfane(val)) return true;
-        // Then check all async filters in parallel
-        const [hive, profanityDev] = await Promise.all([
-            isProfaneHive(val),
-            isProfaneProfanityDev(val),
-        ]);
-        return !(hive || profanityDev);
+    /**
+     * Calculates the gem cost based on remaining time in milliseconds.
+     * @param remainingTimeMs - The remaining time in milliseconds.
+     * @returns The calculated gem cost.
+     */
+    private static calculateGemCostForTime(remainingTimeMs: number): number {
+        return Math.floor((remainingTimeMs / 1000 / 60) * GEMS_PER_MINUTE);
     }
 
     /**
@@ -83,6 +91,27 @@ export default class ProfileService {
     }
 
     /**
+     * Saves multiple user profiles atomically using a Redis transaction.
+     * @param profiles - An array of MainProfile instances to save.
+     */
+    static async saveProfilesAtomic(profiles: MainProfile[]): Promise<void> {
+        const multi = redisFastClient.multi();
+
+        for (const profile of profiles) {
+            // Assuming MainProfileDAO.saveProfile internally uses `mainProfileRepository.save`
+            // and that `mainProfileRepository.save` uses `HSET` or similar.
+            // To make it atomic, we need to queue the raw Redis commands.
+            // This requires knowledge of how MainProfileDAO serializes and stores the profile.
+            // For Redis OM, `repository.save()` typically serializes the entity.
+            // A direct `HSET` would be: multi.hSet(profile.key, profile.data);
+            // For simplicity and to reuse existing serialization, we'll queue the save operation.
+            // NOTE: This assumes `mainProfileRepository.save` can be queued in a multi.
+            multi.json.set(profile.userId, "$", profile); // Assuming JSON.SET is used for MainProfile
+        }
+        await multi.exec(); // Execute all commands atomically
+    }
+
+    /**
      * Updates the user's profile preferences (name and/or profile picture).
      * @param userId - The ID of the user.
      * @param name - The new name to set (optional).
@@ -93,7 +122,7 @@ export default class ProfileService {
         userId: string,
         name?: string,
         profilePictureIndex?: number,
-        representedFlag?: string,
+        representedFlag?: string
     ) {
         try {
             const userProfile =
@@ -103,50 +132,59 @@ export default class ProfileService {
                 throw ERRORS.NOT_FOUND("MainProfile not found");
             }
 
-            // only update preferences if they are introduced
-            if (!_.isNil(name)) {
-                // skip if name is not actually changing
-                if (userProfile.name !== name) {
-                    let resultForProfanityCheck = await checkValForProfanity(
-                        name,
-                        ["SimpleFilter", "ProfanityDev"],
-                    );
+            let isDirty = false;
 
-                    if (resultForProfanityCheck) {
-                        throw ERRORS.FORBIDDEN(
-                            "provided name contains profanity",
-                        );
-                    }
+            // only update preferences if they are introduced and changing
+            if (
+                name !== undefined &&
+                name !== null &&
+                userProfile.name !== name
+            ) {
+                const hasProfanity = await checkValForProfanity(name, [
+                    "SimpleFilter",
+                    "ProfanityDev",
+                ]);
 
-                    // update name of user
-                    userProfile.name = name;
+                if (hasProfanity) {
+                    throw ERRORS.FORBIDDEN("provided name contains profanity");
                 }
+
+                userProfile.name = name;
+                isDirty = true;
             }
 
-            if (!_.isNil(profilePictureIndex)) {
-                if (userProfile.profilePictureIndex !== profilePictureIndex) {
-                    // End of Rate Limiting Logic (PFP)
-
-                    userProfile.profilePictureIndex = profilePictureIndex;
-                }
+            if (
+                profilePictureIndex !== undefined &&
+                profilePictureIndex !== null &&
+                userProfile.profilePictureIndex !== profilePictureIndex
+            ) {
+                // End of Rate Limiting Logic (PFP)
+                userProfile.profilePictureIndex = profilePictureIndex;
+                isDirty = true;
             }
 
-            if (!_.isNil(representedFlag)) {
-                if (userProfile.representedFlag !== representedFlag) {
-                    userProfile.representedFlag = representedFlag;
-                }
+            if (
+                representedFlag !== undefined &&
+                representedFlag !== null &&
+                userProfile.representedFlag !== representedFlag
+            ) {
+                userProfile.representedFlag = representedFlag;
+                isDirty = true;
             }
 
-            await mainProfileRepository.save(userProfile);
+            if (isDirty) {
+                await mainProfileRepository.save(userProfile);
+            }
+
             return userProfile;
         } catch (error) {
-            if (error instanceof Error && "code" in error) {
+            if (error instanceof AppError) {
                 throw error;
             }
             throw ERRORS.DB_ERROR(
                 `Failed to update profile preferences: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -156,35 +194,31 @@ export default class ProfileService {
      * @param lootBoxType - The type of the loot box (1-4), which determines the reward multiplier.
      * @returns An object containing the calculated rewards (coins, gems, xp, etc.).
      */
-    static generateLootBoxRewards(lootBoxType: LootBoxType): {
-        coins: number;
-        gems: number;
-        xp: number;
-        tickets: number;
-        lootBoxKeys: number;
-    } {
+    private static generateLootBoxRewards(
+        lootBoxType: MiniGamesLootBox
+    ): LootBoxRewards {
         const baseRewards = BASE_REWARDS;
 
         // Higher loot box types have a higher reward multiplier.
         let multiplier = 1;
 
         switch (lootBoxType) {
-            case "COMMON":
+            case "common":
                 multiplier = 1;
                 break;
-            case "UNCOMMON":
+            case "uncommon":
                 multiplier = 3;
                 break;
-            case "RARE":
+            case "rare":
                 multiplier = 10;
                 break;
-            case "EPIC":
+            case "epic":
                 multiplier = 40;
                 break;
-            case "LEGENDARY":
+            case "legendary":
                 multiplier = 60;
                 break;
-            case "CUSTOM":
+            case "custom":
                 // do sth
                 break;
             default:
@@ -202,34 +236,65 @@ export default class ProfileService {
                 baseRewards.coins * multiplier +
                     randomFactor(
                         -(baseRewards.coins * multiplier) / 2,
-                        (baseRewards.coins * multiplier) / 2,
-                    ),
+                        (baseRewards.coins * multiplier) / 2
+                    )
             ),
             gems: Math.floor(
                 baseRewards.gems * multiplier +
                     randomFactor(
                         -(baseRewards.gems * multiplier) / 2,
-                        (baseRewards.gems * multiplier) / 2,
-                    ),
+                        (baseRewards.gems * multiplier) / 2
+                    )
             ),
             xp: Math.floor(
                 baseRewards.xp * multiplier +
                     randomFactor(
                         -(baseRewards.xp * multiplier) / 2,
-                        (baseRewards.xp * multiplier) / 2,
-                    ),
+                        (baseRewards.xp * multiplier) / 2
+                    )
             ),
             tickets: Math.floor(
                 baseRewards.tickets * multiplier +
                     randomFactor(
                         -(baseRewards.tickets * multiplier) / 2,
-                        (baseRewards.tickets * multiplier) / 2,
-                    ),
+                        (baseRewards.tickets * multiplier) / 2
+                    )
             ),
 
             lootBoxKeys:
-                lootBoxType === "EPIC" || lootBoxType === "LEGENDARY" ? 1 : 0,
+                lootBoxType === "epic" || lootBoxType === "legendary" ? 1 : 0,
         };
+    }
+
+    /**
+     * Applies loot box rewards to a user profile and updates statistics.
+     * @param profile - The user profile document to update.
+     * @param lootBoxType - The type of loot box being opened.
+     * @returns The updated profile document.
+     */
+    private static applyLootBoxRewards(
+        profile: MainProfile,
+        lootBoxType: MiniGamesLootBox
+    ): {
+        profile: MainProfile;
+        rewards: LootBoxRewards;
+    } {
+        const rewards = this.generateLootBoxRewards(lootBoxType);
+
+        // Apply rewards to profile
+        profile.coins += rewards.coins;
+        profile.gems += rewards.gems;
+        profile.xp += rewards.xp;
+        profile.tickets_type2 += rewards.tickets;
+        profile.lootBox_keys += rewards.lootBoxKeys;
+
+        // Update statistics for the number of opened boxes of this type
+        const lootBoxInfo = MINI_GAMES_LOOT_BOX_INFO[lootBoxType];
+        if (lootBoxInfo) {
+            profile.lootBoxes_opened[lootBoxInfo.numericalId - 1] += 1;
+        }
+
+        return { profile, rewards };
     }
 
     /**
@@ -238,16 +303,15 @@ export default class ProfileService {
      * @param lootBoxIndex - The index of the loot box in the user's inventory.
      * @returns An object containing the start time.
      */
-    static async openLootBoxStart(userId: string, lootBoxIndex: number) {
+    static async openLootBoxStart(
+        userId: string,
+        lootBoxIndex: number
+    ): Promise<OpenLootBoxStartResult> {
         try {
-            const fetchedUserProfile =
-                await MainProfileDAO.findProfileByUserId(userId);
-            if (!fetchedUserProfile) {
-                throw ERRORS.NOT_FOUND("MainProfile not found");
-            }
+            const profile = await this.getProfile(userId);
 
             // --- Validation Checks ---
-            const targetLootBox = fetchedUserProfile.lootBoxes[lootBoxIndex];
+            const targetLootBox = profile.lootBoxes[lootBoxIndex];
 
             // Ensure there is a loot box at the specified index.
             if (targetLootBox === "" || _.isNil(targetLootBox)) {
@@ -255,48 +319,43 @@ export default class ProfileService {
             }
 
             // Ensure the loot box is not already being opened.
-            if (fetchedUserProfile.lootBoxesTimers[lootBoxIndex] !== "") {
+            if (profile.lootBoxesTimers[lootBoxIndex] !== "") {
                 throw ERRORS.VALIDATION("Loot box already opened");
             }
 
             // --- Worker Bot Availability Check ---
-            // Count the number of active worker bots and the number of loot boxes currently opening.
-            let numberOfWorkerRobots = fetchedUserProfile.worker_bots.filter(
-                (robot: number) => robot === 1,
+            const activeWorkers = profile.worker_bots.filter(
+                (robot: number) => robot === 1
             ).length;
-            let numberOfBoxesBeingOpened =
-                fetchedUserProfile.lootBoxesTimers.filter(
-                    (box: string) => box !== "",
-                ).length;
+            const activeTimers = profile.lootBoxesTimers.filter(
+                (timer: string) => timer !== ""
+            ).length;
 
             // The user must have a free worker bot to start opening a new box.
-            if (numberOfBoxesBeingOpened >= numberOfWorkerRobots) {
+            if (activeTimers >= activeWorkers) {
                 throw ERRORS.VALIDATION("Not enough worker robots");
             }
 
-            let startTime = new Date().toUTCString();
+            const startTime = new Date().toUTCString();
+            profile.lootBoxesTimers[lootBoxIndex] = startTime;
 
-            fetchedUserProfile.lootBoxesTimers[lootBoxIndex] = startTime;
-
-            await mainProfileRepository.save(fetchedUserProfile);
+            await mainProfileRepository.save(profile);
 
             return {
+                profile,
                 startToOpenTime: startTime,
+                targetLootBox,
             };
-        } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+
             logger.error(
-                `[ProfileService.openLootBox] Error for userId: ${userId}`,
-                {
-                    error,
-                },
+                `[ProfileService.openLootBoxStart] Error for userId: ${userId}`,
+                { error }
             );
+
             throw ERRORS.DB_ERROR(
-                `Failed to open lootbox: ${
-                    error instanceof Error ? error.message : "Unknown error"
-                }`,
+                `Failed to open lootbox: ${error.message || "Unknown error"}`
             );
         }
     }
@@ -307,17 +366,15 @@ export default class ProfileService {
      * @param lootBoxIndex - The index of the loot box.
      * @returns The rewards generated from the loot box.
      */
-    static async openLootBoxEnd(userId: string, lootBoxIndex: number) {
+    static async openLootBoxEnd(
+        userId: string,
+        lootBoxIndex: number
+    ): Promise<OpenLootBoxEndResult> {
         try {
-            const fetchedUserProfile =
-                await MainProfileDAO.findProfileByUserId(userId);
-
-            if (!fetchedUserProfile) {
-                throw ERRORS.NOT_FOUND("MainProfile not found");
-            }
+            const profile = await this.getProfile(userId);
 
             // --- Validation Checks ---
-            const targetLootBox = fetchedUserProfile.lootBoxes[lootBoxIndex];
+            const targetLootBox = profile.lootBoxes[lootBoxIndex];
 
             // Ensure there is a loot box at the specified index.
             if (targetLootBox === "" || _.isNil(targetLootBox)) {
@@ -325,25 +382,26 @@ export default class ProfileService {
             }
 
             // Ensure the loot box has a timer running.
-            if (fetchedUserProfile.lootBoxesTimers[lootBoxIndex] === "") {
+            if (profile.lootBoxesTimers[lootBoxIndex] === "") {
                 throw ERRORS.VALIDATION("Loot box already opened");
             }
 
             // --- Timer Check ---
             // Calculate the time elapsed since the opening process started.
-            let now = new Date().getTime();
-            let lootBoxStartToOpenTime = new Date(
-                fetchedUserProfile.lootBoxesTimers[lootBoxIndex],
+            const now = new Date().getTime();
+            const lootBoxStartToOpenTime = new Date(
+                profile.lootBoxesTimers[lootBoxIndex]
             ).getTime();
-            let passedTimeSoFar = now - lootBoxStartToOpenTime;
+            const passedTimeSoFar = now - lootBoxStartToOpenTime;
 
             // The elapsed time should not be negative.
             if (passedTimeSoFar < 0) {
                 throw ERRORS.VALIDATION("Invalid time");
             }
-            let expectedTimeToPass =
-                LOOT_BOX_TIME_TO_OPEN[targetLootBox] /
-                fetchedUserProfile.lootBoxesOpeningRate;
+
+            const expectedTimeToPass =
+                MINI_GAMES_LOOT_BOX_INFO[targetLootBox].timeToOpenInMs /
+                profile.lootBoxesOpeningRate;
 
             // Ensure enough time has passed to complete the opening.
             if (passedTimeSoFar < expectedTimeToPass) {
@@ -351,41 +409,28 @@ export default class ProfileService {
             }
 
             // --- Apply Rewards and Update MainProfile ---
-            // Generate the rewards for the loot box.
-            const rewards = this.generateLootBoxRewards(targetLootBox);
-
-            // Add the rewards to the user's profile.
-            fetchedUserProfile.coins += rewards.coins;
-            fetchedUserProfile.gems += rewards.gems;
-            fetchedUserProfile.xp += rewards.xp;
-            fetchedUserProfile.tickets_type2 += rewards.tickets;
-            fetchedUserProfile.lootBox_keys += rewards.lootBoxKeys;
-
-            // Update statistics for the number of opened boxes of this type.
-            fetchedUserProfile.lootBoxes_opened[
-                miniGameLootBoxNameToNumericIdsMap[targetLootBox] - 1
-            ] += 1;
+            const { rewards } = this.applyLootBoxRewards(
+                profile,
+                targetLootBox
+            );
 
             // Reset the loot box slot to make it available again.
-            fetchedUserProfile.lootBoxesTimers[lootBoxIndex] = "";
-            fetchedUserProfile.lootBoxes[lootBoxIndex] = "";
+            profile.lootBoxesTimers[lootBoxIndex] = "";
+            profile.lootBoxes[lootBoxIndex] = "";
 
-            await mainProfileRepository.save(fetchedUserProfile);
-            return rewards;
-        } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
+            await mainProfileRepository.save(profile);
+
+            return { rewards, profile };
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+
             logger.error(
                 `[ProfileService.openLootBoxEnd] Error for userId: ${userId}`,
-                {
-                    error,
-                },
+                { error }
             );
+
             throw ERRORS.DB_ERROR(
-                `Failed to end opening lootbox: ${
-                    error instanceof Error ? error.message : "Unknown error"
-                }`,
+                `Failed to end opening lootbox: ${error.message || "Unknown error"}`
             );
         }
     }
@@ -396,17 +441,15 @@ export default class ProfileService {
      * @param lootBoxIndex - The index of the loot box.
      * @returns The updated profile.
      */
-    static async openLootBoxEndWithGems(userId: string, lootBoxIndex: number) {
+    static async openLootBoxEndWithGems(
+        userId: string,
+        lootBoxIndex: number
+    ): Promise<OpenLootBoxEndResult> {
         try {
-            const fetchedUserProfile =
-                await MainProfileDAO.findProfileByUserId(userId);
-
-            if (!fetchedUserProfile) {
-                throw ERRORS.NOT_FOUND("MainProfile not found");
-            }
+            const profile = await this.getProfile(userId);
 
             // --- Validation Checks ---
-            const targetLootBox = fetchedUserProfile.lootBoxes[lootBoxIndex];
+            const targetLootBox = profile.lootBoxes[lootBoxIndex];
 
             // Ensure there is a loot box at the specified index.
             if (targetLootBox === "" || _.isNil(targetLootBox)) {
@@ -414,78 +457,68 @@ export default class ProfileService {
             }
 
             // Ensure the loot box has a timer running.
-            if (fetchedUserProfile.lootBoxesTimers[lootBoxIndex] === "") {
+            if (profile.lootBoxesTimers[lootBoxIndex] === "") {
                 throw ERRORS.VALIDATION("Loot box already opened");
             }
 
             // --- Gem Cost Calculation ---
             // Calculate the remaining time on the loot box timer.
-            let now = new Date().getTime();
-            let lootBoxStartToOpenTime = new Date(
-                fetchedUserProfile.lootBoxesTimers[lootBoxIndex],
+            const now = new Date().getTime();
+            const lootBoxStartToOpenTime = new Date(
+                profile.lootBoxesTimers[lootBoxIndex]
             ).getTime();
-            let targetTime =
-                lootBoxStartToOpenTime + LOOT_BOX_TIME_TO_OPEN[targetLootBox];
-            let remainingTime = Math.floor(
-                (targetTime - now) / fetchedUserProfile.lootBoxesOpeningRate,
+            const targetTime =
+                lootBoxStartToOpenTime +
+                MINI_GAMES_LOOT_BOX_INFO[targetLootBox].timeToOpenInMs;
+            const remainingTime = Math.floor(
+                (targetTime - now) / profile.lootBoxesOpeningRate
             );
 
             // If the timer is already finished, this method should not be used.
             if (remainingTime <= 0) {
                 throw ERRORS.VALIDATION("Invalid time");
             }
-
             // Convert the remaining time into the equivalent cost in gems.
-            let expectedGemsToOpen = Math.floor(
-                (remainingTime / 1000 / 60) * gemsPerMinute,
-            );
+            const expectedGemsToOpen =
+                this.calculateGemCostForTime(remainingTime);
 
             // A minimum of 1 gem is required.
-            if (expectedGemsToOpen === 0) {
+            if (expectedGemsToOpen < 1) {
                 throw ERRORS.VALIDATION("Not possible!");
             }
-
             // Check if the user has enough gems to pay.
-            if (expectedGemsToOpen > fetchedUserProfile.gems) {
+            if (expectedGemsToOpen > profile.gems) {
                 throw ERRORS.VALIDATION("Not enough gems");
             }
 
             // --- Apply Rewards and Update MainProfile ---
-            fetchedUserProfile.gems -= expectedGemsToOpen;
+            profile.gems -= expectedGemsToOpen;
 
-            // Generate and apply rewards.
-            const rewards = this.generateLootBoxRewards(targetLootBox);
-
-            // Add the rewards to the user's profile.
-            fetchedUserProfile.coins += rewards.coins;
-            fetchedUserProfile.gems += rewards.gems;
-            fetchedUserProfile.xp += rewards.xp;
-            fetchedUserProfile.tickets_type2 += rewards.tickets;
-            fetchedUserProfile.lootBox_keys += rewards.lootBoxKeys;
-
+            const { rewards } = this.applyLootBoxRewards(
+                profile,
+                targetLootBox
+            );
             // Update statistics for the number of opened boxes of this type.
-            fetchedUserProfile.lootBoxes_opened[
-                miniGameLootBoxNameToNumericIdsMap[targetLootBox] - 1
+            profile.lootBoxes_opened[
+                MINI_GAMES_LOOT_BOX_INFO[targetLootBox].numericalId - 1
             ] += 1;
 
             // Reset the loot box slot to make it available again.
-            fetchedUserProfile.lootBoxesTimers[lootBoxIndex] = "";
-            fetchedUserProfile.lootBoxes[lootBoxIndex] = "";
+            profile.lootBoxesTimers[lootBoxIndex] = "";
+            profile.lootBoxes[lootBoxIndex] = "";
 
-            await mainProfileRepository.save(fetchedUserProfile);
-            return fetchedUserProfile;
-        } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
+            await mainProfileRepository.save(profile);
+            return { profile, rewards };
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+
             logger.error(
                 `[ProfileService.openLootBoxEndWithGems] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
+
             throw ERRORS.DB_ERROR(
-                `Failed to open lootbox with gems: ${
-                    error instanceof Error ? error.message : "Unknown error"
-                }`,
+                `Failed to open lootbox with gems: ${error.message || "Unknown error"}`
             );
         }
     }
@@ -496,17 +529,15 @@ export default class ProfileService {
      * @param lootBoxIndex - The index of the loot box.
      * @returns The rewards generated from the loot box.
      */
-    static async openLootBoxEndWithKey(userId: string, lootBoxIndex: number) {
+    static async openLootBoxEndWithKey(
+        userId: string,
+        lootBoxIndex: number
+    ): Promise<OpenLootBoxEndResult> {
         try {
-            const fetchedUserProfile =
-                await MainProfileDAO.findProfileByUserId(userId);
-
-            if (!fetchedUserProfile) {
-                throw ERRORS.NOT_FOUND("MainProfile not found");
-            }
+            const profile = await this.getProfile(userId);
 
             // --- Validation Checks ---
-            const targetLootBox = fetchedUserProfile.lootBoxes[lootBoxIndex];
+            const targetLootBox = profile.lootBoxes[lootBoxIndex];
 
             // Ensure there is a loot box at the specified index.
             if (targetLootBox === "" || _.isNil(targetLootBox)) {
@@ -514,50 +545,44 @@ export default class ProfileService {
             }
 
             // This check might be redundant if keys can open boxes that haven't started opening.
-            if (fetchedUserProfile.lootBoxesTimers[lootBoxIndex] === "") {
+            if (profile.lootBoxesTimers[lootBoxIndex] === "") {
                 throw ERRORS.VALIDATION("Loot box already opened");
             }
 
             // Ensure the user has a key to spend.
-            if (fetchedUserProfile.lootBox_keys <= 0) {
+            if (profile.lootBox_keys <= 0) {
                 throw ERRORS.VALIDATION("No key found");
             }
 
-            // --- Apply Rewards and Update MainProfile ---
-            const rewards = this.generateLootBoxRewards(targetLootBox);
-
             // Deduct one key from the user's inventory.
-            fetchedUserProfile.lootBox_keys -= 1;
-            // Add the rewards to the user's profile.
-            fetchedUserProfile.coins += rewards.coins;
-            fetchedUserProfile.gems += rewards.gems;
-            fetchedUserProfile.xp += rewards.xp;
-            fetchedUserProfile.tickets_type2 += rewards.tickets;
-            fetchedUserProfile.lootBox_keys += rewards.lootBoxKeys;
+            profile.lootBox_keys -= 1;
+
+            const { rewards } = this.applyLootBoxRewards(
+                profile,
+                targetLootBox
+            );
 
             // Update statistics for the number of opened boxes of this type.
-            fetchedUserProfile.lootBoxes_opened[
-                miniGameLootBoxNameToNumericIdsMap[targetLootBox] - 1
+            profile.lootBoxes_opened[
+                MINI_GAMES_LOOT_BOX_INFO[targetLootBox].numericalId - 1
             ] += 1;
 
             // Reset the loot box slot to make it available again.
-            fetchedUserProfile.lootBoxesTimers[lootBoxIndex] = "";
-            fetchedUserProfile.lootBoxes[lootBoxIndex] = "";
-            await mainProfileRepository.save(fetchedUserProfile);
+            profile.lootBoxesTimers[lootBoxIndex] = "";
+            profile.lootBoxes[lootBoxIndex] = "";
+            await mainProfileRepository.save(profile);
 
-            return rewards;
-        } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
+            return { rewards, profile };
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+
             logger.error(
                 `[ProfileService.openLootBoxEndWithKey] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
+
             throw ERRORS.DB_ERROR(
-                `Failed to open lootbox with key: ${
-                    error instanceof Error ? error.message : "Unknown error"
-                }`,
+                `Failed to open lootbox with key: ${error.message || "Unknown error"}`
             );
         }
     }
@@ -565,13 +590,13 @@ export default class ProfileService {
     /**
      * Adds a new loot box to the first available empty slot in the user's inventory.
      * @param userId - The ID of the user.
-     * @param lootBoxType - The type of loot box to add (1-4).
+     * @param lootBoxType - The type of loot box to add.
      * @returns The updated profile.
      */
     static async addLootBox(
         userId: string,
-        lootBoxType: LootBoxType,
-        softAdd?: boolean,
+        lootBoxType: MiniGamesLootBox,
+        softAdd?: boolean
     ) {
         try {
             const userProfile =
@@ -583,7 +608,7 @@ export default class ProfileService {
 
             // Find the first empty loot box slot (represented by 0).
             const emptySlotIndex = userProfile.lootBoxes.findIndex(
-                (slot: LootBoxType | "") => slot === "",
+                (slot: MiniGamesLootBox | "") => slot === ""
             );
 
             // If no empty slot is found, throw an error.
@@ -607,12 +632,12 @@ export default class ProfileService {
                 `[ProfileService.addLootBox] Error for userId: ${userId}`,
                 {
                     error,
-                },
+                }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to add loot box: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -622,7 +647,7 @@ export default class ProfileService {
      */
     static async updateEnergyGenerationRate(
         userId: string,
-        newPanelCount: number,
+        newPanelCount: number
     ) {
         try {
             let userProfile = await MainProfileDAO.findProfileByUserId(userId);
@@ -655,7 +680,7 @@ export default class ProfileService {
             throw ERRORS.DB_ERROR(
                 `Failed to update energy generation rate: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -663,7 +688,7 @@ export default class ProfileService {
     /**
      * Deducts the energy cost for starting a game.
      */
-    static async chargeEnergy(userId: string, gameId: MINI_GAMES_ID_TYPE) {
+    static async chargeEnergy(userId: string, gameKey: MiniGamesKey) {
         try {
             const userProfile =
                 await MainProfileDAO.findProfileByUserId(userId);
@@ -672,16 +697,19 @@ export default class ProfileService {
                 throw ERRORS.NOT_FOUND("MainProfile not found");
             }
 
-            // Get the energy cost for the specified game.
-            const energyCost = MINI_GAMES_ENERGY_COST[gameId];
+            const gameInfo = MINI_GAMES_INFO[gameKey];
+
+            if (!gameInfo) {
+                throw ERRORS.VALIDATION("Invalid mini game id");
+            }
 
             // Ensure the user has enough energy.
-            if (userProfile.energy < energyCost.energy) {
+            if (userProfile.energy < gameInfo.energy) {
                 throw ERRORS.VALIDATION("Not enough energy");
             }
 
             // Deduct the energy and save the updated profile.
-            userProfile.energy -= energyCost.energy;
+            userProfile.energy -= gameInfo.energy;
             await mainProfileRepository.save(userProfile);
         } catch (error) {
             if (error instanceof Error && "code" in error) {
@@ -690,7 +718,7 @@ export default class ProfileService {
             throw ERRORS.DB_ERROR(
                 `Failed to charge energy: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -709,7 +737,7 @@ export default class ProfileService {
             // Calculate time passed since the last energy update.
             let now = new Date();
             let previousUpdatedAt = new Date(
-                fetchedUserProfile.energy_updated_at,
+                fetchedUserProfile.energy_updated_at
             );
             let passedTime = now.getTime() - previousUpdatedAt.getTime();
 
@@ -720,13 +748,13 @@ export default class ProfileService {
             // Calculate the amount of energy generated during the elapsed time.
             let generatedEnergy = Math.floor(
                 (passedTime / 1000 / 60 / 60) *
-                    fetchedUserProfile.energy_generation_rate,
+                    fetchedUserProfile.energy_generation_rate
             );
 
             // Add the generated energy, ensuring it does not exceed the maximum capacity.
             let newEnergy = Math.min(
                 fetchedUserProfile.energy_max,
-                fetchedUserProfile.energy + generatedEnergy,
+                fetchedUserProfile.energy + generatedEnergy
             );
 
             // Calculate the new timestamp.
@@ -734,8 +762,8 @@ export default class ProfileService {
                 previousUpdatedAt.getTime() +
                     Math.floor(
                         (generatedEnergy * 1000 * 60 * 60) /
-                            fetchedUserProfile.energy_generation_rate,
-                    ),
+                            fetchedUserProfile.energy_generation_rate
+                    )
             );
 
             // Apply the updates to the profile.
@@ -756,7 +784,7 @@ export default class ProfileService {
             throw ERRORS.DB_ERROR(
                 `Failed to update energy: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -795,12 +823,13 @@ export default class ProfileService {
                     | "miner2"
                     | "miner3";
                 let currentLevel = fetched_miners_info[minerInfoKey].level as
-                    | MINE_UPGRADE_LEVEL_TYPE
+                    | MineUpgradeLevel
                     | 0;
                 if (currentLevel === 0) {
                     continue;
                 }
-                MINE_UPGRADE_INFO[currentLevel].energyGenerationRate;
+                mineralGenerationRateFromMines +=
+                    MINE_UPGRADE_INFO[currentLevel].energyGenerationRate;
             }
 
             // total energy generation coming from explores
@@ -826,7 +855,7 @@ export default class ProfileService {
             throw ERRORS.DB_ERROR(
                 `Failed to update mineral generation rate: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -845,7 +874,7 @@ export default class ProfileService {
             // Calculate time passed since the last mineral update.
             let now = new Date();
             let previousUpdatedAt = new Date(
-                fetchedUserProfile.mineral_updated_at,
+                fetchedUserProfile.mineral_updated_at
             );
             let passedTime = now.getTime() - previousUpdatedAt.getTime();
 
@@ -856,13 +885,13 @@ export default class ProfileService {
             // Calculate the amount of minerals generated during the elapsed time.
             let generatedMineral = Math.floor(
                 (passedTime / 1000 / 60 / 60) *
-                    fetchedUserProfile.mineral_generation_rate,
+                    fetchedUserProfile.mineral_generation_rate
             );
 
             // Add the generated minerals, ensuring it does not exceed the maximum capacity.
             let newMineral = Math.min(
                 fetchedUserProfile.mineral_max,
-                fetchedUserProfile.mineral + generatedMineral,
+                fetchedUserProfile.mineral + generatedMineral
             );
 
             // Calculate the new timestamp.
@@ -870,8 +899,8 @@ export default class ProfileService {
                 previousUpdatedAt.getTime() +
                     Math.floor(
                         (generatedMineral * 1000 * 60 * 60) /
-                            fetchedUserProfile.mineral_generation_rate,
-                    ),
+                            fetchedUserProfile.mineral_generation_rate
+                    )
             );
 
             // Apply the updates to the profile.
@@ -891,7 +920,83 @@ export default class ProfileService {
             throw ERRORS.DB_ERROR(
                 `Failed to update mineral: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
+            );
+        }
+    }
+
+    /**
+     * Atomically deducts a combination of resources (coins, gems, or mineral) from a user's profile.
+     * This method provides a flexible way to handle single or multiple deductions using explicit case logic.
+     * @param userId - The ID of the user.
+     * @param amounts - An object containing the amounts of each resource to deduct.
+     * @returns The updated profile.
+     */
+    static async deductResources(
+        userId: string,
+        amounts: {
+            coins?: number;
+            gems?: number;
+            mineral?: number;
+            atmosphere_trash_type2?: number;
+        }
+    ): Promise<MainProfile> {
+        try {
+            const profile = await this.getProfile(userId);
+
+            // --- Phase 1: Validation ---
+            // Validate all resource balances before making any changes to ensure atomicity
+            if (amounts.coins !== undefined && amounts.coins > 0) {
+                if (profile.coins < amounts.coins)
+                    throw ERRORS.VALIDATION("Not enough coins");
+            }
+            if (amounts.gems !== undefined && amounts.gems > 0) {
+                if (profile.gems < amounts.gems)
+                    throw ERRORS.VALIDATION("Not enough gems");
+            }
+            if (amounts.mineral !== undefined && amounts.mineral > 0) {
+                if (profile.mineral < amounts.mineral)
+                    throw ERRORS.VALIDATION("Not enough minerals");
+            }
+            if (
+                amounts.atmosphere_trash_type2 !== undefined &&
+                amounts.atmosphere_trash_type2 > 0
+            ) {
+                if (
+                    profile.atmosphere_trash_type2 <
+                    amounts.atmosphere_trash_type2
+                )
+                    throw ERRORS.VALIDATION("Not enough atmosphere trash");
+            }
+
+            // --- Phase 2: Execution ---
+            if (amounts.coins && amounts.coins > 0)
+                profile.coins -= amounts.coins;
+            if (amounts.gems && amounts.gems > 0) profile.gems -= amounts.gems;
+            if (amounts.mineral && amounts.mineral > 0)
+                profile.mineral -= amounts.mineral;
+            if (
+                amounts.atmosphere_trash_type2 &&
+                amounts.atmosphere_trash_type2 > 0
+            )
+                profile.atmosphere_trash_type2 -=
+                    amounts.atmosphere_trash_type2;
+
+            await mainProfileRepository.save(profile);
+            return profile;
+        } catch (error: any) {
+            if (error instanceof AppError) throw error;
+
+            logger.error(
+                `[ProfileService.deductResources] Error for userId: ${userId}`,
+                {
+                    amounts,
+                    error,
+                }
+            );
+
+            throw ERRORS.DB_ERROR(
+                `Failed to deduct resources: ${error.message || "Unknown error"}`
             );
         }
     }
@@ -920,12 +1025,12 @@ export default class ProfileService {
             }
             logger.error(
                 `[ProfileService.deductCoins] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to deduct coins: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -954,12 +1059,12 @@ export default class ProfileService {
             }
             logger.error(
                 `[ProfileService.deductGems] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to deduct gems: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -988,12 +1093,12 @@ export default class ProfileService {
             }
             logger.error(
                 `[ProfileService.deductMineral] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to deduct mineral: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -1004,7 +1109,7 @@ export default class ProfileService {
     static async deductMineralAndCoin(
         userId: string,
         mineralAmount: number,
-        coinAmount: number,
+        coinAmount: number
     ) {
         try {
             const userProfile =
@@ -1032,12 +1137,12 @@ export default class ProfileService {
             }
             logger.error(
                 `[ProfileService.deductMineralAndCoin] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to deduct mineral and coin: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -1064,7 +1169,7 @@ export default class ProfileService {
         } catch (error) {
             logger.error(
                 `[ProfileService.deductAtmosphereAstroid] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
         }
     }

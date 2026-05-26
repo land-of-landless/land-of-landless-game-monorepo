@@ -1,14 +1,13 @@
-import HelioPay, { GETChargeDetails } from "@/daos/helioPay/index.js";
+import OxaPay from "@/daos/oxaPay/index.js";
 import BillingDAO from "@/daos/redis/billing.js";
 import _ from "lodash";
-import { SHOP_PASS_ITEMS_INDEX } from "@/constants/shop.js";
 import { paymentLogger } from "@/utils/logger.js";
 import {
     PAYMENT_INVALID_USER,
     PAYMENT_INVALID_INVOICE,
-    PAYMENT_INVOICE_NOT_PAID,
 } from "@/api/v1/errors/index.js";
-import { appConfig } from "@/config/environment.js";
+import type { ProviderInvoice } from "@/services/payment/paymentProviderTypes.js";
+import type { ShopItemType } from "@/constants/shop.js";
 
 /**
  * InvoiceService handles invoice management logic including
@@ -24,7 +23,7 @@ export default class InvoiceService {
      */
     static async findExistingInvoice(
         userId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
     ): Promise<string> {
         const userBillingProfile = await BillingDAO.findBillingById(userId);
@@ -60,22 +59,21 @@ export default class InvoiceService {
      * @param userId - User ID
      * @param itemType - Type of item
      * @param itemIndex - Index of the item
-     * @param amount - Amount to charge
-     * @returns Payment details including charge ID
+     * @param amount - Amount to charge (USD)
+     * @returns Payment details including charge ID and payment URL
      */
     static async createInvoice(
         userId: string,
-        itemType: string,
+        itemType: ShopItemType,
         itemIndex: number,
         amount: number,
     ) {
-        const paymentDetails = await HelioPay.generateCharge(
+        const paymentDetails = await OxaPay.createInvoice({
             userId,
             itemType,
             itemIndex,
-            appConfig.helio.payLink,
-            amount,
-        );
+            amountUsd: amount,
+        });
 
         paymentLogger.info("Invoice created", {
             userId,
@@ -85,7 +83,6 @@ export default class InvoiceService {
             chargeId: paymentDetails.chargeId,
         });
 
-        // Sync with user billing profile
         const billingProfile = await BillingDAO.findBillingById(userId);
         if (!billingProfile) {
             throw PAYMENT_INVALID_USER;
@@ -94,7 +91,6 @@ export default class InvoiceService {
         const invoiceId = `${paymentDetails.chargeId}|${itemType}|${itemIndex}`;
         const ongoingInvoices = billingProfile.ongoingInvoices;
 
-        // To prevent duplicates, remove any existing instance of the same invoice ID.
         for (let i = 0; i < ongoingInvoices.length; i++) {
             if (ongoingInvoices[i] === invoiceId) {
                 ongoingInvoices.splice(i, 1);
@@ -102,7 +98,6 @@ export default class InvoiceService {
             }
         }
 
-        // Add the new invoice ID to the list.
         billingProfile.ongoingInvoices.push(invoiceId);
         await BillingDAO.saveBillingProfile(billingProfile);
 
@@ -111,29 +106,26 @@ export default class InvoiceService {
 
     /**
      * Validates an invoice with the payment provider
-     * @param chargeId - The charge ID to validate
-     * @returns Charge details
-     * @throws Error if invoice is invalid
+     * @param chargeId - The track ID to validate
+     * @returns Normalized provider invoice
      */
-    static async validateInvoice(chargeId: string): Promise<GETChargeDetails> {
-        const chargeDetail = await HelioPay.fetchCharge(chargeId);
+    static async validateInvoice(chargeId: string): Promise<ProviderInvoice> {
+        const invoice = await OxaPay.getPaymentInfo(chargeId);
 
-        // Check if invoice is valid
-        if (!_.isNil(chargeDetail.code) && chargeDetail.code !== 200) {
-            paymentLogger.warn("Invoice validation failed", {
+        if (!invoice.trackId) {
+            paymentLogger.warn("Invoice validation failed - missing trackId", {
                 chargeId,
-                code: chargeDetail.code,
             });
-            throw PAYMENT_INVALID_INVOICE;
+            throw new Error("Invalid invoice from payment provider");
         }
 
-        return chargeDetail;
+        return invoice;
     }
 
     /**
      * Drops an invoice from ongoing invoices
      * @param userId - User ID
-     * @param chargeId - Charge ID
+     * @param chargeId - Charge ID (track ID)
      * @param itemType - Item type
      * @param itemIndex - Item index
      */
@@ -152,7 +144,6 @@ export default class InvoiceService {
         const ongoingInvoices = billingProfile.ongoingInvoices;
         let flag = false;
 
-        // Find the invoice in the array and remove it.
         for (let i = 0; i < ongoingInvoices.length; i++) {
             if (ongoingInvoices[i] === invoiceId) {
                 flag = true;
@@ -166,8 +157,6 @@ export default class InvoiceService {
                 userId,
                 invoiceId,
             });
-            // We can decide whether to throw or just log.
-            // For consistency with original logic:
             throw PAYMENT_INVALID_INVOICE;
         }
 

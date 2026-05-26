@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import { spawnSync } from "node:child_process";
 import withSerwistInit from "@serwist/next";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 // Using `git rev-parse HEAD` might not the most efficient
 // way of determining a revision. You may prefer to use
@@ -26,9 +27,6 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // Enables minification which makes the code harder to read.
-  swcMinify: true,
-
   // Disables generation of source maps for client bundles in production.
   productionBrowserSourceMaps: false,
 
@@ -47,4 +45,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSerwist(nextConfig);
+export default withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+})(withSerwist(nextConfig));
