@@ -3,8 +3,8 @@ import { auth } from "@colyseus/auth";
 import LabController from "../controllers/lab.ts";
 import {
     validateBody,
-    labUpgradeSchema,
-    labUpgradeItemSchema,
+    LAB_UPGRADE_SCHEMA,
+    LAB_UPGRADE_ITEM_SCHEMA,
     LabUpgradeInput,
     LabUpgradeItemInput,
 } from "@/validators/schemas.js";
@@ -26,7 +26,7 @@ labRouter.get(
 labRouter.post(
     "/upgrade",
     auth.middleware(),
-    validateBody(labUpgradeSchema),
+    validateBody(LAB_UPGRADE_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,
@@ -39,7 +39,7 @@ labRouter.post(
 labRouter.post(
     "/upgrade-item",
     auth.middleware(),
-    validateBody(labUpgradeItemSchema),
+    validateBody(LAB_UPGRADE_ITEM_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,

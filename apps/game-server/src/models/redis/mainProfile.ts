@@ -1,4 +1,5 @@
-import { DAILY_REWARD_CLAIM_COUNTER, LootBoxType } from "@/constants/index.js";
+import { DAILY_CLAIM_REWARDS } from "@/constants/mainProfile.js";
+import { MiniGamesLootBox } from "@/constants/miniGames.ts";
 import { Schema, Entity } from "redis-om";
 
 // 1 is for the new worker bot
@@ -56,7 +57,7 @@ export interface MainProfile extends Entity {
     /**
      * lootBoxes is an array of loot boxes that the user has
      */
-    lootBoxes: (LootBoxType | "")[];
+    lootBoxes: (MiniGamesLootBox | "")[];
     /**
      * lootBoxesTimers is an array of timers for each loot box
      */
@@ -144,7 +145,7 @@ export interface MainProfile extends Entity {
     /**
      * the number of consecutive claims
      */
-    dailyRewardClaimCounter: DAILY_REWARD_CLAIM_COUNTER;
+    dailyRewardClaimCounter: number;
     /**
      * the user's referrer's user ID
      */
@@ -175,7 +176,7 @@ export const mainProfileSchema = new Schema<MainProfile>(
     },
     {
         dataStructure: "JSON",
-    },
+    }
 );
 
 export default mainProfileSchema;

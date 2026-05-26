@@ -1,11 +1,10 @@
 import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { mainProfileRepository } from "@/daos/redis/repositories/index.js";
-import { ERRORS } from "@/common/errors/appError.js";
+import { ERRORS, AppError } from "@/common/errors/appError.js";
 import {
     DAILY_REWARD_COOLDOWN_HOURS,
     DAILY_CLAIM_REWARDS,
     DAILY_REWARD_MAX_CONSECUTIVE_HOURS,
-    DAILY_REWARD_CLAIM_COUNTER,
+    DailyRewardsClaimKey,
     DAILY_REWARD_RESET_CYCLE_DAYS,
 } from "@/constants/mainProfile.js";
 import logger from "@/utils/logger.js";
@@ -23,78 +22,75 @@ export default class DailyRewardService {
     }> {
         try {
             const userProfile = await ProfileService.getProfile(userId);
+            const now = new Date();
+            const lastClaimStr = userProfile.lastDailyRewardClaimedAt;
 
-            if (!userProfile) {
-                throw ERRORS.NOT_FOUND("MainProfile not found");
-            }
+            // 1. Determine the next counter value
+            let nextCounter = 1;
 
-            if (userProfile.lastDailyRewardClaimedAt === "") {
-                userProfile.dailyRewardClaimCounter = 1;
-            } else {
-                const lastClaimedDate = new Date(
-                    userProfile.lastDailyRewardClaimedAt,
-                );
-                const currentDate = new Date();
+            if (lastClaimStr !== "") {
+                const lastClaimedDate = new Date(lastClaimStr);
                 const hoursSinceLastClaim = Math.floor(
-                    (currentDate.getTime() - lastClaimedDate.getTime()) /
-                        (1000 * 60 * 60),
+                    (now.getTime() - lastClaimedDate.getTime()) /
+                        (1000 * 60 * 60)
                 );
 
+                // Validation: Is it too early?
                 if (hoursSinceLastClaim < DAILY_REWARD_COOLDOWN_HOURS) {
                     throw ERRORS.VALIDATION(
-                        "Daily reward is not available yet.",
+                        "Daily reward is not available yet."
                     );
-                } else if (
-                    hoursSinceLastClaim >= DAILY_REWARD_MAX_CONSECUTIVE_HOURS
-                ) {
-                    userProfile.dailyRewardClaimCounter = 1;
-                } else {
-                    // if none of above conditions it means it is the consecutive day and we can consider a bump in counter
-                    // check if counter has reached max to reset it
-                    if (
-                        userProfile.dailyRewardClaimCounter >=
-                        DAILY_REWARD_RESET_CYCLE_DAYS
-                    ) {
-                        userProfile.dailyRewardClaimCounter = 1;
-                    } else {
-                        userProfile.dailyRewardClaimCounter += 1;
-                    }
+                }
+
+                // Logic: Increment if within the streak window and cycle isn't finished
+                const isWithinStreak =
+                    hoursSinceLastClaim < DAILY_REWARD_MAX_CONSECUTIVE_HOURS;
+                const isCycleFinished =
+                    userProfile.dailyRewardClaimCounter >=
+                    DAILY_REWARD_RESET_CYCLE_DAYS;
+
+                if (isWithinStreak && !isCycleFinished) {
+                    nextCounter = userProfile.dailyRewardClaimCounter + 1;
                 }
             }
 
-            let claimedRewards = {
-                coins: DAILY_CLAIM_REWARDS[
-                    userProfile.dailyRewardClaimCounter as DAILY_REWARD_CLAIM_COUNTER
-                ].coins,
-                gems: DAILY_CLAIM_REWARDS[
-                    userProfile.dailyRewardClaimCounter as DAILY_REWARD_CLAIM_COUNTER
-                ].gems,
-            };
+            userProfile.dailyRewardClaimCounter = nextCounter;
 
-            userProfile.coins += claimedRewards.coins;
-            userProfile.gems += claimedRewards.gems;
-            userProfile.lastDailyRewardClaimedAt = new Date().toUTCString();
+            // 2. Resolve Rewards
+            const dayKey =
+                `day${userProfile.dailyRewardClaimCounter}` as DailyRewardsClaimKey;
+            const rewardConfig = DAILY_CLAIM_REWARDS[dayKey];
 
-            await mainProfileRepository.save(userProfile);
+            if (!rewardConfig) {
+                throw ERRORS.VALIDATION(
+                    `Reward configuration missing for ${dayKey}`
+                );
+            }
+
+            // 3. Apply changes
+            userProfile.coins += rewardConfig.coins;
+            userProfile.gems += rewardConfig.gems;
+            userProfile.lastDailyRewardClaimedAt = now.toUTCString();
+
+            await ProfileService.saveProfile(userProfile);
 
             return {
-                coins: claimedRewards.coins,
-                gems: claimedRewards.gems,
+                coins: rewardConfig.coins,
+                gems: rewardConfig.gems,
                 newLastDailyRewardClaimedAt:
                     userProfile.lastDailyRewardClaimedAt,
             };
         } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
+            if (error instanceof AppError) throw error;
+
             logger.error(
                 `[DailyRewardService.claimDailyReward] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to claim daily reward: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }

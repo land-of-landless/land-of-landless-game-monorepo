@@ -5,18 +5,21 @@ import MainProfileDAO from "@/daos/redis/mainProfile.js";
 import { auth } from "@colyseus/auth";
 import _ from "lodash";
 import crypto from "crypto";
-import {
-    MINE_MAX_MINERALS_VALUE,
-} from "@/constants/mine.js";
+import { MINE_MAX_MINERALS_VALUE } from "@/constants/mine.js";
 import { MineDAO } from "@/daos/redis/mine.js";
 import { FactoryDAO } from "@/daos/redis/factory.js";
 import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
+import StatsDAO from "@/daos/redis/stats.js";
+import {
+    EMPTY_LAUNCHES_BY_ITEM,
+    EMPTY_LOOT_BOXES_OPENED_BY_TYPE,
+} from "@/constants/stats.js";
 import { LabDAO } from "@/daos/redis/lab.js";
 import {
-    lolSoldierProfilePics,
-    lolSoldierNames,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_2,
+    PROFILE_PFP_IDS,
+    PROFILE_DEFAULT_NAMES,
 } from "@/constants/mainProfile.js";
 import {
     ENERGY_GENERATOR_BASE_ENERGY_GENERATION_RATE,
@@ -83,7 +86,7 @@ const generateRandomRefCode = (digits: number) => {
     let refCode = "";
     for (let i = 0; i < digits; i++) {
         refCode += characters.charAt(
-            Math.floor(Math.random() * characters.length),
+            Math.floor(Math.random() * characters.length)
         );
     }
     return refCode;
@@ -94,9 +97,9 @@ const generateRandomRefCode = (digits: number) => {
  * @returns A random name string.
  */
 const generateRandomName = () => {
-    const randomIndex = Math.floor(Math.random() * lolSoldierNames.length);
+    const randomIndex = Math.floor(Math.random() * PROFILE_DEFAULT_NAMES.length);
 
-    return lolSoldierNames[randomIndex];
+    return PROFILE_DEFAULT_NAMES[randomIndex];
 };
 
 /**
@@ -105,10 +108,10 @@ const generateRandomName = () => {
  */
 const generateRandomProfilePicture = () => {
     const randomIndex = Math.floor(
-        Math.random() * lolSoldierProfilePics.length,
+        Math.random() * PROFILE_PFP_IDS.length
     );
 
-    return lolSoldierProfilePics[randomIndex];
+    return PROFILE_PFP_IDS[randomIndex];
 };
 
 interface OAuthData {
@@ -340,6 +343,16 @@ export async function authCallback(data: any, provider: string) {
                 dyson_sphere_timers: ["", "", ""],
             });
 
+            await StatsDAO.createStats({
+                userId: processedUserId,
+                loot_boxes_opened_total: 0,
+                loot_boxes_opened_by_type: {
+                    ...EMPTY_LOOT_BOXES_OPENED_BY_TYPE,
+                },
+                launches_total: 0,
+                launches_by_item: { ...EMPTY_LAUNCHES_BY_ITEM },
+            });
+
             return {
                 userId: processedUserId,
             };
@@ -350,7 +363,7 @@ export async function authCallback(data: any, provider: string) {
             `[AuthCallbackError] Failed during authentication with provider: ${provider}.`,
             {
                 error,
-            },
+            }
         );
 
         // Re-throwing the error is important. It signals to Colyseus that authentication

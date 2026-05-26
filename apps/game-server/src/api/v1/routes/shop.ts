@@ -3,8 +3,8 @@ import ShopController from "../controllers/shop.ts";
 import { auth } from "@colyseus/auth";
 import {
     validateBody,
-    shopPurchaseSchema,
-    invoiceSchema,
+    SHOP_PURCHASE_SCHEMA,
+    INVOICE_SCHEMA,
     ShopPurchaseInput,
     InvoiceInput,
 } from "@/validators/schemas.js";
@@ -14,7 +14,7 @@ const shopRouter = Router();
 shopRouter.post(
     "/purchase",
     auth.middleware(),
-    validateBody(shopPurchaseSchema),
+    validateBody(SHOP_PURCHASE_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,
@@ -29,7 +29,7 @@ shopRouter.post(
 shopRouter.post(
     "/invoice-info",
     auth.middleware(),
-    validateBody(invoiceSchema),
+    validateBody(INVOICE_SCHEMA),
     async (
         req: Request<any, any, any>,
         res: Response,

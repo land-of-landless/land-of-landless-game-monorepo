@@ -4,13 +4,13 @@ import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
 import {
     LAB_FACTORY_ITEMS_UPGRADE_INFO,
     LAB_ITEMS_UPGRADE_INFO,
-    LAB_LEVEL_INDEX_TYPE,
+    LabLevel,
     LAB_MAX_LEVEL,
     LAB_UPGRADE_INFO,
-    LAB_UPGRADE_ITEM_TYPE,
+    LabUpgradeItem,
 } from "@/constants/lab.js";
 import { Lab } from "@/models/redis/lab.js";
-import { Factory_Item_Type } from "@/constants/index.js";
+import { FactoryItem } from "@/constants/index.js";
 import _ from "lodash";
 import { ERRORS } from "@/common/errors/appError.js";
 import logger from "@/utils/logger.js";
@@ -51,7 +51,7 @@ export default class LabService {
                 throw ERRORS.VALIDATION("Max level reached");
             }
 
-            const newLevel = (labProfile.level + 1) as LAB_LEVEL_INDEX_TYPE;
+            const newLevel = (labProfile.level + 1) as LabLevel;
             const coinsToBePaid = LAB_UPGRADE_INFO[newLevel].coinCost;
 
             await ProfileService.deductCoins(userId, coinsToBePaid);
@@ -97,7 +97,7 @@ export default class LabService {
                 throw ERRORS.VALIDATION("Max level reached");
             }
 
-            const newLevel = (labProfile.level + 1) as LAB_LEVEL_INDEX_TYPE;
+            const newLevel = (labProfile.level + 1) as LabLevel;
             const timeToWait = LAB_UPGRADE_INFO[newLevel].time;
 
             const now = new Date();
@@ -147,7 +147,7 @@ export default class LabService {
      */
     static async upgradeItem(
         userId: string,
-        itemId: LAB_UPGRADE_ITEM_TYPE,
+        itemId: LabUpgradeItem,
     ): Promise<Lab> {
         try {
             const labProfile = await LabDAO.findLabByUserId(userId);
@@ -161,7 +161,8 @@ export default class LabService {
             }
 
             const currentLevel = labProfile.level;
-            const targetItemLevel = labProfile[itemId] + 1;
+            const currentItemLevel = labProfile[itemId] as number;
+            const targetItemLevel = currentItemLevel + 1;
 
             if (currentLevel < targetItemLevel) {
                 throw ERRORS.VALIDATION("First upgrade the lab");
@@ -207,7 +208,7 @@ export default class LabService {
      */
     static async checkIfItemFromFactoryHasTheTech(
         userId: string,
-        itemId: Factory_Item_Type,
+        itemId: FactoryItem,
     ): Promise<boolean> {
         try {
             const labProfile = await LabDAO.findLabByUserId(userId);

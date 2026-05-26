@@ -9,9 +9,9 @@ import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
 import { ERRORS } from "@/common/errors/appError.js";
 import {
-    padIdType,
-    FACTORY_SECONDARY_Item_INDEX_Type,
-    Factory_Item_Type,
+    PadId,
+    FactorySecondaryItemIndex,
+    FactoryItem,
 } from "@/constants/factory.js";
 
 export default class FactoryController {
@@ -94,11 +94,11 @@ export default class FactoryController {
     ) {
         try {
             const operation = req.body.operation;
-            const itemId = req.body.itemId as Factory_Item_Type;
+            const itemId = req.body.itemId as FactoryItem;
             const secondaryItemId = (
                 req.body.secondaryItemId ? req.body.secondaryItemId : 0
-            ) as FACTORY_SECONDARY_Item_INDEX_Type;
-            const padId = req.body.padId as unknown as padIdType;
+            ) as FactorySecondaryItemIndex;
+            const padId = req.body.padId as unknown as PadId;
 
             if (_.isNil(req.auth) || _.isNil(req.auth.userId)) {
                 throw ERRORS.UNAUTHORIZED();

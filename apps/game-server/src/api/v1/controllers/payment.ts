@@ -1,36 +1,43 @@
 import { Request, Response, NextFunction } from "express";
-import { WebhookResponseBody } from "@/daos/helioPay/index.js";
 import { INVALID_PAYMENT_CALLBACK } from "../errors/index.ts";
-import {
-    PaymentCallbackInput,
-    ProcessInvoiceInput,
-} from "@/validators/schemas.js";
-import { ApiResponse } from "../utils/response.ts";
+import { ProcessInvoiceInput } from "@/validators/schemas.js";
 import PaymentService from "@/services/payment/PaymentService.js";
 import ShopService from "@/services/shop/ShopService.js";
+import { ApiResponse } from "../utils/response.ts";
+import type { OxaPayWebhookRequest } from "@/middlewares/oxaPayWebhook.js";
+import { normalizeOxaPayStatus } from "@/daos/oxaPay/index.js";
 
 export default class PaymentController {
     static async processPaymentCallback(
-        req: Request<any, any, PaymentCallbackInput>,
+        req: OxaPayWebhookRequest,
         res: Response,
         next: NextFunction,
     ) {
         try {
-            const {
-                transactionObject: {
-                    paylinkId,
-                    meta: {
-                        customerDetails: { additionalJSON },
-                    },
-                },
-            } = req.body as WebhookResponseBody;
+            const payload = req.oxaPayWebhookPayload;
 
-            const result = await PaymentService.handlePaymentCallback(
-                paylinkId,
-                additionalJSON,
+            if (!payload) {
+                return next(INVALID_PAYMENT_CALLBACK(new Error("Missing webhook payload")));
+            }
+
+            const trackId = payload.track_id ?? payload.trackId ?? "";
+            const orderId =
+                (typeof payload.order_id === "string"
+                    ? payload.order_id
+                    : undefined) ??
+                (typeof payload.orderId === "string"
+                    ? payload.orderId
+                    : undefined);
+
+            const webhookStatus = normalizeOxaPayStatus(payload.status);
+
+            await PaymentService.handlePaymentCallback(
+                trackId,
+                orderId,
+                webhookStatus,
             );
 
-            return ApiResponse.success(res, result);
+            return res.status(200).send("ok");
         } catch (error) {
             next(INVALID_PAYMENT_CALLBACK(error));
         }

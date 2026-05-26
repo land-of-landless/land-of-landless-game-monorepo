@@ -1,13 +1,13 @@
 import { HTTP_STATUS } from '../constants'
 
-export const ErrorCodes = {
+export const ERROR_CODES = {
   NOT_FOUND: 'NOT_FOUND',
   UNAUTHORIZED: 'UNAUTHORIZED',
   VALIDATION_FAILED: 'VALIDATION_FAILED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const
 
-export type ErrorCode = (typeof ErrorCodes)[keyof typeof ErrorCodes]
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
 
 export class AppError extends Error {
   public readonly code: ErrorCode

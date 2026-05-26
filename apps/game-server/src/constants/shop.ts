@@ -7,7 +7,7 @@ export const PAYMENT_MINIMUM_REMAINING_TIME_SECS = 30 * 60; // in seconds
  * The items available in the shop that can be purchased with gems.
  */
 export const SHOP_GEM_ITEMS: {
-    [key in SHOP_GEM_ITEMS_INDEX]: {
+    [key in ShopGemItemIndex]: {
         gemAmount: number;
         cost: number;
         itemType: "gem";
@@ -59,7 +59,7 @@ export const SHOP_GEM_ITEMS: {
  * The robot items available in the shop.
  */
 export const SHOP_ROBOT_ITEMS: {
-    [key in SHOP_ROBOT_ITEMS_INDEX]: {
+    [key in ShopRobotItemIndex]: {
         cost: number;
         itemType: "robot";
     };
@@ -82,7 +82,7 @@ export const SHOP_ROBOT_ITEMS: {
  * The game pass items available in the shop.
  */
 export const SHOP_PASS_ITEMS: {
-    [key in SHOP_PASS_ITEMS_INDEX]: {
+    [key in ShopPassItemIndex]: {
         cost: number;
         itemType: "game_pass";
     };
@@ -97,7 +97,7 @@ export const SHOP_PASS_ITEMS: {
  * The coin items available in the shop.
  */
 export const SHOP_COIN_ITEMS: {
-    [key in SHOP_COIN_ITEMS_INDEX]: {
+    [key in ShopCoinItemIndex]: {
         coinAmount: number;
         cost: number;
         itemType: "gem";
@@ -176,21 +176,21 @@ export const SHOP_MAX_GAME_PASS_ITEM_INDEX = 2;
 /**
  * The valid inputs for the item type.
  */
-export const itemTypeInputs = ["gem", "robot", "game_pass", "coin"];
+export const ITEM_TYPE_INPUTS = ["gem", "robot", "game_pass", "coin"];
 /**
  * The valid inputs for the item index.
  */
-export const itemIndexInputs = [0, 1, 2, 3, 4, 5, 6, 7];
+export const ITEM_INDEX_INPUTS = [0, 1, 2, 3, 4, 5, 6, 7];
 /**
  * The valid inputs for the payment method.
  */
-export const payByInputs = ["gem", "money"];
+export const PAY_BY_INPUTS = ["gem", "money"];
 
 // types
-export type SHOP_Item_Type = "gem" | "robot" | "game_pass" | "coin";
-export type SHOP_GEM_ITEMS_INDEX = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type ShopItemType = "gem" | "robot" | "game_pass" | "coin";
+export type ShopGemItemIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type PayBy = "gem" | "money";
 
-export type SHOP_ROBOT_ITEMS_INDEX = 0 | 1 | 2;
-export type SHOP_PASS_ITEMS_INDEX = 0;
-export type SHOP_COIN_ITEMS_INDEX = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export type ShopRobotItemIndex = 0 | 1 | 2;
+export type ShopPassItemIndex = 0;
+export type ShopCoinItemIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;

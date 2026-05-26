@@ -3,7 +3,7 @@ import { auth } from "@colyseus/auth";
 import { mineController } from "../controllers/mine.ts";
 import {
     validateBody,
-    mineUpgradeSchema,
+    MINE_UPGRADE_SCHEMA,
     MineUpgradeInput,
 } from "@/validators/schemas.js";
 
@@ -24,7 +24,7 @@ mineRouter.get(
 mineRouter.post(
     "/upgrade",
     auth.middleware(),
-    validateBody(mineUpgradeSchema),
+    validateBody(MINE_UPGRADE_SCHEMA),
     async (
         req: Request,
         res: Response,

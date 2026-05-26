@@ -7,7 +7,7 @@ import {
     LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_CLEAN_ATMOSPHERE,
     LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_ROCKET_TECH,
     LAUNCH_SITE_ITEMS_INFO,
-    LAUNCH_SITE_LEVELS_INDEX,
+    LaunchSiteLevelIndex,
     LAUNCH_SITE_MAX_LEVEL,
     LAUNCH_SITE_UPGRADE_INFO,
     LAUNCHABLE_ITEMS,
@@ -52,7 +52,7 @@ export default class LaunchSiteService {
             }
 
             const newLevel = (launchSiteProfile.level +
-                1) as LAUNCH_SITE_LEVELS_INDEX;
+                1) as LaunchSiteLevelIndex;
             const { coinCost, mineralCost } =
                 LAUNCH_SITE_UPGRADE_INFO[newLevel];
 
@@ -105,7 +105,7 @@ export default class LaunchSiteService {
             }
 
             const newLevel = (launchSiteProfile.level +
-                1) as LAUNCH_SITE_LEVELS_INDEX;
+                1) as LaunchSiteLevelIndex;
             const timeToWait = LAUNCH_SITE_UPGRADE_INFO[newLevel].time;
 
             const now = new Date();
@@ -274,10 +274,10 @@ export default class LaunchSiteService {
                     );
                     launchSiteProfile.wormholes_launched += 1;
                     break;
-                case "astroid_digger":
+                case "asteroidDigger":
                     if (
                         launchSiteProfile.astroid_diggers_launched >=
-                        LAUNCH_SITE_ITEMS_INFO["astroid_digger"].maxCount
+                        LAUNCH_SITE_ITEMS_INFO.asteroidDigger.maxCount
                     ) {
                         throw ERRORS.VALIDATION("Max count reached");
                     }
@@ -324,10 +324,10 @@ export default class LaunchSiteService {
                     );
                     launchSiteProfile.cyborgs_launched += 1;
                     break;
-                case "dyson_sphere":
+                case "dysonSphere":
                     if (
                         launchSiteProfile.dyson_sphere_parts_launched >=
-                        LAUNCH_SITE_ITEMS_INFO["dyson_sphere"].maxCount
+                        LAUNCH_SITE_ITEMS_INFO.dysonSphere.maxCount
                     ) {
                         throw ERRORS.VALIDATION("Max count reached");
                     }

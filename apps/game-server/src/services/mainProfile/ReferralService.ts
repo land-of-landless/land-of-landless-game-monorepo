@@ -1,12 +1,17 @@
 import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { REFERRAL_REWARDS } from "@/constants/mainProfile.js";
+import { REFERRAL_REWARDS, ReferralRewards } from "@/constants/mainProfile.js";
 import {
     REFERRAL_ALREADY_USED,
     REFERRAL_CODE_INVALID,
     REFERRAL_SELF_USE,
-    PROFILE_NOT_FOUND,
 } from "@/api/v1/errors/index.js";
-import _ from "lodash";
+import { MainProfile } from "@/models/redis/mainProfile.js";
+
+// TODO: implement a better logic for handling referral system and prizes
+// ideally referer would not get an immediate reward but rather get their rewards when the new user reaches certain milestones
+// for example:
+// - when the new user signs up -> referee gets some prizes, referer gets nothing
+// - when the new user levels up to level 5 -> referer gets some prizes
 
 export default class ReferralService {
     /**
@@ -18,9 +23,6 @@ export default class ReferralService {
     static async applyReferralCode(userId: string, refCode: string) {
         // 1. Fetch Referee Profile
         const refereeProfile = await ProfileService.getProfile(userId);
-        if (!refereeProfile) {
-            throw PROFILE_NOT_FOUND;
-        }
 
         // 2. Check if already referred
         if (refereeProfile.referredBy !== "") {
@@ -30,7 +32,7 @@ export default class ReferralService {
         // 3. Fetch Referrer Profile
         const referrerProfile =
             await ProfileService.findProfileByRefCode(refCode);
-        if (_.isNil(referrerProfile)) {
+        if (!referrerProfile) {
             throw REFERRAL_CODE_INVALID;
         }
 
@@ -39,34 +41,44 @@ export default class ReferralService {
             throw REFERRAL_SELF_USE;
         }
 
-        // 6. Mark as Used
+        // 5. Link profiles and Apply Rewards
         refereeProfile.referredBy = referrerProfile.userId;
 
-        // 5. Apply Rewards
+        this.applyReferralRewards(refereeProfile, "referee");
 
-        // 1. apply referrer rewards
-        referrerProfile.gems += REFERRAL_REWARDS.REFERRER.gems;
-        referrerProfile.coins += REFERRAL_REWARDS.REFERRER.coins;
-        referrerProfile.energy = Math.min(
-            referrerProfile.energy + REFERRAL_REWARDS.REFERRER.energy,
-            referrerProfile.energy_max,
-        );
+        // this.applyReferralRewards(referrerProfile, "referrer");
+        // after the referred user is active later system automatically should apply referrer's reward on specific milestones
+        // for example:
+        // - when the new user levels up to level 5 -> referrer gets some prizes
+        // the idea of active user depends on our definition of course! like xp wise or similar
 
-        // 2. apply referee rewards
-        refereeProfile.coins += REFERRAL_REWARDS.REFEREE.coins;
-        refereeProfile.gems += REFERRAL_REWARDS.REFEREE.gems;
-        refereeProfile.energy = Math.min(
-            refereeProfile.energy + REFERRAL_REWARDS.REFEREE.energy,
-            refereeProfile.energy_max,
-        );
-
-        // 7. Save Profiles
-        // Note: MainProfileDAO needs to expose a save method or we use updateProfileInfo/createProfile
-        // Ideally, MainProfileDAO should have a generic save method.
-        // For now, we'll assume we can use a method we'll add to MainProfileDAO called 'saveProfile'
+        // 6. Persist changes
         await ProfileService.saveProfile(refereeProfile);
-        await ProfileService.saveProfile(referrerProfile);
 
         return refereeProfile;
+    }
+
+    private static applyReferralRewards(
+        profile: MainProfile,
+        type: "referee" | "referrer"
+    ) {
+        if (type === "referee") {
+            profile.gems += REFERRAL_REWARDS.referee.gems;
+            profile.coins += REFERRAL_REWARDS.referee.coins;
+            profile.energy = Math.min(
+                profile.energy + REFERRAL_REWARDS.referee.energy,
+                profile.energy_max
+            );
+        } else {
+            // it's a good idea to consider sth more than
+            // normal prizes for sucessful referals
+            // like special loot box or ticket or similar
+            profile.gems += REFERRAL_REWARDS.referrer.gems;
+            profile.coins += REFERRAL_REWARDS.referrer.coins;
+            profile.energy = Math.min(
+                profile.energy + REFERRAL_REWARDS.referrer.energy,
+                profile.energy_max
+            );
+        }
     }
 }

@@ -4,9 +4,9 @@ import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     MINE_MAX_MINER_COUNT,
     MINE_MAX_LEVEL_PER_MINER,
-    MINE_MINER_ID_TYPE,
+    MineMinerId,
     MINE_UPGRADE_INFO,
-    MINE_UPGRADE_LEVEL_TYPE,
+    MineUpgradeLevel,
 } from "@/constants/mine.js";
 import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -23,7 +23,7 @@ export default class MineService {
      */
     static async upgradeMinerStart(
         userId: string,
-        minerId: MINE_MINER_ID_TYPE,
+        minerId: MineMinerId,
     ) {
         try {
             const mineProfile = await MineDAO.findMineByUserId(userId);
@@ -65,7 +65,7 @@ export default class MineService {
             // Determine the target level and get the cost from constants.
             // level is checked and is in normal range so it's alright
             let targetUpgradeLevel = (fetched_miners_info[`miner${minerId}`]
-                .level + 1) as MINE_UPGRADE_LEVEL_TYPE;
+                .level + 1) as MineUpgradeLevel;
 
             // Deduct the coin cost for the upgrade.
             let { coinCost: coinsToBePaid } =
@@ -104,7 +104,7 @@ export default class MineService {
      */
     static async upgradeMinerEnd(
         userId: string,
-        minerId: MINE_MINER_ID_TYPE,
+        minerId: MineMinerId,
         skipWithGem: boolean,
     ) {
         try {
@@ -138,7 +138,7 @@ export default class MineService {
             // --- Timer and Gem Skip Logic ---
 
             let targetUpgradeLevel = (fetched_miners_info[`miner${minerId}`]
-                .level + 1) as MINE_UPGRADE_LEVEL_TYPE;
+                .level + 1) as MineUpgradeLevel;
 
             // Get the required time for the upgrade.
             let timeToWait = MINE_UPGRADE_INFO[targetUpgradeLevel].time;

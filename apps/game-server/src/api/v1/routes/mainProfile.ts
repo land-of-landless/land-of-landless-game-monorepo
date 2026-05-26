@@ -4,86 +4,66 @@ import { Router, Request, Response, NextFunction } from "express";
 import ProfileController from "@/api/v1/controllers/mainProfile.js";
 import {
     validateBody,
-    profileLootBoxSchema,
-    updateProfileSchema,
-    useReferralCodeSchema,
+    PROFILE_LOOT_BOX_SCHEMA,
+    UPDATE_PROFILE_SCHEMA,
+    USE_REFERRAL_CODE_SCHEMA,
 } from "@/validators/schemas.js";
 
-const mainProfileRouter = Router();
+const MAIN_PROFILE_ROUTER = Router();
 
-mainProfileRouter.get(
+MAIN_PROFILE_ROUTER.get(
     "/authenticated",
     auth.middleware(),
-    async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         await ProfileController.getMainProfile(req, res, next);
-    },
+    }
 );
 
-mainProfileRouter.get(
+MAIN_PROFILE_ROUTER.get(
     "/:userId",
     auth.middleware(),
-    async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         await ProfileController.getMainProfile(req, res, next);
-    },
+    }
 );
 
-mainProfileRouter.post(
+MAIN_PROFILE_ROUTER.post(
     "/update-preferences",
     auth.middleware(),
-    validateBody(updateProfileSchema),
-    async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    validateBody(UPDATE_PROFILE_SCHEMA),
+    async (req: Request, res: Response, next: NextFunction) => {
         await ProfileController.updatePreferences(req, res, next);
-    },
+    }
 );
 
-mainProfileRouter.post(
-    "/lootbox/open",
+/**
+ * open the lootbox
+ * has modes like start, end, end-with-gems, end-with-key
+ */
+MAIN_PROFILE_ROUTER.post(
+    "/loot-box/open",
     auth.middleware(),
-    validateBody(profileLootBoxSchema),
-    async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    validateBody(PROFILE_LOOT_BOX_SCHEMA),
+    async (req: Request, res: Response, next: NextFunction) => {
         await ProfileController.openLootBox(req, res, next);
-    },
+    }
 );
 
-mainProfileRouter.post(
+MAIN_PROFILE_ROUTER.post(
     "/daily-reward/claim",
     auth.middleware(),
-    async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    async (req: Request, res: Response, next: NextFunction) => {
         await ProfileController.claimDailyReward(req, res, next);
-    },
+    }
 );
 
-mainProfileRouter.post(
+MAIN_PROFILE_ROUTER.post(
     "/referral/use",
     auth.middleware(),
-    validateBody(useReferralCodeSchema),
-    async (
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    validateBody(USE_REFERRAL_CODE_SCHEMA),
+    async (req: Request, res: Response, next: NextFunction) => {
         await ProfileController.useReferralCode(req, res, next);
-    },
+    }
 );
 
-export default mainProfileRouter;
+export default MAIN_PROFILE_ROUTER;

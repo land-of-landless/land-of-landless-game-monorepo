@@ -13,7 +13,7 @@ export const LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_CLEAN_ATMOSPH
  * The key represents the target level of the upgrade.
  */
 export const LAUNCH_SITE_UPGRADE_INFO: {
-    [key in LAUNCH_SITE_LEVELS_INDEX]: {
+    [key in LaunchSiteLevelIndex]: {
         mineralCost: number;
         coinCost: number;
         time: number;
@@ -79,7 +79,7 @@ export const LAUNCH_SITE_UPGRADE_INFO: {
 /**
  * Represents the possible levels for a Launch Site upgrade.
  */
-export type LAUNCH_SITE_LEVELS_INDEX = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type LaunchSiteLevelIndex = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 
 /**
  * A list of all items that can be launched from the Launch Site.
@@ -87,9 +87,9 @@ export type LAUNCH_SITE_LEVELS_INDEX = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export const LAUNCHABLE_ITEMS = [
     "satellite",
     "wormhole",
-    "astroid_digger",
+    "asteroidDigger",
     "cyborg",
-    "dyson_sphere",
+    "dysonSphere",
 ] as const;
 
 export const LAUNCH_SITE_ITEMS_INFO: {
@@ -105,13 +105,13 @@ export const LAUNCH_SITE_ITEMS_INFO: {
     wormhole: {
         maxCount: 5,
     },
-    astroid_digger: {
+    asteroidDigger: {
         maxCount: 5,
     },
     cyborg: {
         maxCount: 5,
     },
-    dyson_sphere: {
+    dysonSphere: {
         maxCount: 10,
         expiresIn: 30 * 24 * 60 * 60 * 1000, // 30 day
     },

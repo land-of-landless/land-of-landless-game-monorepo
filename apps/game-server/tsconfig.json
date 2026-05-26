@@ -1,30 +1,28 @@
 {
-  "compilerOptions": {
-    "outDir": "build",
-    "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "strict": true,
-    "allowJs": true,
-    "strictNullChecks": false,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "useDefineForClassFields": false,
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "paths": {
-      "@/*": ["src/*"]
+    "compilerOptions": {
+        "outDir": "build",
+        "target": "ESNext",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "strict": true,
+        "allowJs": true,
+        "strictNullChecks": false,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "useDefineForClassFields": false,
+        "noImplicitAny": true,
+        "baseUrl": ".",
+        "ignoreDeprecations": "6.0",
+        "allowSyntheticDefaultImports": true,
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "paths": {
+            "@/*": ["src/*"]
+        }
     },
-  },
 
-  "include": [
-    "src",
-    "test"
-  ],
-  "files": ["custom.d.ts"],
-
+    "include": ["src", "test"],
+    "files": ["custom.d.ts"]
 }

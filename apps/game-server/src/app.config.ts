@@ -48,12 +48,13 @@ import { createRedisIndexes } from "@/daos/redis/repositories/index.js";
 
 // --- API and Service Imports ---
 import v1Router from "@/api/v1/routes/index.js";
-import HelioPay, { FetchWebhooksForAPayLinkWebhook } from "@/daos/helioPay/index.js";
 import _ from "lodash";
 import basicAuthMiddleware from "@/middlewares/basicPassAuth.js";
 import { clientIpMiddleware } from "@/middlewares/clientIpExtractor.js";
 import { convertMsToStringTime } from "./utils/time.js";
 import { AppError, ERRORS } from "./common/errors/appError.js";
+
+// math add function
 
 export default defineServer({
     rooms: {},
@@ -69,7 +70,7 @@ export default defineServer({
 
     gracefullyShutdown: true,
 
-    express: (app) => {
+    express: app => {
         // This function configures the Express application with middleware and routes.
         /**
          * Bind your custom express routes here:
@@ -105,7 +106,7 @@ export default defineServer({
                 // Allow all origins in development, but restrict to a specific origin in production.
                 origin: appConfig.cors.origin,
                 methods: ["GET", "POST"],
-            }),
+            })
         );
 
         // --- Custom Application Routes ---
@@ -151,7 +152,7 @@ export default defineServer({
                 err: unknown,
                 req: express.Request,
                 res: express.Response,
-                _next: express.NextFunction,
+                _next: express.NextFunction
             ) => {
                 if (err instanceof Error) {
                     errorHandler(err, req, res, _next);
@@ -162,7 +163,7 @@ export default defineServer({
                     const error = new Error("An unknown error occurred");
                     errorHandler(error, req, res, _next);
                 }
-            },
+            }
         );
 
         // TODO: later on throttle this conditionally! only for certain cases (hint: cf)

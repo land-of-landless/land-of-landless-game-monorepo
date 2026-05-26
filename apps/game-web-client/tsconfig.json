@@ -15,7 +15,8 @@
     "incremental": true,
     "types": ["@serwist/next/typings"],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "three": ["./node_modules/@types/three/build/three.module.d.ts"]
     }
   },
   "include": [

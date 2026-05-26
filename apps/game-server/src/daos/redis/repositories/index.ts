@@ -9,6 +9,7 @@ import mineSchema from "@/models/redis/mine.js";
 import factorySchema from "@/models/redis/factory.js";
 import labSchema from "@/models/redis/lab.js";
 import launchSiteSchema from "@/models/redis/launchSite.js";
+import statsSchema from "@/models/redis/stats.js";
 
 export const billingRepository = new Repository(
     billingSchema,
@@ -36,6 +37,7 @@ export const launchSiteRepository = new Repository(
     launchSiteSchema,
     redisLogicalClient,
 );
+export const statsRepository = new Repository(statsSchema, redisLogicalClient);
 
 export const createRedisIndexes = async () => {
     try {
@@ -50,6 +52,7 @@ export const createRedisIndexes = async () => {
         await factoryRepository.createIndex();
         await labRepository.createIndex();
         await launchSiteRepository.createIndex();
+        await statsRepository.createIndex();
     } catch (error) {
         throw error;
     }

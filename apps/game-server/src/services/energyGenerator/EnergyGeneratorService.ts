@@ -3,7 +3,7 @@ import { energyGeneratorRepository } from "@/daos/redis/repositories/index.js";
 import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     ENERGY_GENERATOR_COST_PER_PANEL,
-    ENERGY_GENERATOR_LEVELS_TYPE,
+    EnergyGeneratorLevelsType,
     ENERGY_GENERATOR_MAX_LEVEL,
     ENERGY_GENERATOR_UPGRADE_INFO,
 } from "@/constants/energyGenerator.js";
@@ -38,7 +38,7 @@ export default class EnergyGeneratorService {
             }
 
             let newLevel = (energyGeneratorProfile.level +
-                1) as ENERGY_GENERATOR_LEVELS_TYPE;
+                1) as EnergyGeneratorLevelsType;
 
             // coins to be paid
             let coinsToBePaid =
@@ -92,7 +92,7 @@ export default class EnergyGeneratorService {
             }
 
             let newLevel = (energyGeneratorProfile.level +
-                1) as ENERGY_GENERATOR_LEVELS_TYPE;
+                1) as EnergyGeneratorLevelsType;
 
             let timeToWait = ENERGY_GENERATOR_UPGRADE_INFO[newLevel].time;
 

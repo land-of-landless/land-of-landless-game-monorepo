@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import MainProfileDAO from "../../../daos/redis/mainProfile.ts";
-import { ApiResponse } from "../utils/response.ts";
+import MainProfileDAO from "@/daos/redis/mainProfile.js";
+import { ApiResponse } from "@/api/v1/utils/response.js";
 import ReferralService from "@/services/mainProfile/ReferralService.js";
 import DailyRewardService from "@/services/mainProfile/DailyRewardService.js";
 import ProfileService from "@/services/mainProfile/ProfileService.js";
@@ -11,19 +11,12 @@ import {
 } from "@/validators/schemas.js";
 import { ERRORS } from "@/common/errors/appError.js";
 import _ from "lodash";
-import {
-    isProfane,
-    isProfaneHive,
-    isProfaneProfanityDev,
-    isProfaneSightengineML,
-    isProfaneSightenginePattern,
-} from "@/utils/profanity.js";
+
 import {
     checkRateLimit,
     referralAndDailyRewardRateLimit,
     userPreferencesRateLimit,
 } from "@/utils/customRateLimiters.js";
-import { convertMsToStringTime } from "@/utils/time.js";
 
 /**
  * Controller class for handling profile-related API endpoints
@@ -37,16 +30,12 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async getMainProfile(
-        req: Request,
+        req: Request<{ userId?: string }>,
         res: Response,
-        next: NextFunction,
+        next: NextFunction
     ) {
         try {
             let userId = req.params.userId;
-
-            if (_.isArray(userId)) {
-                throw ERRORS.VALIDATION("Invalid userId");
-            }
 
             if (_.isNil(userId)) {
                 if (_.isNil(req.auth) || _.isNil(req.auth.userId)) {
@@ -55,8 +44,7 @@ export default class MainProfileController {
                 userId = req.auth.userId;
             }
 
-            const fetchedUserProfile =
-                await MainProfileDAO.findProfileByUserId(userId);
+            const fetchedUserProfile = await ProfileService.getProfile(userId);
 
             return ApiResponse.success(res, fetchedUserProfile);
         } catch (error) {
@@ -71,9 +59,9 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async updatePreferences(
-        req: Request<any, any, UpdateProfileInput>,
+        req: Request<unknown, unknown, UpdateProfileInput>,
         res: Response,
-        next: NextFunction,
+        next: NextFunction
     ) {
         try {
             const { name, profilePictureIndex, representedFlag } = req.body;
@@ -90,7 +78,7 @@ export default class MainProfileController {
                 req.auth.userId,
                 name,
                 profilePictureIndex,
-                representedFlag,
+                representedFlag
             );
 
             return ApiResponse.success(res, updatedProfile);
@@ -106,38 +94,59 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async openLootBox(
-        req: Request<any, any, ProfileLootBoxInput>,
+        req: Request<unknown, unknown, ProfileLootBoxInput>,
         res: Response,
-        next: NextFunction,
+        next: NextFunction
     ) {
         try {
             const { lootBoxIndex, operation } = req.body;
 
-            let updatedProfile = {};
-
             if (operation === "start") {
-                updatedProfile = await ProfileService.openLootBoxStart(
-                    req.auth!.userId,
-                    lootBoxIndex,
-                );
-            } else if (operation === "end") {
-                updatedProfile = await ProfileService.openLootBoxEnd(
-                    req.auth!.userId,
-                    lootBoxIndex,
-                );
-            } else if (operation === "end-with-gems") {
-                updatedProfile = await ProfileService.openLootBoxEndWithGems(
-                    req.auth!.userId,
-                    lootBoxIndex,
-                );
-            } else if (operation === "end-with-key") {
-                updatedProfile = await ProfileService.openLootBoxEndWithKey(
-                    req.auth!.userId,
-                    lootBoxIndex,
-                );
-            }
+                const { profile, startToOpenTime } =
+                    await ProfileService.openLootBoxStart(
+                        req.auth!.userId,
+                        lootBoxIndex
+                    );
 
-            return ApiResponse.success(res, updatedProfile);
+                return ApiResponse.success(res, {
+                    profile,
+                    startToOpenTime,
+                    lootBoxIndex,
+                });
+            } else if (operation === "end") {
+                const { profile, rewards } =
+                    await ProfileService.openLootBoxEnd(
+                        req.auth!.userId,
+                        lootBoxIndex
+                    );
+
+                return ApiResponse.success(res, {
+                    profile,
+                    rewards,
+                });
+            } else if (operation === "end-with-gems") {
+                const { profile, rewards } =
+                    await ProfileService.openLootBoxEndWithGems(
+                        req.auth!.userId,
+                        lootBoxIndex
+                    );
+
+                return ApiResponse.success(res, {
+                    profile,
+                    rewards,
+                });
+            } else if (operation === "end-with-key") {
+                const { profile, rewards } =
+                    await ProfileService.openLootBoxEndWithKey(
+                        req.auth!.userId,
+                        lootBoxIndex
+                    );
+
+                return ApiResponse.success(res, {
+                    profile,
+                    rewards,
+                });
+            }
         } catch (error) {
             next(error);
         }
@@ -152,7 +161,7 @@ export default class MainProfileController {
     static async claimDailyReward(
         req: Request,
         res: Response,
-        next: NextFunction,
+        next: NextFunction
     ) {
         try {
             if (_.isNil(req.auth) || _.isNil(req.auth.userId)) {
@@ -162,11 +171,11 @@ export default class MainProfileController {
             // rate limit the amount of time user can interact
             await checkRateLimit(
                 referralAndDailyRewardRateLimit,
-                req.auth.userId,
+                req.auth.userId
             );
 
             const rewards = await DailyRewardService.claimDailyReward(
-                req.auth.userId,
+                req.auth.userId
             );
 
             return ApiResponse.success(res, rewards);
@@ -182,9 +191,9 @@ export default class MainProfileController {
      * @param next - Express next function for middleware chain
      */
     static async useReferralCode(
-        req: Request<any, any, UseReferralCodeInput>,
+        req: Request<unknown, unknown, UseReferralCodeInput>,
         res: Response,
-        next: NextFunction,
+        next: NextFunction
     ) {
         try {
             const { refCode } = req.body;
@@ -196,12 +205,12 @@ export default class MainProfileController {
             // rate limit the amount of time user can interact
             await checkRateLimit(
                 referralAndDailyRewardRateLimit,
-                req.auth.userId,
+                req.auth.userId
             );
 
             const result = await ReferralService.applyReferralCode(
                 req.auth.userId,
-                refCode,
+                refCode
             );
 
             return ApiResponse.success(res, result);

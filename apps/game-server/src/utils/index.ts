@@ -1,4 +1,4 @@
-import { gemsPerMinute } from "@/constants/mainProfile.js";
+import { GEMS_PER_MINUTE } from "@/constants/mainProfile.js";
 
 /**
  * Converts time in milliseconds to the number of gems to be paid
@@ -16,7 +16,7 @@ export const turnTimeInMsToGemsToBePaid = (timeInMs: number): number => {
     }
 
     const timeInMinutes = timeInMs / 1000 / 60;
-    const gemsToPay = Math.ceil(timeInMinutes) * gemsPerMinute;
+    const gemsToPay = Math.ceil(timeInMinutes) * GEMS_PER_MINUTE;
 
     return gemsToPay;
 };

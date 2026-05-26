@@ -3,12 +3,12 @@ import { Router, Request, Response, NextFunction } from "express";
 import MiniGamesController from "../controllers/miniGames.ts";
 import {
     validateBody,
-    miniGame1Schema,
-    miniGame2Schema,
+    MINI_GAME_1_SCHEMA,
+    MINI_GAME_2_SCHEMA,
     MiniGame2Input,
-    miniGame3Schema,
+    MINI_GAME_3_SCHEMA,
     MiniGame3Input,
-    miniGame4Schema,
+    MINI_GAME_4_SCHEMA,
     MiniGame4Input,
 } from "@/validators/schemas.js";
 
@@ -17,7 +17,7 @@ const miniGamesRouter = Router();
 miniGamesRouter.post(
     "/game1",
     auth.middleware(),
-    // validateBody(miniGame1Schema),
+    // validateBody(MINI_GAME_1_SCHEMA),
     async (
         req: Request,
         res: Response,
@@ -30,7 +30,7 @@ miniGamesRouter.post(
 miniGamesRouter.post(
     "/game2",
     auth.middleware(),
-    validateBody(miniGame2Schema),
+    validateBody(MINI_GAME_2_SCHEMA),
     async (
         req: Request,
         res: Response,
@@ -43,7 +43,7 @@ miniGamesRouter.post(
 miniGamesRouter.post(
     "/game3",
     auth.middleware(),
-    validateBody(miniGame3Schema),
+    validateBody(MINI_GAME_3_SCHEMA),
     async (
         req: Request,
         res: Response,
@@ -56,7 +56,7 @@ miniGamesRouter.post(
 miniGamesRouter.post(
     "/game4",
     auth.middleware(),
-    validateBody(miniGame4Schema),
+    validateBody(MINI_GAME_4_SCHEMA),
     async (
         req: Request,
         res: Response,

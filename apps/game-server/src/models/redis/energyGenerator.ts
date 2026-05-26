@@ -1,10 +1,10 @@
-import { ENERGY_GENERATOR_LEVELS_TYPE } from "@/constants/energyGenerator.js";
+import { EnergyGeneratorLevelsType } from "@/constants/energyGenerator.js";
 import { Schema, Entity } from "redis-om";
 
 export interface EnergyGenerator extends Entity {
     userId: string;
     panel_count: number;
-    level: 0 | ENERGY_GENERATOR_LEVELS_TYPE;
+    level: 0 | EnergyGeneratorLevelsType;
     upgrade_timer: string;
 }
 
