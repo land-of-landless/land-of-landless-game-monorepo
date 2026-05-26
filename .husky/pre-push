@@ -3,8 +3,10 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Example using pnpm + Turborepo (recommended for monorepos)
-pnpm dlx turbo run test --filter="...[origin/main]"
+# First push: remote tracking branch does not exist yet — skip change-scoped tests.
+if ! git rev-parse --verify origin/main >/dev/null 2>&1; then
+  echo "husky pre-push: origin/main not found, skipping change-scoped tests (first push)."
+  exit 0
+fi
 
-# If you don't use Turborepo, you can use pnpm's --filter with a change list:
-# pnpm exec changeset status --since=origin/main | xargs pnpm run test --filter
+pnpm dlx turbo run test --filter="...[origin/main]"
