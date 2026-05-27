@@ -1,3 +1,4 @@
 # .husky/pre-commit
 pnpm lint-staged
 pnpm build
+pnpm check-types

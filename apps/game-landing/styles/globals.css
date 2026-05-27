@@ -1,0 +1,268 @@
+/* Styling Design Tokens */
+:root {
+  --color-bg-dark: hsl(230, 25%, 3%);
+  --color-bg-deep: hsl(230, 20%, 6%);
+  --color-card-bg: hsla(230, 15%, 12%, 0.4);
+  --color-card-border: hsla(230, 15%, 25%, 0.3);
+  --color-card-border-glow: hsla(180, 100%, 50%, 0.15);
+  
+  --color-primary: hsl(180, 100%, 48%);       /* Electric Cyan */
+  --color-primary-glow: hsla(180, 100%, 48%, 0.3);
+  --color-secondary: hsl(270, 95%, 65%);     /* Radiant Violet */
+  --color-secondary-glow: hsla(270, 95%, 65%, 0.3);
+  --color-accent: hsl(210, 100%, 50%);       /* Electric Blue */
+  
+  --color-text-primary: hsl(0, 0%, 96%);
+  --color-text-secondary: hsl(230, 15%, 70%);
+  --color-text-muted: hsl(230, 10%, 45%);
+  
+  --font-family-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-family-display: 'Orbitron', ui-sans-serif, system-ui, sans-serif;
+  
+  --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Reset and Base Styles */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+#__next {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+/* Glowing Ambient Background */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, hsla(270, 95%, 65%, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, hsla(180, 100%, 48%, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, hsla(210, 100%, 50%, 0.03) 0%, transparent 60%),
+    var(--color-bg-dark);
+  pointer-events: none;
+}
+
+/* Premium Layout Container */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  z-index: 1;
+  position: relative;
+}
+
+/* Blank Opener Glassmorphic Wrapper */
+.opener-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+  z-index: 1;
+  position: relative;
+}
+
+/* Glassmorphic Opener Card */
+.opener-card {
+  width: 100%;
+  max-width: 580px;
+  background: var(--color-card-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-card-border);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  text-align: center;
+  box-shadow: 
+    0 24px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  animation: floatCard 6s ease-in-out infinite;
+}
+
+.opener-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), var(--color-secondary), transparent);
+  opacity: 0.7;
+}
+
+.opener-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--color-card-border-glow);
+  box-shadow: 
+    0 30px 60px -10px rgba(0, 0, 0, 0.6),
+    0 0 40px -5px var(--color-primary-glow),
+    inset 0 1px 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Floating Animation */
+@keyframes floatCard {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Glowing Pulsing Loader / Logo Placeholder */
+.logo-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  margin: 0 auto 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px var(--color-primary-glow);
+  position: relative;
+}
+
+.logo-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 24px;
+  border: 2px solid var(--color-primary);
+  opacity: 0.5;
+  animation: pulseOuter 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes pulseOuter {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
+/* Title Styling */
+.title {
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #ffffff 30%, var(--color-text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  max-width: 80%;
+  margin: 0 auto 2.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Empty Opener Slate (Placeholder content area) */
+.slate-placeholder {
+  border: 1px dashed var(--color-card-border);
+  background: hsla(230, 15%, 8%, 0.3);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  margin-bottom: 2.5rem;
+  transition: var(--transition-smooth);
+}
+
+.slate-placeholder:hover {
+  background: hsla(230, 15%, 10%, 0.4);
+  border-color: var(--color-text-muted);
+}
+
+.slate-text {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* Premium Glow Button */
+.cta-button {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  color: #030303;
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px -5px var(--color-primary-glow);
+  transition: var(--transition-spring);
+  position: relative;
+  z-index: 1;
+}
+
+.cta-button:hover {
+  transform: scale(1.03) translateY(-1px);
+  box-shadow: 0 15px 35px -5px var(--color-primary-glow);
+}
+
+.cta-button:active {
+  transform: scale(0.98) translateY(0);
+}
+
+/* Grid Layout for content if users want to drop it in */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+  z-index: 1;
+  position: relative;
+}
+
+.info-card {
+  background: var(--color-card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-card-border);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: var(--transition-smooth);
+}
+
+.info-card:hover {
+  border-color: var(--color-card-border-glow);
+  transform: translateY(-2px);
+}
