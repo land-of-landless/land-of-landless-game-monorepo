@@ -15,7 +15,7 @@
     "@colyseus/sdk": "^0.17.40",
     "@mantine/core": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
-    "@next/bundle-analyzer": "^16.2.3",
+    "@next/bundle-analyzer": "^15.5.15",
     "@react-spring/three": "^10.0.3",
     "@react-spring/web": "^10.0.3",
     "@react-three/drei": "^9.122.0",
@@ -50,6 +50,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@serwist/next": "^9.5.7",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4",
