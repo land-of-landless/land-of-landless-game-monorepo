@@ -4,11 +4,7 @@ import {
     integer,
     boolean,
     timestamp,
-    jsonb,
-    primaryKey,
-    text,
     real,
-    doublePrecision,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -23,9 +19,7 @@ export const mainProfiles = pgTable("main_profiles", {
     refCode: varchar("ref_code", { length: 255 }).notNull().unique(),
     gamePass: boolean("game_pass").notNull().default(false),
     gamePassPurchaseTime: timestamp("game_pass_purchase_time"),
-    lootBoxesOpeningRate: doublePrecision("loot_boxes_opening_rate")
-        .notNull()
-        .default(1),
+    lootBoxesOpeningRate: real("loot_boxes_opening_rate").notNull().default(1),
     lootBoxKeys: integer("loot_box_keys").notNull().default(0),
     coins: integer("coins").notNull().default(0),
     gems: integer("gems").notNull().default(0),
