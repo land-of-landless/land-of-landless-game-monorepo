@@ -67,7 +67,7 @@ export class MainProfilePostgresDAO {
                     profileData.lootBoxes.map((boxType: any, index: number) => ({
                         userId: profileData.userId,
                         boxType,
-                        timer: profileData.lootBoxesTimers?.[index]
+                        timer: profileData.lootBoxesTimers[index]
                             ? new Date(profileData.lootBoxesTimers[index])
                             : null,
                         position: index,
@@ -242,5 +242,31 @@ export class MainProfilePostgresDAO {
         return Promise.all(
             allProfiles.map((p) => this.findProfileByUserId(p.userId)),
         );
+    }
+
+    /**
+     * Finds a user profile by their user ID using Relational Query API for performance.
+     * @param userId - The ID of the user.
+     * @returns The MainProfile entity if found, otherwise null.
+     */
+    static async findProfileByIdFast(userId: string) {
+        const profile = await db.query.mainProfiles.findFirst({
+            where: (mainProfiles, { eq }) => eq(mainProfiles.userId, userId),
+            with: {
+                workerBots: true,
+                lootBoxes: true,
+                lootBoxesOpened: true,
+            },
+        });
+
+        if (!profile) return null;
+
+        return {
+            ...profile,
+            game_pass: profile.gamePass,
+            worker_bots: profile.workerBots.map((wb) => wb.botType),
+            lootBoxes: profile.lootBoxes.map((lb) => lb.boxType),
+            lootBoxes_opened: profile.lootBoxesOpened.map((lbo) => lbo.count),
+        };
     }
 }
