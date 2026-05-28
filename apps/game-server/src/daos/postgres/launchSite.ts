@@ -64,32 +64,35 @@ export class LaunchSitePostgresDAO {
         });
     }
 
+    /**
+     * Finds a launch site by user ID using the Relational Query API.
+     * @param userId - The ID of the user.
+     * @returns The launch site data or null.
+     */
     static async findByUserId(userId: string) {
         const res = await db.query.launchSites.findFirst({
-            where: eq(launchSites.userId, userId),
+            where: (launchSites, { eq }) => eq(launchSites.userId, userId),
+            with: {
+                satelliteTimers: true,
+                dysonSphereTimers: true,
+            },
         });
-        if (!res) return null;
 
-        const sTimers = await db
-            .select()
-            .from(satelliteTimers)
-            .where(eq(satelliteTimers.userId, userId));
-        const dTimers = await db
-            .select()
-            .from(dysonSphereTimers)
-            .where(eq(dysonSphereTimers.userId, userId));
+        if (!res) return null;
 
         return {
             userId: res.userId,
             level: res.level,
             launch_site_upgrade_timer: res.launchSiteUpgradeTimer?.toISOString() || "",
             satellites_launched: res.satellitesLaunched,
-            satellite_timers: sTimers.map((t) => t.timer.toISOString()),
+            satellite_timers: res.satelliteTimers.map((t) => t.timer.toISOString()),
             wormholes_launched: res.wormholesLaunched,
             astroid_diggers_launched: res.astroidDiggersLaunched,
             cyborgs_launched: res.cyborgsLaunched,
             dyson_sphere_parts_launched: res.dysonSpherePartsLaunched,
-            dyson_sphere_timers: dTimers.map((t) => t.timer.toISOString()),
+            dyson_sphere_timers: res.dysonSphereTimers.map((t) =>
+                t.timer.toISOString(),
+            ),
         };
     }
 }
