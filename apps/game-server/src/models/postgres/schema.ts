@@ -60,7 +60,7 @@ export const workerBotsRelations = relations(workerBots, ({ one }) => ({
 }));
 
 export const workerBots = pgTable("worker_bots", {
-    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
     userId: varchar("user_id", { length: 255 })
         .notNull()
         .references(() => mainProfiles.userId),
