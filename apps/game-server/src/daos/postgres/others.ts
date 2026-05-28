@@ -6,22 +6,14 @@ import {
     factories,
     factorySpaceships,
     builderPads,
-    identities,
-    identityIps,
     labs,
-    launchSites,
-    satelliteTimers,
-    dysonSphereTimers,
     mines,
     miners,
-    miniGames,
-    mg2RemainingNumbers,
-    mg3BoxesState,
     stats,
     lootBoxesByType,
     launchesByItem,
 } from "../../models/postgres/schema.js";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 export class BillingPostgresDAO {
     static async createBilling(billingData: any) {
@@ -142,8 +134,8 @@ export class FactoryPostgresDAO {
                     userId: data.userId,
                     padIndex: index,
                     timer: timer ? new Date(timer) : null,
-                    itemBeingBuilt: data.builder_pad_items_being_built[index],
-                    secondaryItemIndex: data.builder_pad_items_being_built_secondary[index]
+                    itemBeingBuilt: data.builder_pad_items_being_built?.[index],
+                    secondaryItemIndex: data.builder_pad_items_being_built_secondary?.[index]
                 })));
             }
         });

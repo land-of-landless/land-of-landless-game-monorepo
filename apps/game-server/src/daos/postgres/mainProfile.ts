@@ -6,7 +6,6 @@ import {
     lootBoxesOpened,
 } from "../../models/postgres/schema.js";
 import { eq } from "drizzle-orm";
-import { MainProfile } from "../../models/redis/mainProfile.js";
 
 export class MainProfilePostgresDAO {
     static async createProfile(profileData: any) {

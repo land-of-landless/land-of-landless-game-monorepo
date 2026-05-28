@@ -1,5 +1,5 @@
 {
-  "id": "7773e2ee-c32c-4595-a573-8ca5b571c67a",
+  "id": "0223a299-832d-4f11-90d1-c2b508a5ae4e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -919,7 +919,7 @@
         },
         "loot_boxes_opening_rate": {
           "name": "loot_boxes_opening_rate",
-          "type": "double precision",
+          "type": "real",
           "primaryKey": false,
           "notNull": true,
           "default": 1
