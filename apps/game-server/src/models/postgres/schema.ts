@@ -4,15 +4,11 @@ import {
     integer,
     boolean,
     timestamp,
-    jsonb,
-    primaryKey,
-    text,
     real,
-    doublePrecision,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// --- Tables ---
+// ─── Table Definitions ───────────────────────────────────────────────────────
 
 // Main Profile
 export const mainProfiles = pgTable("main_profiles", {
@@ -23,9 +19,7 @@ export const mainProfiles = pgTable("main_profiles", {
     refCode: varchar("ref_code", { length: 255 }).notNull().unique(),
     gamePass: boolean("game_pass").notNull().default(false),
     gamePassPurchaseTime: timestamp("game_pass_purchase_time"),
-    lootBoxesOpeningRate: doublePrecision("loot_boxes_opening_rate")
-        .notNull()
-        .default(1),
+    lootBoxesOpeningRate: real("loot_boxes_opening_rate").notNull().default(1),
     lootBoxKeys: integer("loot_box_keys").notNull().default(0),
     coins: integer("coins").notNull().default(0),
     gems: integer("gems").notNull().default(0),
@@ -56,7 +50,7 @@ export const workerBots = pgTable("worker_bots", {
     userId: varchar("user_id", { length: 255 })
         .notNull()
         .references(() => mainProfiles.userId),
-    botType: integer("bot_type").notNull(), // 0 or 1
+    botType: integer("bot_type").notNull(),
 });
 
 export const lootBoxes = pgTable("loot_boxes", {
@@ -64,9 +58,9 @@ export const lootBoxes = pgTable("loot_boxes", {
     userId: varchar("user_id", { length: 255 })
         .notNull()
         .references(() => mainProfiles.userId),
-    boxType: varchar("box_type", { length: 50 }).notNull(), // MiniGamesLootBox or ""
+    boxType: varchar("box_type", { length: 50 }).notNull(),
     timer: timestamp("timer"),
-    position: integer("position").notNull(), // index in the array
+    position: integer("position").notNull(),
 });
 
 export const lootBoxesOpened = pgTable("loot_boxes_opened", {
@@ -88,7 +82,7 @@ export const invoices = pgTable("invoices", {
     userId: varchar("user_id", { length: 255 })
         .notNull()
         .references(() => billings.userId),
-    status: varchar("status", { length: 20 }).notNull(), // 'ongoing' or 'finished'
+    status: varchar("status", { length: 20 }).notNull(),
 });
 
 // Energy Generator
@@ -205,23 +199,17 @@ export const miners = pgTable("miners", {
     userId: varchar("user_id", { length: 255 })
         .notNull()
         .references(() => mines.userId),
-    minerId: integer("miner_id").notNull(), // 1, 2, or 3
+    minerId: integer("miner_id").notNull(),
     level: integer("level").notNull().default(0),
 });
 
 // Mini Games
 export const miniGames = pgTable("mini_games", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
-
-    // Guess the Number (miniGame2)
     mg2TargetNumber: integer("mg2_target_number"),
     mg2UserCorrectGuesses: integer("mg2_user_correct_guesses").default(0),
-
-    // Pick the Boxes (miniGame3)
     mg3UserCorrectGuesses: integer("mg3_user_correct_guesses").default(0),
     mg3IsStarted: boolean("mg3_is_started").default(false),
-
-    // Rock Paper Scissors (miniGame4)
     mg4IsStarted: boolean("mg4_is_started").default(false),
     mg4UserCorrectGuesses: integer("mg4_user_correct_guesses").default(0),
 });
@@ -268,7 +256,7 @@ export const launchesByItem = pgTable("launches_by_item", {
     count: integer("count").notNull().default(0),
 });
 
-// --- Relations ---
+// ─── Relations ───────────────────────────────────────────────────────────────
 
 export const mainProfilesRelations = relations(mainProfiles, ({ many }) => ({
     workerBots: many(workerBots),
@@ -290,15 +278,12 @@ export const lootBoxesRelations = relations(lootBoxes, ({ one }) => ({
     }),
 }));
 
-export const lootBoxesOpenedRelations = relations(
-    lootBoxesOpened,
-    ({ one }) => ({
-        profile: one(mainProfiles, {
-            fields: [lootBoxesOpened.userId],
-            references: [mainProfiles.userId],
-        }),
+export const lootBoxesOpenedRelations = relations(lootBoxesOpened, ({ one }) => ({
+    profile: one(mainProfiles, {
+        fields: [lootBoxesOpened.userId],
+        references: [mainProfiles.userId],
     }),
-);
+}));
 
 export const billingsRelations = relations(billings, ({ many }) => ({
     invoices: many(invoices),
