@@ -15,7 +15,7 @@
     "@colyseus/sdk": "^0.17.40",
     "@mantine/core": "^8.3.18",
     "@mantine/hooks": "^8.3.18",
-    "@next/bundle-analyzer": "^15.5.15",
+    "@next/bundle-analyzer": "15.5.15",
     "@react-spring/three": "^10.0.3",
     "@react-spring/web": "^10.0.3",
     "@react-three/drei": "^9.122.0",
