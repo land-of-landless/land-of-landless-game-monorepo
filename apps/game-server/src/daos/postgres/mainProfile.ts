@@ -67,7 +67,7 @@ export class MainProfilePostgresDAO {
                     profileData.lootBoxes.map((boxType: any, index: number) => ({
                         userId: profileData.userId,
                         boxType,
-                        timer: profileData.lootBoxesTimers[index]
+                        timer: profileData.lootBoxesTimers?.[index]
                             ? new Date(profileData.lootBoxesTimers[index])
                             : null,
                         position: index,
