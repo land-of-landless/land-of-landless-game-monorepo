@@ -4,14 +4,9 @@ import {
     integer,
     boolean,
     timestamp,
-    jsonb,
-    primaryKey,
-    text,
     real,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-
-// --- Tables ---
 
 // Main Profile
 export const mainProfiles = pgTable("main_profiles", {
@@ -75,6 +70,33 @@ export const lootBoxesOpened = pgTable("loot_boxes_opened", {
     count: integer("count").notNull().default(0),
 });
 
+export const mainProfilesRelations = relations(mainProfiles, ({ many }) => ({
+    workerBots: many(workerBots),
+    lootBoxes: many(lootBoxes),
+    lootBoxesOpened: many(lootBoxesOpened),
+}));
+
+export const workerBotsRelations = relations(workerBots, ({ one }) => ({
+    profile: one(mainProfiles, {
+        fields: [workerBots.userId],
+        references: [mainProfiles.userId],
+    }),
+}));
+
+export const lootBoxesRelations = relations(lootBoxes, ({ one }) => ({
+    profile: one(mainProfiles, {
+        fields: [lootBoxes.userId],
+        references: [mainProfiles.userId],
+    }),
+}));
+
+export const lootBoxesOpenedRelations = relations(lootBoxesOpened, ({ one }) => ({
+    profile: one(mainProfiles, {
+        fields: [lootBoxesOpened.userId],
+        references: [mainProfiles.userId],
+    }),
+}));
+
 // Billing
 export const billings = pgTable("billings", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
@@ -87,6 +109,17 @@ export const invoices = pgTable("invoices", {
         .references(() => billings.userId),
     status: varchar("status", { length: 20 }).notNull(), // 'ongoing' or 'finished'
 });
+
+export const billingsRelations = relations(billings, ({ many }) => ({
+    invoices: many(invoices),
+}));
+
+export const invoicesRelations = relations(invoices, ({ one }) => ({
+    billing: one(billings, {
+        fields: [invoices.userId],
+        references: [billings.userId],
+    }),
+}));
 
 // Energy Generator
 export const energyGenerators = pgTable("energy_generators", {
@@ -131,6 +164,28 @@ export const builderPads = pgTable("builder_pads", {
     secondaryItemIndex: integer("secondary_item_index").default(-1),
 });
 
+export const factoriesRelations = relations(factories, ({ many }) => ({
+    spaceships: many(factorySpaceships),
+    builderPads: many(builderPads),
+}));
+
+export const factorySpaceshipsRelations = relations(
+    factorySpaceships,
+    ({ one }) => ({
+        factory: one(factories, {
+            fields: [factorySpaceships.userId],
+            references: [factories.userId],
+        }),
+    }),
+);
+
+export const builderPadsRelations = relations(builderPads, ({ one }) => ({
+    factory: one(factories, {
+        fields: [builderPads.userId],
+        references: [factories.userId],
+    }),
+}));
+
 // Identity
 export const identities = pgTable("identities", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
@@ -144,6 +199,17 @@ export const identityIps = pgTable("identity_ips", {
     ip: varchar("ip", { length: 45 }).notNull(),
     count: integer("count").notNull().default(0),
 });
+
+export const identitiesRelations = relations(identities, ({ many }) => ({
+    ips: many(identityIps),
+}));
+
+export const identityIpsRelations = relations(identityIps, ({ one }) => ({
+    identity: one(identities, {
+        fields: [identityIps.userId],
+        references: [identities.userId],
+    }),
+}));
 
 // Lab
 export const labs = pgTable("labs", {
@@ -190,6 +256,31 @@ export const dysonSphereTimers = pgTable("dyson_sphere_timers", {
     timer: timestamp("timer").notNull(),
 });
 
+export const launchSitesRelations = relations(launchSites, ({ many }) => ({
+    satelliteTimers: many(satelliteTimers),
+    dysonSphereTimers: many(dysonSphereTimers),
+}));
+
+export const satelliteTimersRelations = relations(
+    satelliteTimers,
+    ({ one }) => ({
+        launchSite: one(launchSites, {
+            fields: [satelliteTimers.userId],
+            references: [launchSites.userId],
+        }),
+    }),
+);
+
+export const dysonSphereTimersRelations = relations(
+    dysonSphereTimers,
+    ({ one }) => ({
+        launchSite: one(launchSites, {
+            fields: [dysonSphereTimers.userId],
+            references: [launchSites.userId],
+        }),
+    }),
+);
+
 // Mine
 export const mines = pgTable("mines", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
@@ -205,6 +296,17 @@ export const miners = pgTable("miners", {
     minerId: integer("miner_id").notNull(), // 1, 2, or 3
     level: integer("level").notNull().default(0),
 });
+
+export const minesRelations = relations(mines, ({ many }) => ({
+    miners: many(miners),
+}));
+
+export const minersRelations = relations(miners, ({ one }) => ({
+    mine: one(mines, {
+        fields: [miners.userId],
+        references: [mines.userId],
+    }),
+}));
 
 // Mini Games
 export const miniGames = pgTable("mini_games", {
@@ -240,6 +342,28 @@ export const mg3BoxesState = pgTable("mg3_boxes_state", {
     state: integer("state").notNull(),
 });
 
+export const miniGamesRelations = relations(miniGames, ({ many }) => ({
+    mg2RemainingNumbers: many(mg2RemainingNumbers),
+    mg3BoxesState: many(mg3BoxesState),
+}));
+
+export const mg2RemainingNumbersRelations = relations(
+    mg2RemainingNumbers,
+    ({ one }) => ({
+        miniGame: one(miniGames, {
+            fields: [mg2RemainingNumbers.userId],
+            references: [miniGames.userId],
+        }),
+    }),
+);
+
+export const mg3BoxesStateRelations = relations(mg3BoxesState, ({ one }) => ({
+    miniGame: one(miniGames, {
+        fields: [mg3BoxesState.userId],
+        references: [miniGames.userId],
+    }),
+}));
+
 // Stats
 export const stats = pgTable("stats", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
@@ -264,140 +388,6 @@ export const launchesByItem = pgTable("launches_by_item", {
     itemType: varchar("item_type", { length: 50 }).notNull(),
     count: integer("count").notNull().default(0),
 });
-
-// --- Relations ---
-
-export const mainProfilesRelations = relations(mainProfiles, ({ many }) => ({
-    workerBots: many(workerBots),
-    lootBoxes: many(lootBoxes),
-    lootBoxesOpened: many(lootBoxesOpened),
-}));
-
-export const workerBotsRelations = relations(workerBots, ({ one }) => ({
-    profile: one(mainProfiles, {
-        fields: [workerBots.userId],
-        references: [mainProfiles.userId],
-    }),
-}));
-
-export const lootBoxesRelations = relations(lootBoxes, ({ one }) => ({
-    profile: one(mainProfiles, {
-        fields: [lootBoxes.userId],
-        references: [mainProfiles.userId],
-    }),
-}));
-
-export const lootBoxesOpenedRelations = relations(
-    lootBoxesOpened,
-    ({ one }) => ({
-        profile: one(mainProfiles, {
-            fields: [lootBoxesOpened.userId],
-            references: [mainProfiles.userId],
-        }),
-    }),
-);
-
-export const billingsRelations = relations(billings, ({ many }) => ({
-    invoices: many(invoices),
-}));
-
-export const invoicesRelations = relations(invoices, ({ one }) => ({
-    billing: one(billings, {
-        fields: [invoices.userId],
-        references: [billings.userId],
-    }),
-}));
-
-export const factoriesRelations = relations(factories, ({ many }) => ({
-    spaceships: many(factorySpaceships),
-    builderPads: many(builderPads),
-}));
-
-export const factorySpaceshipsRelations = relations(
-    factorySpaceships,
-    ({ one }) => ({
-        factory: one(factories, {
-            fields: [factorySpaceships.userId],
-            references: [factories.userId],
-        }),
-    }),
-);
-
-export const builderPadsRelations = relations(builderPads, ({ one }) => ({
-    factory: one(factories, {
-        fields: [builderPads.userId],
-        references: [factories.userId],
-    }),
-}));
-
-export const identitiesRelations = relations(identities, ({ many }) => ({
-    ips: many(identityIps),
-}));
-
-export const identityIpsRelations = relations(identityIps, ({ one }) => ({
-    identity: one(identities, {
-        fields: [identityIps.userId],
-        references: [identities.userId],
-    }),
-}));
-
-export const launchSitesRelations = relations(launchSites, ({ many }) => ({
-    satelliteTimers: many(satelliteTimers),
-    dysonSphereTimers: many(dysonSphereTimers),
-}));
-
-export const satelliteTimersRelations = relations(
-    satelliteTimers,
-    ({ one }) => ({
-        launchSite: one(launchSites, {
-            fields: [satelliteTimers.userId],
-            references: [launchSites.userId],
-        }),
-    }),
-);
-
-export const dysonSphereTimersRelations = relations(
-    dysonSphereTimers,
-    ({ one }) => ({
-        launchSite: one(launchSites, {
-            fields: [dysonSphereTimers.userId],
-            references: [launchSites.userId],
-        }),
-    }),
-);
-
-export const minesRelations = relations(mines, ({ many }) => ({
-    miners: many(miners),
-}));
-
-export const minersRelations = relations(miners, ({ one }) => ({
-    mine: one(mines, {
-        fields: [miners.userId],
-        references: [mines.userId],
-    }),
-}));
-
-export const miniGamesRelations = relations(miniGames, ({ many }) => ({
-    mg2RemainingNumbers: many(mg2RemainingNumbers),
-    mg3BoxesState: many(mg3BoxesState),
-}));
-
-export const mg2RemainingNumbersRelations = relations(
-    mg2RemainingNumbers,
-    ({ one }) => ({
-        miniGame: one(miniGames, {
-            fields: [mg2RemainingNumbers.userId],
-            references: [miniGames.userId],
-        }),
-    }),
-);
-
-export const mg3BoxesStateRelations = relations(mg3BoxesState, ({ one }) => ({
-    miniGame: one(miniGames, {
-        fields: [mg3BoxesState.userId],
-        references: [miniGames.userId],
-    }),
-}));
 
 export const statsRelations = relations(stats, ({ many }) => ({
     lootBoxesByType: many(lootBoxesByType),
