@@ -142,8 +142,8 @@ export class FactoryPostgresDAO {
                     userId: data.userId,
                     padIndex: index,
                     timer: timer ? new Date(timer) : null,
-                    itemBeingBuilt: data.builder_pad_items_being_built[index],
-                    secondaryItemIndex: data.builder_pad_items_being_built_secondary[index]
+                    itemBeingBuilt: data.builder_pad_items_being_built?.[index],
+                    secondaryItemIndex: data.builder_pad_items_being_built_secondary?.[index]
                 })));
             }
         });
