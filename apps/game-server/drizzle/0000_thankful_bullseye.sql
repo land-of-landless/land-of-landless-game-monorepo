@@ -122,7 +122,7 @@ CREATE TABLE "main_profiles" (
 	"ref_code" varchar(255) NOT NULL,
 	"game_pass" boolean DEFAULT false NOT NULL,
 	"game_pass_purchase_time" timestamp,
-	"loot_boxes_opening_rate" real DEFAULT 1 NOT NULL,
+	"loot_boxes_opening_rate" double precision DEFAULT 1 NOT NULL,
 	"loot_box_keys" integer DEFAULT 0 NOT NULL,
 	"coins" integer DEFAULT 0 NOT NULL,
 	"gems" integer DEFAULT 0 NOT NULL,
