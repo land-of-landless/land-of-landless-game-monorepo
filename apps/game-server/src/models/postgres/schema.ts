@@ -11,6 +11,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
+// --- Tables ---
+
 // Main Profile
 export const mainProfiles = pgTable("main_profiles", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
@@ -20,7 +22,7 @@ export const mainProfiles = pgTable("main_profiles", {
     refCode: varchar("ref_code", { length: 255 }).notNull().unique(),
     gamePass: boolean("game_pass").notNull().default(false),
     gamePassPurchaseTime: timestamp("game_pass_purchase_time"),
-    lootBoxesOpeningRate: doublePrecision("loot_boxes_opening_rate").notNull().default(1),
+    lootBoxesOpeningRate: real("loot_boxes_opening_rate").notNull().default(1),
     lootBoxKeys: integer("loot_box_keys").notNull().default(0),
     coins: integer("coins").notNull().default(0),
     gems: integer("gems").notNull().default(0),
@@ -46,33 +48,13 @@ export const mainProfiles = pgTable("main_profiles", {
     referrals: integer("referrals").notNull().default(0),
 });
 
-export const mainProfilesRelations = relations(mainProfiles, ({ many }) => ({
-    workerBots: many(workerBots),
-    lootBoxes: many(lootBoxes),
-    lootBoxesOpened: many(lootBoxesOpened),
-}));
-
-export const workerBotsRelations = relations(workerBots, ({ one }) => ({
-    profile: one(mainProfiles, {
-        fields: [workerBots.userId],
-        references: [mainProfiles.userId],
-    }),
-}));
-
 export const workerBots = pgTable("worker_bots", {
-    id: bigint("id", { mode: "number" }).primaryKey().generatedAlwaysAsIdentity(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: varchar("user_id", { length: 255 })
         .notNull()
         .references(() => mainProfiles.userId),
     botType: integer("bot_type").notNull(), // 0 or 1
 });
-
-export const lootBoxesRelations = relations(lootBoxes, ({ one }) => ({
-    profile: one(mainProfiles, {
-        fields: [lootBoxes.userId],
-        references: [mainProfiles.userId],
-    }),
-}));
 
 export const lootBoxes = pgTable("loot_boxes", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -83,13 +65,6 @@ export const lootBoxes = pgTable("loot_boxes", {
     timer: timestamp("timer"),
     position: integer("position").notNull(), // index in the array
 });
-
-export const lootBoxesOpenedRelations = relations(lootBoxesOpened, ({ one }) => ({
-    profile: one(mainProfiles, {
-        fields: [lootBoxesOpened.userId],
-        references: [mainProfiles.userId],
-    }),
-}));
 
 export const lootBoxesOpened = pgTable("loot_boxes_opened", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -104,17 +79,6 @@ export const lootBoxesOpened = pgTable("loot_boxes_opened", {
 export const billings = pgTable("billings", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
 });
-
-export const billingsRelations = relations(billings, ({ many }) => ({
-    invoices: many(invoices),
-}));
-
-export const invoicesRelations = relations(invoices, ({ one }) => ({
-    billing: one(billings, {
-        fields: [invoices.userId],
-        references: [billings.userId],
-    }),
-}));
 
 export const invoices = pgTable("invoices", {
     id: varchar("id", { length: 255 }).primaryKey(),
@@ -147,21 +111,6 @@ export const factories = pgTable("factories", {
     dysonSphere: integer("dyson_sphere").notNull().default(0),
 });
 
-export const factoriesRelations = relations(factories, ({ many }) => ({
-    spaceships: many(factorySpaceships),
-    builderPads: many(builderPads),
-}));
-
-export const factorySpaceshipsRelations = relations(
-    factorySpaceships,
-    ({ one }) => ({
-        factory: one(factories, {
-            fields: [factorySpaceships.userId],
-            references: [factories.userId],
-        }),
-    }),
-);
-
 export const factorySpaceships = pgTable("factory_spaceships", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: varchar("user_id", { length: 255 })
@@ -170,13 +119,6 @@ export const factorySpaceships = pgTable("factory_spaceships", {
     spaceshipType: integer("spaceship_type").notNull(),
     count: integer("count").notNull().default(0),
 });
-
-export const builderPadsRelations = relations(builderPads, ({ one }) => ({
-    factory: one(factories, {
-        fields: [builderPads.userId],
-        references: [factories.userId],
-    }),
-}));
 
 export const builderPads = pgTable("builder_pads", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -193,17 +135,6 @@ export const builderPads = pgTable("builder_pads", {
 export const identities = pgTable("identities", {
     userId: varchar("user_id", { length: 255 }).primaryKey(),
 });
-
-export const identitiesRelations = relations(identities, ({ many }) => ({
-    ips: many(identityIps),
-}));
-
-export const identityIpsRelations = relations(identityIps, ({ one }) => ({
-    identity: one(identities, {
-        fields: [identityIps.userId],
-        references: [identities.userId],
-    }),
-}));
 
 export const identityIps = pgTable("identity_ips", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -243,21 +174,6 @@ export const launchSites = pgTable("launch_sites", {
         .default(0),
 });
 
-export const launchSitesRelations = relations(launchSites, ({ many }) => ({
-    satelliteTimers: many(satelliteTimers),
-    dysonSphereTimers: many(dysonSphereTimers),
-}));
-
-export const satelliteTimersRelations = relations(
-    satelliteTimers,
-    ({ one }) => ({
-        launchSite: one(launchSites, {
-            fields: [satelliteTimers.userId],
-            references: [launchSites.userId],
-        }),
-    }),
-);
-
 export const satelliteTimers = pgTable("satellite_timers", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: varchar("user_id", { length: 255 })
@@ -265,16 +181,6 @@ export const satelliteTimers = pgTable("satellite_timers", {
         .references(() => launchSites.userId),
     timer: timestamp("timer").notNull(),
 });
-
-export const dysonSphereTimersRelations = relations(
-    dysonSphereTimers,
-    ({ one }) => ({
-        launchSite: one(launchSites, {
-            fields: [dysonSphereTimers.userId],
-            references: [launchSites.userId],
-        }),
-    }),
-);
 
 export const dysonSphereTimers = pgTable("dyson_sphere_timers", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -290,17 +196,6 @@ export const mines = pgTable("mines", {
     beingUpgradedMinerId: integer("being_upgraded_miner_id").default(-1),
     upgradeTimer: timestamp("upgrade_timer"),
 });
-
-export const minesRelations = relations(mines, ({ many }) => ({
-    miners: many(miners),
-}));
-
-export const minersRelations = relations(miners, ({ one }) => ({
-    mine: one(mines, {
-        fields: [miners.userId],
-        references: [mines.userId],
-    }),
-}));
 
 export const miners = pgTable("miners", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -328,21 +223,6 @@ export const miniGames = pgTable("mini_games", {
     mg4UserCorrectGuesses: integer("mg4_user_correct_guesses").default(0),
 });
 
-export const miniGamesRelations = relations(miniGames, ({ many }) => ({
-    mg2RemainingNumbers: many(mg2RemainingNumbers),
-    mg3BoxesState: many(mg3BoxesState),
-}));
-
-export const mg2RemainingNumbersRelations = relations(
-    mg2RemainingNumbers,
-    ({ one }) => ({
-        miniGame: one(miniGames, {
-            fields: [mg2RemainingNumbers.userId],
-            references: [miniGames.userId],
-        }),
-    }),
-);
-
 export const mg2RemainingNumbers = pgTable("mg2_remaining_numbers", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: varchar("user_id", { length: 255 })
@@ -350,13 +230,6 @@ export const mg2RemainingNumbers = pgTable("mg2_remaining_numbers", {
         .references(() => miniGames.userId),
     num: integer("num").notNull(),
 });
-
-export const mg3BoxesStateRelations = relations(mg3BoxesState, ({ one }) => ({
-    miniGame: one(miniGames, {
-        fields: [mg3BoxesState.userId],
-        references: [miniGames.userId],
-    }),
-}));
 
 export const mg3BoxesState = pgTable("mg3_boxes_state", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -374,6 +247,158 @@ export const stats = pgTable("stats", {
     launchesTotal: integer("launches_total").default(0),
 });
 
+export const lootBoxesByType = pgTable("loot_boxes_by_type", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: varchar("user_id", { length: 255 })
+        .notNull()
+        .references(() => stats.userId),
+    boxType: varchar("box_type", { length: 50 }).notNull(),
+    count: integer("count").notNull().default(0),
+});
+
+export const launchesByItem = pgTable("launches_by_item", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: varchar("user_id", { length: 255 })
+        .notNull()
+        .references(() => stats.userId),
+    itemType: varchar("item_type", { length: 50 }).notNull(),
+    count: integer("count").notNull().default(0),
+});
+
+// --- Relations ---
+
+export const mainProfilesRelations = relations(mainProfiles, ({ many }) => ({
+    workerBots: many(workerBots),
+    lootBoxes: many(lootBoxes),
+    lootBoxesOpened: many(lootBoxesOpened),
+}));
+
+export const workerBotsRelations = relations(workerBots, ({ one }) => ({
+    profile: one(mainProfiles, {
+        fields: [workerBots.userId],
+        references: [mainProfiles.userId],
+    }),
+}));
+
+export const lootBoxesRelations = relations(lootBoxes, ({ one }) => ({
+    profile: one(mainProfiles, {
+        fields: [lootBoxes.userId],
+        references: [mainProfiles.userId],
+    }),
+}));
+
+export const lootBoxesOpenedRelations = relations(
+    lootBoxesOpened,
+    ({ one }) => ({
+        profile: one(mainProfiles, {
+            fields: [lootBoxesOpened.userId],
+            references: [mainProfiles.userId],
+        }),
+    }),
+);
+
+export const billingsRelations = relations(billings, ({ many }) => ({
+    invoices: many(invoices),
+}));
+
+export const invoicesRelations = relations(invoices, ({ one }) => ({
+    billing: one(billings, {
+        fields: [invoices.userId],
+        references: [billings.userId],
+    }),
+}));
+
+export const factoriesRelations = relations(factories, ({ many }) => ({
+    spaceships: many(factorySpaceships),
+    builderPads: many(builderPads),
+}));
+
+export const factorySpaceshipsRelations = relations(
+    factorySpaceships,
+    ({ one }) => ({
+        factory: one(factories, {
+            fields: [factorySpaceships.userId],
+            references: [factories.userId],
+        }),
+    }),
+);
+
+export const builderPadsRelations = relations(builderPads, ({ one }) => ({
+    factory: one(factories, {
+        fields: [builderPads.userId],
+        references: [factories.userId],
+    }),
+}));
+
+export const identitiesRelations = relations(identities, ({ many }) => ({
+    ips: many(identityIps),
+}));
+
+export const identityIpsRelations = relations(identityIps, ({ one }) => ({
+    identity: one(identities, {
+        fields: [identityIps.userId],
+        references: [identities.userId],
+    }),
+}));
+
+export const launchSitesRelations = relations(launchSites, ({ many }) => ({
+    satelliteTimers: many(satelliteTimers),
+    dysonSphereTimers: many(dysonSphereTimers),
+}));
+
+export const satelliteTimersRelations = relations(
+    satelliteTimers,
+    ({ one }) => ({
+        launchSite: one(launchSites, {
+            fields: [satelliteTimers.userId],
+            references: [launchSites.userId],
+        }),
+    }),
+);
+
+export const dysonSphereTimersRelations = relations(
+    dysonSphereTimers,
+    ({ one }) => ({
+        launchSite: one(launchSites, {
+            fields: [dysonSphereTimers.userId],
+            references: [launchSites.userId],
+        }),
+    }),
+);
+
+export const minesRelations = relations(mines, ({ many }) => ({
+    miners: many(miners),
+}));
+
+export const minersRelations = relations(miners, ({ one }) => ({
+    mine: one(mines, {
+        fields: [miners.userId],
+        references: [mines.userId],
+    }),
+}));
+
+export const miniGamesRelations = relations(miniGames, ({ many }) => ({
+    mg2RemainingNumbers: many(mg2RemainingNumbers),
+    mg3BoxesState: many(mg3BoxesState),
+}));
+
+export const mg2RemainingNumbersRelations = relations(
+    mg2RemainingNumbers,
+    ({ one }) => ({
+        miniGame: one(miniGames, {
+            fields: [mg2RemainingNumbers.userId],
+            references: [miniGames.userId],
+        }),
+    }),
+);
+
+export const mg3BoxesStateRelations = relations(mg3BoxesState, ({ one }) => ({
+    miniGame: one(miniGames, {
+        fields: [mg3BoxesState.userId],
+        references: [miniGames.userId],
+    }),
+}));
+
 export const statsRelations = relations(stats, ({ many }) => ({
     lootBoxesByType: many(lootBoxesByType),
     launchesByItem: many(launchesByItem),
@@ -389,27 +414,9 @@ export const lootBoxesByTypeRelations = relations(
     }),
 );
 
-export const lootBoxesByType = pgTable("loot_boxes_by_type", {
-    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    userId: varchar("user_id", { length: 255 })
-        .notNull()
-        .references(() => stats.userId),
-    boxType: varchar("box_type", { length: 50 }).notNull(),
-    count: integer("count").notNull().default(0),
-});
-
-export const launchesByItemRelations = relations(launchesByItem, ({ many }) => ({
-    stats: many(stats, {
+export const launchesByItemRelations = relations(launchesByItem, ({ one }) => ({
+    stats: one(stats, {
         fields: [launchesByItem.userId],
         references: [stats.userId],
     }),
 }));
-
-export const launchesByItem = pgTable("launches_by_item", {
-    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    userId: varchar("user_id", { length: 255 })
-        .notNull()
-        .references(() => stats.userId),
-    itemType: varchar("item_type", { length: 50 }).notNull(),
-    count: integer("count").notNull().default(0),
-});
