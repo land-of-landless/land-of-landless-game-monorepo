@@ -9,7 +9,7 @@ const Footer = (props: Props) => {
       id={"footer"}
       className="flex flex-col justify-between items-center bg-[#212121] w-full"
     >
-      <div className="flex justify-center items-center p-8 w-full h-24 bg-[#212121] flex-row space-x-8">
+      <div className="flex justify-center items-center p-4 w-full h-24 bg-[#212121] flex-row space-x-4">
         <div className="relative w-12 h-12 md:w-16 md:h-16">
           <Link href={"https://twitter.com/thelolxyz"} target="_blank">
             <Image src={"/icons/x_icon.png"} alt="twitter logo" fill />
