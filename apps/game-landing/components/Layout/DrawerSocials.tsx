@@ -5,7 +5,7 @@ type Props = {};
 
 const DrawerSocials = (props: Props) => {
   return (
-    <div className="flex justify-center items-center pr-20 pl-12 w-auto h-20 flex-row space-x-4">
+    <div className="flex justify-center items-center pr-10 pl-6 w-auto h-20 flex-row space-x-4">
       <div className="relative w-12 h-12">
         <Link href={"https://twitter.com/thelolxyz"} target="_blank">
           <Image src={"/icons/x_icon.png"} alt="twitter logo" fill />
