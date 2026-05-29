@@ -1,178 +1,71 @@
 import Image from "next/image";
-import Box from "@mui/material/Box";
-import MenuIcon from "@mui/icons-material/Menu";
+import { Menu } from "lucide-react";
 import Link from "next/link";
 import HeaderSocials from "./HeaderSocials";
 
 const pages = [
-  // {
-  //   label: "Mint",
-  //   to: "https://mint.thelol.xyz",
-  //   target: "_blank",
-  //   prefetch: false,
-  // },
   {
     label: "Game",
     to: "https://game.thelol.xyz",
     target: "_blank",
     prefetch: false,
   },
-  // {
-  //   label: "Staking",
-  //   to: "https://stake.thelol.xyz",
-  //   target: "_blank",
-  //   // prefetch: true, //default
-  // },
-  // {
-  //   label: "Grants",
-  //   to: "https://grant.thelol.xyz",
-  //   target: "_blank",
-  //   // prefetch: true, //default
-  // },
-  // { label: "News", to: "/news", target: "_parent", prefetch: true },
-  // {
-  //   label: "Docs",
-  //   to: "https://docs.thelol.xyz",
-  //   target: "_blank",
-  //   prefetch: false,
-  // },
 ];
 
 type Props = {
   handleOpen: () => void;
 };
+
 function Header({ handleOpen }: Props) {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        position: { xs: "absolute" },
-        top: 10,
-        left: 0,
-        right: 0,
-        margin: "auto",
-        width: "90%",
-        px: 2,
-        // mt: 1,
-        // py: 1,
-        background: "rgba(255, 255, 255, 0.24)",
-        borderRadius: "50px",
-        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
-        backdropFilter: "blur(5.1px)",
-        "-webkit-backdrop-filter": "blur(5.1px)",
-        border: "1px solid rgba(255, 255, 255, 0.37)",
-        zIndex: 100,
-      }}
+    <header
+      className="absolute top-[10px] left-0 right-0 mx-auto w-[90%] px-4 bg-white/24 rounded-[50px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-[5.1px] border border-white/37 z-[100] flex"
       id="test"
     >
-      <Box
-        sx={{
-          display: { xs: "flex" },
-          justifyContent: "space-between",
-          alignItems: "center",
-          height: "5rem",
-          // minWidth: "30rem",
-          width: "100%",
-          // maxWidth: "100rem",
-          // mx: "auto",
-          backgroundColor: {
-            xs: "transparent",
-          },
-          boxShadow: {
-            xs: "none",
-          },
-        }}
-        // position="static"
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          <Box
-            sx={{
-              display: {
-                xs: "flex",
-              },
-              justifyContent: "center",
-              alignItems: "center",
-              position: "relative",
-              width: "4rem",
-              height: "4rem",
-            }}
-          >
-            <Link href="/" passHref>
+      <div className="flex justify-between items-center h-20 w-full bg-transparent shadow-none">
+        <div className="flex justify-between w-full">
+          <div className="flex justify-center items-center relative w-16 h-16 my-auto">
+            <Link href="/" className="relative w-full h-full">
               <Image
                 src="/land_of_landless_logo-round.png"
                 alt="lol logo"
-                // width={55}
-                // height={55}
                 fill
                 priority
+                className="object-contain"
               />
             </Link>
-          </Box>
+          </div>
 
-          <Box
-            sx={{
-              flexGrow: 2,
-            }}
-          ></Box>
+          <div className="grow-[2]"></div>
 
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              flexGrow: 1,
-              justifyContent: { sx: "none", md: "flex-end" },
-            }}
-          >
+          <nav className="hidden md:flex grow justify-end">
             {pages.map((page) => (
               <Link
                 style={{ margin: "0 0.8rem" }}
                 href={page.to}
                 key={page.to}
-                passHref
                 target={page.target}
                 prefetch={page.prefetch}
+                className="my-auto"
               >
-                <Box
-                  key={page.label}
-                  sx={{
-                    my: 2,
-                    color: "white",
-                    display: "block",
-                    fontSize: "1.2rem",
-                    // "&:hover": {
-                    //   background: "rgb(153,69,255)",
-                    // },
-                  }}
-                >
+                <div className="my-4 text-white block text-[1.2rem]">
                   {page.label}
-                </Box>
+                </div>
               </Link>
             ))}
-          </Box>
-        </Box>
-      </Box>
-      {/* social links */}
+          </nav>
+        </div>
+      </div>
 
       <HeaderSocials />
 
-      {/* hamburger button */}
-      <Box
-        sx={{
-          // flexGrow: 1,
-          display: { xs: "flex" },
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+      <div
+        className="flex justify-center items-center cursor-pointer"
         onClick={() => handleOpen()}
       >
-        <MenuIcon fontSize="large" sx={{ color: "white", cursor: "pointer" }} />
-      </Box>
-    </Box>
+        <Menu size={32} color="white" />
+      </div>
+    </header>
   );
 }
 
