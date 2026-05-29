@@ -73,6 +73,23 @@
   }
 } */
 
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ff9f29;
+  --color-primary-dark: #ed7521;
+  --color-primary-light: #ffcf89;
+  --color-secondary: #2989ff;
+  --color-secondary-dark: #2a44b9;
+  --color-secondary-light: #63b8ff;
+
+  --breakpoint-xs: 0px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
 html,
 body {
   max-width: 100vw;

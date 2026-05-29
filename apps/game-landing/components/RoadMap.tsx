@@ -1,395 +1,117 @@
 import * as React from "react";
-import Timeline from "@mui/lab/Timeline";
-import TimelineItem from "@mui/lab/TimelineItem";
-import TimelineSeparator from "@mui/lab/TimelineSeparator";
-import TimelineConnector from "@mui/lab/TimelineConnector";
-import TimelineContent from "@mui/lab/TimelineContent";
-import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
-import TimelineDot from "@mui/lab/TimelineDot";
 import Image from "next/image";
-// MonetizationOnIcon replaced with prize_with_ribbon_red.png
-import RedeemIcon from "@mui/icons-material/Redeem";
-// RepeatIcon replaced with repeat_green.png
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import { semangatRegular, semangatBold, PoppinsFont } from "@/fonts";
+import { semangatRegular, semangatBold } from "@/fonts";
 import Footer from "./Layout/Footer";
 
 const RoadMapComp = () => {
   return (
-    <Box
-      sx={{
-        position: "absolute",
-        top: "800vh",
-        width: "100%",
-      }}
+    <div
+      className="absolute top-[800vh] w-full"
       id={"roadmap"}
     >
-      <Box
-        // maxWidth="xl"
-        sx={{
-          // position: "absolute",
-          // top: "800vh",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "#FAF3E3",
-        }}
+      <div
+        className="w-full flex flex-col justify-between items-center bg-[#FAF3E3]"
       >
-        <Box
-          className={semangatBold.className}
-          sx={{ fontSize: { xs: "3rem", sm: "4rem", md: "4rem" }, pt: 4 }}
+        <div
+          className={`${semangatBold.className} text-[3rem] sm:text-[4rem] md:text-[4rem] pt-8`}
         >
           Explain like I&apos;m 5
-        </Box>
+        </div>
 
-        <Timeline position="alternate" sx={{ px: 0 }}>
-          <TimelineItem>
-            <TimelineOppositeContent
-              sx={{
-                m: "auto 0",
-                fontFamily: semangatRegular.style.fontFamily,
-                fontSize: {
-                  xs: "1.3rem",
-                  sm: "1.6rem",
-                  md: "2rem",
-                  lg: "2.5rem",
-                },
-                pr: { xs: 1, sm: 2 },
-                pl: { xs: 0.5, sm: 1, md: 2 },
-              }}
-              align="right"
-              variant="body2"
-              color="secondary.dark"
-            >
-              <s>Simon</s> Emperor says
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineConnector />
-              <TimelineDot color="primary" variant="outlined">
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "8px",
-                  }}
-                >
+        <div className="relative w-full max-w-6xl mx-auto py-8 px-4">
+          {/* Vertical line */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gray-300 hidden sm:block" />
+
+          {/* Timeline items */}
+          <div className="space-y-16">
+            {/* Item 1 */}
+            <div className="relative flex flex-col sm:flex-row items-center justify-center">
+              <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
+                <div className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}>
+                  <s>Simon</s> Emperor says
+                </div>
+              </div>
+              <div className="relative z-10 my-4 sm:my-0">
+                <div className="w-16 h-16 rounded-full border-2 border-primary bg-[#FAF3E3] flex items-center justify-center p-2">
                   <Image
                     src="/icons/expansion_yellow_like_sun.png"
                     alt="Expansion"
                     width={40}
                     height={40}
-                    style={{
-                      objectFit: "contain",
-                      display: "block",
-                    }}
+                    className="object-contain"
                   />
                 </div>
-              </TimelineDot>
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent
-              sx={{
-                py: { xs: "24px", sm: "36px", md: "4rem" },
-                pl: { xs: 1, sm: 2 },
-                pr: { xs: 0.5, sm: 1, md: 2 },
-              }}
-            >
-              <Typography
-                variant="h6"
-                component="span"
-                sx={{
-                  fontFamily: semangatRegular.style.fontFamily,
-                  fontSize: {
-                    xs: "1.7rem",
-                    sm: "1.8rem",
-                    md: "1.9rem",
-                    lg: "2rem",
-                  },
-                  fontWeight: "bold",
-                }}
-                // className={PoppinsFont.className}
-              >
-                Complete missions soldier!
-              </Typography>
-              <Typography
-                sx={(theme) => ({
-                  fontFamily: semangatRegular.style.fontFamily,
-                  fontSize: {
-                    xs: "1.2rem",
-                    sm: "1.3rem",
-                    md: "1.4rem",
-                    lg: "1.5rem",
-                  },
-                  fontWeight: "bold",
-                  // fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
-                  color: theme.palette.grey[900],
-                })}
-                // className={PoppinsFont.className}
-              >
-                For LOL! For Expansion! For Juicy Prizes!
-              </Typography>
-            </TimelineContent>
-          </TimelineItem>
-          <TimelineItem>
-            <TimelineOppositeContent
-              sx={{
-                m: "auto 0",
-                fontFamily: semangatRegular.style.fontFamily,
-                fontSize: {
-                  xs: "1.3rem",
-                  sm: "1.6rem",
-                  md: "2rem",
-                  lg: "2.5rem",
-                },
-                pl: { xs: 1, sm: 2 },
-                pr: 0.5,
-              }}
-              variant="body2"
-              color="secondary.dark"
-            >
-              Gamer🎮 or a Degen🐒, you&apos;re welcome!
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineConnector />
-              <TimelineDot color="primary" variant="outlined">
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "8px",
-                  }}
-                >
+              </div>
+              <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
+                <div className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold`}>
+                  Complete missions soldier!
+                </div>
+                <div className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}>
+                  For LOL! For Expansion! For Juicy Prizes!
+                </div>
+              </div>
+            </div>
+
+            {/* Item 2 */}
+            <div className="relative flex flex-col sm:flex-row-reverse items-center justify-center">
+              <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
+                <div className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}>
+                  Gamer🎮 or a Degen🐒, you&apos;re welcome!
+                </div>
+              </div>
+              <div className="relative z-10 my-4 sm:my-0">
+                <div className="w-16 h-16 rounded-full border-2 border-primary bg-[#FAF3E3] flex items-center justify-center p-2">
                   <Image
                     src="/icons/prize_with_ribbon_red.png"
                     alt="Prize"
                     width={40}
                     height={40}
-                    style={{
-                      objectFit: "contain",
-                      display: "block",
-                    }}
+                    className="object-contain"
                   />
                 </div>
-              </TimelineDot>
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent
-              sx={{
-                py: { xs: "24px", sm: "36px", md: "4rem" },
-                pr: { xs: 1, sm: 2 },
-                pl: 0.5,
-              }}
-            >
-              <Typography
-                variant="h6"
-                component="span"
-                sx={{
-                  fontFamily: semangatRegular.style.fontFamily,
-                  fontSize: {
-                    xs: "1.7rem",
-                    sm: "1.8rem",
-                    md: "1.9rem",
-                    lg: "2rem",
-                  },
-                  fontWeight: "bold",
-                }}
-                // className={PoppinsFont.className}
-              >
-                Let&apos;s share a memecoin!
-              </Typography>
-              <Typography
-                sx={(theme) => ({
-                  // fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
-                  fontFamily: semangatRegular.style.fontFamily,
-                  fontSize: {
-                    xs: "1.2rem",
-                    sm: "1.3rem",
-                    md: "1.4rem",
-                    lg: "1.5rem",
-                  },
-                  fontWeight: "bold",
-                  color: theme.palette.grey[900],
-                })}
-                // className={PoppinsFont.className}
-              >
-                You do missions, Emperor gives you candy!
-              </Typography>
-            </TimelineContent>
-          </TimelineItem>
-          {/* <TimelineItem>
-            <TimelineOppositeContent
-              sx={{
-                m: "auto 0",
-                fontFamily: semangatRegular.style.fontFamily,
-                fontSize: {
-                  xs: "1.3rem",
-                  sm: "1.6rem",
-                  md: "2rem",
-                  lg: "2.5rem",
-                },
-                pr: { xs: 1, sm: 2 },
-                pl: 0.5,
-              }}
-              align="right"
-              variant="body2"
-              color="secondary.dark"
-            >
-              YaY! your ticket won ...
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineConnector />
-              <TimelineDot color="primary" variant="outlined">
-                <RedeemIcon
-                  sx={{
-                    fontSize: {
-                      xs: "2rem",
-                      sm: "2.5rem",
-                      md: "3rem",
-                      lg: "3.5rem",
-                    },
-                  }}
-                />
-              </TimelineDot>
-              <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
-            </TimelineSeparator>
-            <TimelineContent
-              sx={{
-                py: { xs: "24px", sm: "36px", md: "4rem" },
-                pl: { xs: 1, sm: 2 },
-                pr: 0.5,
-              }}
-            >
-              <Typography
-                variant="h6"
-                component="span"
-                sx={{
-                  fontFamily: semangatRegular.style.fontFamily,
-                  fontSize: {
-                    xs: "1.7rem",
-                    sm: "1.8rem",
-                    md: "1.9rem",
-                    lg: "2rem",
-                  },
-                  fontWeight: "bold",
-                }}
-                // className={PoppinsFont.className}
-              >
-                Juicy Prizes
-              </Typography>
-              <Typography
-                sx={(theme) => ({
-                  fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
-                  color: theme.palette.grey[900],
-                })}
-                className={PoppinsFont.className}
-              >
-                Try your chance for amazing prizes
-              </Typography>
-            </TimelineContent>
-          </TimelineItem> */}
-          <TimelineItem>
-            <TimelineOppositeContent
-              sx={{
-                m: "auto 0",
-                fontFamily: semangatRegular.style.fontFamily,
-                fontSize: {
-                  xs: "1.3rem",
-                  sm: "1.6rem",
-                  md: "2rem",
-                  lg: "2.5rem",
-                },
-                pl: { xs: 1, sm: 2 },
-                pr: 0.5,
-              }}
-              align="right"
-              variant="body2"
-              color="secondary.dark"
-            >
-              Help Emperor Tai Colonize!
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineConnector sx={{ bgcolor: "secondary.main" }} />
-              <TimelineDot color="primary" variant="outlined">
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "8px",
-                  }}
-                >
+              </div>
+              <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
+                <div className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold`}>
+                  Let&apos;s share a memecoin!
+                </div>
+                <div className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}>
+                  You do missions, Emperor gives you candy!
+                </div>
+              </div>
+            </div>
+
+            {/* Item 3 */}
+            <div className="relative flex flex-col sm:flex-row items-center justify-center">
+              <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
+                <div className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}>
+                  Help Emperor Tai Colonize!
+                </div>
+              </div>
+              <div className="relative z-10 my-4 sm:my-0">
+                <div className="w-16 h-16 rounded-full border-2 border-primary bg-[#FAF3E3] flex items-center justify-center p-2">
                   <Image
                     src="/icons/repeat_green.png"
                     alt="Repeat"
                     width={40}
                     height={40}
-                    style={{
-                      objectFit: "contain",
-                      display: "block",
-                    }}
+                    className="object-contain"
                   />
                 </div>
-              </TimelineDot>
-              <TimelineConnector />
-            </TimelineSeparator>
-            <TimelineContent
-              sx={{
-                py: { xs: "24px", sm: "36px", md: "4rem" },
-                pr: { xs: 1, sm: 2 },
-                pl: 0.5,
-              }}
-            >
-              <Typography
-                variant="h6"
-                component="span"
-                sx={{
-                  fontFamily: semangatRegular.style.fontFamily,
-                  fontSize: {
-                    xs: "1.7rem",
-                    sm: "1.8rem",
-                    md: "1.9rem",
-                    lg: "2rem",
-                  },
-                  fontWeight: "bold",
-                }}
-                // className={PoppinsFont.className}
-              >
-                Ops! Emperor spotted new planets
-              </Typography>
-              <Typography
-                sx={(theme) => ({
-                  fontFamily: semangatRegular.style.fontFamily,
-                  fontSize: {
-                    xs: "1.2rem",
-                    sm: "1.3rem",
-                    md: "1.4rem",
-                    lg: "1.5rem",
-                  },
-                  fontWeight: "bold",
-                  // fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
-                  color: theme.palette.grey[900],
-                })}
-                // className={PoppinsFont.className}
-              >
-                we need help, invite your friends!
-              </Typography>
-            </TimelineContent>
-          </TimelineItem>
-        </Timeline>
-      </Box>
+              </div>
+              <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
+                <div className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold`}>
+                  Ops! Emperor spotted new planets
+                </div>
+                <div className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}>
+                  we need help, invite your friends!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <Footer />
-    </Box>
+    </div>
   );
 };
 

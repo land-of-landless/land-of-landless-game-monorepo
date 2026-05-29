@@ -1,324 +1,188 @@
 import React from "react";
 import {
-  Typography,
-  Box,
-  Container,
-  Paper,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-} from "@mui/material";
-import GavelIcon from "@mui/icons-material/Gavel";
-import SecurityIcon from "@mui/icons-material/Security";
-import InfoIcon from "@mui/icons-material/Info";
-import EmailIcon from "@mui/icons-material/Email";
-import PrivacyTipIcon from "@mui/icons-material/PrivacyTip";
+  Gavel,
+  ShieldCheck,
+  Info,
+  Mail,
+  ShieldAlert,
+} from "lucide-react";
 import Image from "next/image";
 import { semangatBold, semangatRegular } from "@/fonts";
 import landOfLandlessLogo from "@/public/land_of_landless_logo-round.png";
 
 const Tos = () => {
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)",
-        py: { xs: 4, md: 8 },
-        px: 2,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Container
-        maxWidth={false}
-        disableGutters
-        sx={{
-          maxWidth: {
-            xs: "100%",
-            sm: "600px",
-            md: "800px",
-            lg: "1000px",
-            xl: "1200px",
-          },
-          width: "100%",
-        }}
-      >
-        <Paper
-          elevation={4}
-          sx={{
-            borderRadius: 4,
-            p: { xs: 3, sm: 5, md: 6, lg: 8 },
-            boxShadow: 6,
-            background: "rgba(255,255,255,0.98)",
-          }}
-        >
+    <div className="min-h-screen bg-[linear-gradient(135deg,#f8fafc_0%,#e0e7ff_100%)] py-8 md:py-16 px-4 flex items-center justify-center">
+      <div className="w-full max-w-full sm:max-w-[600px] md:max-w-[800px] lg:max-w-[1000px] xl:max-w-[1200px]">
+        <div className="bg-white/98 rounded-[32px] p-12 sm:p-20 md:p-24 lg:p-32 shadow-2xl">
           {/* Hero Section */}
-          <Box sx={{ textAlign: "center", mb: 4 }}>
+          <div className="text-center mb-8">
             {/* Logo and Brand Section */}
-            <Box sx={{ mb: 3 }}>
+            <div className="mb-6">
               <Image
                 src={landOfLandlessLogo}
                 alt="Land of Landless Logo"
                 width={80}
                 height={80}
-                style={{ marginBottom: "16px" }}
+                className="mx-auto mb-6"
               />
-              <Typography
-                variant="h3"
-                className={semangatBold.className}
-                sx={{
-                  fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
-                  color: "#FF6B35",
-                  mb: 1,
-                  textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
-                }}
+              <h1
+                className={`${semangatBold.className} text-[2rem] sm:text-[2.5rem] md:text-[3rem] text-[#FF6B35] mb-4 drop-shadow-[2px_2px_4px_rgba(0,0,0,0.1)]`}
               >
                 Land of Landless
-              </Typography>
-              <Typography
-                variant="h5"
-                className={semangatRegular.className}
-                sx={{
-                  fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" },
-                  color: "#2C3E50",
-                  mb: 2,
-                }}
+              </h1>
+              <h2
+                className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.4rem] md:text-[1.6rem] text-[#2C3E50] mb-4`}
               >
                 Legal & Privacy Information
-              </Typography>
-            </Box>
+              </h2>
+            </div>
 
             {/* Decorative Elements */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
-                mb: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 40,
-                  height: 2,
-                  background:
-                    "linear-gradient(90deg, transparent, #FF6B35, transparent)",
-                }}
-              />
-              <PrivacyTipIcon
-                sx={{
-                  fontSize: 32,
-                  color: "#FF6B35",
-                  filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.1))",
-                }}
-              />
-              <Box
-                sx={{
-                  width: 40,
-                  height: 2,
-                  background:
-                    "linear-gradient(90deg, transparent, #FF6B35, transparent)",
-                }}
-              />
-            </Box>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="w-10 h-0.5 bg-[linear-gradient(90deg,transparent,#FF6B35,transparent)]" />
+              <ShieldAlert className="w-8 h-8 text-[#FF6B35] drop-shadow-[2px_2px_4px_rgba(0,0,0,0.1)]" />
+              <div className="w-10 h-0.5 bg-[linear-gradient(90deg,transparent,#FF6B35,transparent)]" />
+            </div>
 
-            <Typography
-              variant="body1"
-              className={semangatRegular.className}
-              sx={{
-                color: "#5A6C7D",
-                fontSize: { xs: "1rem", sm: "1.1rem" },
-                maxWidth: "400px",
-                mx: "auto",
-                lineHeight: 1.6,
-              }}
+            <p
+              className={`${semangatRegular.className} text-[#5A6C7D] text-base sm:text-lg max-w-[400px] mx-auto leading-relaxed`}
             >
               Your privacy matters to us, Emperor! 🛡️
               <br />
               Read how we protect your data in the digital realm.
-            </Typography>
-          </Box>
-          <Divider sx={{ mb: 3 }} />
+            </p>
+          </div>
+          <hr className="mb-6 border-gray-200" />
 
           {/* Privacy Policy Section */}
-          <Box mb={4}>
-            <Typography variant="h5" fontWeight={600} gutterBottom>
-              <SecurityIcon sx={{ mr: 1, verticalAlign: "middle" }} /> Privacy
-              Policy
-            </Typography>
-            <List>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <InfoIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Information Collection"
-                  secondary={
-                    <>
-                      We use cookies to gain stats like number of visits and
-                      other common non-private info about our users.
-                      <br />
-                      In case of social authentication (e.g. connecting your
-                      Google account) we only collect a unique numerical
-                      identifier to identify you. We don’t save any private info
-                      including your name, email, or profile image.
-                    </>
-                  }
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <InfoIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Information Sharing"
-                  secondary={
-                    <>
-                      We don’t share any information with any third party or any
-                      entity.
-                      <br />
-                      We don’t collect much info at the first place anyway.
-                    </>
-                  }
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <SecurityIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Data Security"
-                  secondary={
-                    <>
-                      We use common security practices like 2FA, clusters,
-                      role-based access, and etc.
-                    </>
-                  }
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <GavelIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Data Retention"
-                  secondary="We store user generated data and progress in our games in
-                      variety of databases. including Redis and MongoDB."
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <PrivacyTipIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Children’s Privacy"
-                  secondary={
-                    <>
-                      We don’t have much of gruesome or harmful content on our
-                      website or subdomains but to adhere to possible rules, we
-                      only offer this website and subdomains to adults. Adults
-                      in different countries may be considered in different
-                      ages, but we consider it 18 and above to follow standards.
-                    </>
-                  }
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <InfoIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Changes to Privacy Policy"
-                  secondary={
-                    <>
-                      This Document may get updated later and we reserve the
-                      right to add or remove new element to it.
-                    </>
-                  }
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <EmailIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Contact Us"
-                  secondary={
-                    <>
-                      You can always reach us at our socials and emails:
-                      <br />
-                      contact@thelol.xyz
-                    </>
-                  }
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-            </List>
-          </Box>
+          <div className="mb-8">
+            <h3 className="text-2xl font-semibold mb-6 flex items-center gap-4">
+              <ShieldCheck className="w-6 h-6" /> Privacy Policy
+            </h3>
+            <ul className="space-y-8">
+              <li className="flex gap-4">
+                <Info className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Information Collection</h4>
+                  <p className="text-[#555] mt-1">
+                    We use cookies to gain stats like number of visits and
+                    other common non-private info about our users.
+                    <br />
+                    In case of social authentication (e.g. connecting your
+                    Google account) we only collect a unique numerical
+                    identifier to identify you. We don’t save any private info
+                    including your name, email, or profile image.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <Info className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Information Sharing</h4>
+                  <p className="text-[#555] mt-1">
+                    We don’t share any information with any third party or any
+                    entity.
+                    <br />
+                    We don’t collect much info at the first place anyway.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <ShieldCheck className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Data Security</h4>
+                  <p className="text-[#555] mt-1">
+                    We use common security practices like 2FA, clusters,
+                    role-based access, and etc.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <Gavel className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Data Retention</h4>
+                  <p className="text-[#555] mt-1">
+                    We store user generated data and progress in our games in
+                    variety of databases. including Redis and MongoDB.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <ShieldAlert className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Children’s Privacy</h4>
+                  <p className="text-[#555] mt-1">
+                    We don’t have much of gruesome or harmful content on our
+                    website or subdomains but to adhere to possible rules, we
+                    only offer this website and subdomains to adults. Adults
+                    in different countries may be considered in different
+                    ages, but we consider it 18 and above to follow standards.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <Info className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Changes to Privacy Policy</h4>
+                  <p className="text-[#555] mt-1">
+                    This Document may get updated later and we reserve the
+                    right to add or remove new element to it.
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <Mail className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Contact Us</h4>
+                  <p className="text-[#555] mt-1">
+                    You can always reach us at our socials and emails:
+                    <br />
+                    contact@thelol.xyz
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
 
-          <Divider sx={{ mb: 3 }} />
+          <hr className="mb-6 border-gray-200" />
 
           {/* Terms of Service Section */}
-          <Box>
-            <Typography variant="h5" fontWeight={600} gutterBottom>
-              <GavelIcon sx={{ mr: 1, verticalAlign: "middle" }} /> Terms of
-              Service
-            </Typography>
-            <List>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <InfoIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="By using this website, you agree to this terms of service:"
-                  sx={{ color: "text.primary" }}
-                />
-              </ListItem>
-              <ListItem alignItems="flex-start">
-                <ListItemIcon>
-                  <GavelIcon color="primary" />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Forbidden Activity"
-                  secondary={
-                    <>
-                      You agree to never promote hateful content towards a race,
-                      nationality, religion, sexual orientation or any group of
-                      people who cherish a certain belief or practice.
-                      <br />
-                      You agree to never use hateful or inappropriate names or
-                      related data in your user profiles.
-                      <br />
-                      You agree to not spam, ddos or maliciously try to abuse
-                      the website or other things around it.
-                    </>
-                  }
-                  sx={{ color: "text.primary" }}
-                  secondaryTypographyProps={{ sx: { color: "#555" } }}
-                />
-              </ListItem>
-            </List>
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
+          <div>
+            <h3 className="text-2xl font-semibold mb-6 flex items-center gap-4">
+              <Gavel className="w-6 h-6" /> Terms of Service
+            </h3>
+            <ul className="space-y-8">
+              <li className="flex gap-4">
+                <Info className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <p className="text-black font-semibold">
+                    By using this website, you agree to this terms of service:
+                  </p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <Gavel className="w-6 h-6 text-primary shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-semibold text-black">Forbidden Activity</h4>
+                  <p className="text-[#555] mt-1">
+                    You agree to never promote hateful content towards a race,
+                    nationality, religion, sexual orientation or any group of
+                    people who cherish a certain belief or practice.
+                    <br />
+                    You agree to never use hateful or inappropriate names or
+                    related data in your user profiles.
+                    <br />
+                    You agree to not spam, ddos or maliciously try to abuse
+                    the website or other things around it.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
