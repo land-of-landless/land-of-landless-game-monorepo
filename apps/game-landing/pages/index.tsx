@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Head from "next/head";
 
 import Header from "../components/Layout/Header";
-import Footer from "../components/Layout/Footer";
 import Drawer from "../components/Layout/Drawer";
 import RoadMap from "../components/RoadMap";
 
-import {
+
   lenasRegular,
   semangatRegular,
 } from "@/fonts";
@@ -51,7 +50,7 @@ export default function Home() {
         <div>
           {/* Slide 1 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-30 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-[120px] lg:pt-[120px] mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_1.src})` }}
             id="landing1"
           >
