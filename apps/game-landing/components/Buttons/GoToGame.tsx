@@ -2,17 +2,16 @@ import React from "react";
 import NextLink from "next/link";
 import { semangatBold } from "@/fonts";
 
-type Props = {};
-
-const GoToGame = (props: Props) => {
+const GoToGame = () => {
   return (
     <NextLink
-      href={"https://game.thelol.xyz"}
+      href="https://game.thelol.xyz"
       target="_blank"
-      className="no-underline block"
+      rel="noopener noreferrer"
+      className="block no-underline"
     >
       <div
-        className={`${semangatBold.className} play-now-button text-2xl md:text-3xl font-normal block no-underline bg-[orange] px-0 sm:px-4 py-4 mt-4 text-black rounded-[25px] text-center w-full mx-auto cursor-pointer`}
+        className={`${semangatBold.className} play-now-button text-2xl md:text-3xl font-normal bg-[orange] px-0 sm:px-4 py-4 mt-4 text-black rounded-[25px] text-center w-full mx-auto cursor-pointer hover:bg-orange-400 transition-colors`}
       >
         Play Now
       </div>
