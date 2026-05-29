@@ -14,7 +14,7 @@ const Tos = () => {
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#f8fafc_0%,#e0e7ff_100%)] py-8 md:py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-full sm:max-w-[600px] md:max-w-[800px] lg:max-w-[1000px] xl:max-w-[1200px]">
-        <div className="bg-white/98 rounded-[32px] p-6 sm:p-10 md:p-12 lg:p-16 shadow-2xl">
+        <div className="bg-white/98 rounded-[32px] p-12 sm:p-20 md:p-24 lg:p-32 shadow-2xl">
           {/* Hero Section */}
           <div className="text-center mb-8">
             {/* Logo and Brand Section */}
