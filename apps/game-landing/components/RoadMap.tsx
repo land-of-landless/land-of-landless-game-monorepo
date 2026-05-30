@@ -18,7 +18,7 @@ const RoadMapComp = () => {
           <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gray-300 hidden sm:block" />
 
           {/* Timeline items */}
-          <div className="space-y-16">
+          <div className="space-y-32">
             {/* Item 1 */}
             <div className="relative flex flex-col sm:flex-row items-center justify-center">
               <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
