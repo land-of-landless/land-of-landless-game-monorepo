@@ -6,10 +6,7 @@ import Footer from "../components/Layout/Footer";
 import Drawer from "../components/Layout/Drawer";
 import RoadMap from "../components/RoadMap";
 
-import {
-  lenasRegular,
-  semangatRegular,
-} from "@/fonts";
+import { lenasRegular, semangatRegular } from "@/fonts";
 
 import landing_background_1 from "@/public/backgrounds/landing_background_1.webp";
 import landing_background_2 from "@/public/backgrounds/landing_background_lab_on_fire.webp";
@@ -51,11 +48,11 @@ export default function Home() {
         <div>
           {/* Slide 1 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-30 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center  pt-10 lg:pt-10 mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_1.src})` }}
             id="landing1"
           >
-            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-48 mt-20 md:mt-30 lg:mt-0">
+            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-10 mt-10 md:mt-15 lg:mt-0">
               <div className="bg-white rounded-[25px] shadow-sm">
                 <div
                   className={`${lenasRegular.className} text-[2.2rem] md:text-[3rem] font-[700] px-4 py-6 text-black border border-white rounded-[25px] text-center`}
@@ -77,11 +74,11 @@ export default function Home() {
 
           {/* Slide 2 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-30 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_4.src})` }}
             id="landing2"
           >
-            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-60 mt-20 md:mt-30 lg:mt-0">
+            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-15 mt-20 md:mt-30 lg:mt-0">
               <div className="bg-white rounded-[25px] shadow-sm">
                 <div
                   className={`${semangatRegular.className} text-[1.6rem] md:text-[2.2rem] font-[700] px-4 py-6 text-black border border-white rounded-[25px] text-center`}
@@ -98,11 +95,11 @@ export default function Home() {
 
           {/* Slide 3 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-20 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_2.src})` }}
             id="landing3"
           >
-            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-40 mt-20 md:mt-30 lg:mt-0">
+            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-15 mt-20 md:mt-30 lg:mt-0">
               <div className="bg-white rounded-[25px] shadow-sm">
                 <div
                   className={`${semangatRegular.className} text-[1.6rem] md:text-[2.2rem] font-[700] px-4 py-6 text-black border border-white rounded-[25px] text-center`}
@@ -131,11 +128,11 @@ export default function Home() {
 
           {/* Slide 5 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-30 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4  mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_5.src})` }}
             id="landing5"
           >
-            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-60 mt-20 md:mt-30 lg:mt-0">
+            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-15 mt-20 md:mt-30 lg:mt-0">
               <div className="bg-white rounded-[25px] shadow-sm">
                 <div
                   className={`${semangatRegular.className} text-[1.6rem] md:text-[2.2rem] font-[700] px-4 py-6 text-black border border-white rounded-[25px] text-center`}
@@ -152,11 +149,11 @@ export default function Home() {
 
           {/* Slide 6 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-30 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4  mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_6.src})` }}
             id="landing6"
           >
-            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-60 mt-20 md:mt-30 lg:mt-0">
+            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-15 mt-20 md:mt-30 lg:mt-0">
               <div className="bg-white rounded-[25px] shadow-sm">
                 <div
                   className={`${semangatRegular.className} text-[1.6rem] md:text-[2.2rem] font-[700] px-4 py-6 text-black border border-white rounded-[25px] text-center`}
@@ -174,11 +171,11 @@ export default function Home() {
 
           {/* Slide 7 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-30 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4  mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_7.src})` }}
             id="landing7"
           >
-            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-60 mt-20 md:mt-30 lg:-mt-[140px]">
+            <div className="w-[80%] md:w-[60%] lg:w-[40%] xl:w-[700px] max-w-[355px] md:max-w-[400px] lg:max-w-[450px] lg:ml-15 mt-20 md:mt-30 lg:-mt-[140px]">
               <div className="bg-white rounded-[25px] shadow-sm">
                 <div
                   className={`${semangatRegular.className} text-[1.6rem] md:text-[2.2rem] font-[700] px-4 py-6 text-black border border-white rounded-[25px] text-center`}
@@ -195,7 +192,7 @@ export default function Home() {
 
           {/* Slide 8 */}
           <section
-            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 pt-30 lg:pt-30 mx-auto relative"
+            className="min-h-screen bg-center bg-cover bg-no-repeat flex flex-col lg:flex-row justify-between items-center gap-4 mx-auto relative"
             style={{ backgroundImage: `url(${landing_background_8.src})` }}
             id="landing8"
           >

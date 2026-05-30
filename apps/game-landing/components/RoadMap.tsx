@@ -5,15 +5,10 @@ import Footer from "./Layout/Footer";
 
 const RoadMapComp = () => {
   return (
-    <div
-      className="absolute top-[800vh] w-full"
-      id={"roadmap"}
-    >
-      <div
-        className="w-full flex flex-col justify-between items-center bg-[#FAF3E3]"
-      >
+    <div className="absolute top-[800vh] w-full" id={"roadmap"}>
+      <div className="w-full flex flex-col justify-between items-center bg-[#FAF3E3]">
         <div
-          className={`${semangatBold.className} text-[3rem] sm:text-[4rem] md:text-[4rem] pt-8`}
+          className={`${semangatBold.className} text-[3rem] sm:text-[4rem] md:text-[4rem] pt-8 text-[#000000]`}
         >
           Explain like I&apos;m 5
         </div>
@@ -27,7 +22,9 @@ const RoadMapComp = () => {
             {/* Item 1 */}
             <div className="relative flex flex-col sm:flex-row items-center justify-center">
               <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
-                <div className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}
+                >
                   <s>Simon</s> Emperor says
                 </div>
               </div>
@@ -43,10 +40,14 @@ const RoadMapComp = () => {
                 </div>
               </div>
               <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
-                <div className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold text-black`}
+                >
                   Complete missions soldier!
                 </div>
-                <div className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}
+                >
                   For LOL! For Expansion! For Juicy Prizes!
                 </div>
               </div>
@@ -55,7 +56,9 @@ const RoadMapComp = () => {
             {/* Item 2 */}
             <div className="relative flex flex-col sm:flex-row-reverse items-center justify-center">
               <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
-                <div className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}
+                >
                   Gamer🎮 or a Degen🐒, you&apos;re welcome!
                 </div>
               </div>
@@ -71,10 +74,14 @@ const RoadMapComp = () => {
                 </div>
               </div>
               <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
-                <div className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold text-black`}
+                >
                   Let&apos;s share a memecoin!
                 </div>
-                <div className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}
+                >
                   You do missions, Emperor gives you candy!
                 </div>
               </div>
@@ -83,7 +90,9 @@ const RoadMapComp = () => {
             {/* Item 3 */}
             <div className="relative flex flex-col sm:flex-row items-center justify-center">
               <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
-                <div className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}
+                >
                   Help Emperor Tai Colonize!
                 </div>
               </div>
@@ -99,10 +108,14 @@ const RoadMapComp = () => {
                 </div>
               </div>
               <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
-                <div className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold text-black`}
+                >
                   Ops! Emperor spotted new planets
                 </div>
-                <div className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}>
+                <div
+                  className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}
+                >
                   we need help, invite your friends!
                 </div>
               </div>
