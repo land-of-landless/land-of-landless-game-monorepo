@@ -68,7 +68,7 @@ export class MainProfilePostgresDAO {
                         (boxType: any, index: number) => ({
                             userId: profileData.userId,
                             boxType,
-                            timer: profileData.lootBoxesTimers[index]
+                            timer: profileData.lootBoxesTimers?.[index]
                                 ? new Date(profileData.lootBoxesTimers[index])
                                 : null,
                             position: index,
@@ -211,32 +211,36 @@ export class MainProfilePostgresDAO {
 
         if (!profile) return null;
 
-        // Map back to Redis-like structure if needed, or return as is
+        // Extract relations to prevent them from being included twice or as raw objects in the spread
+        const {
+            workerBots,
+            lootBoxes: dbLootBoxes,
+            lootBoxesOpened,
+            ...profileData
+        } = profile;
+
         return {
-            ...profile,
-            userId: profile.userId,
+            ...profileData,
             game_pass: profile.gamePass,
             game_pass_purchase_time:
-                profile.gamePassPurchaseTime?.toISOString(),
-            worker_bots: profile.workerBots.map(b => b.botType),
-            lootBoxes: profile.lootBoxes.map(b => b.boxType),
-            lootBoxesTimers: profile.lootBoxes.map(
-                b => b.timer?.toISOString() || ""
-            ),
+                profile.gamePassPurchaseTime?.toISOString() || "",
+            worker_bots: workerBots.map(b => b.botType),
+            lootBoxes: dbLootBoxes.map(b => b.boxType),
+            lootBoxesTimers: dbLootBoxes.map(b => b.timer?.toISOString() || ""),
             lootBox_keys: profile.lootBoxKeys,
-            lootBoxes_opened: profile.lootBoxesOpened.map(b => b.count),
+            lootBoxes_opened: lootBoxesOpened.map(b => b.count),
             energy_generation_rate: profile.energyGenerationRate,
             energy_max: profile.energyMax,
-            energy_updated_at: profile.energyUpdatedAt?.toISOString(),
+            energy_updated_at: profile.energyUpdatedAt?.toISOString() || "",
             mineral_generation_rate: profile.mineralGenerationRate,
             mineral_max: profile.mineralMax,
-            mineral_updated_at: profile.mineralUpdatedAt?.toISOString(),
+            mineral_updated_at: profile.mineralUpdatedAt?.toISOString() || "",
             atmosphere_trash_type1: profile.atmosphereTrashType1,
             atmosphere_trash_type2: profile.atmosphereTrashType2,
             atmosphere_trash_updated_at:
-                profile.atmosphereTrashUpdatedAt?.toISOString(),
+                profile.atmosphereTrashUpdatedAt?.toISOString() || "",
             lastDailyRewardClaimedAt:
-                profile.lastDailyRewardClaimedAt?.toISOString(),
+                profile.lastDailyRewardClaimedAt?.toISOString() || "",
         };
     }
 
@@ -273,12 +277,19 @@ export class MainProfilePostgresDAO {
 
         if (!profile) return null;
 
+        const {
+            workerBots,
+            lootBoxes: dbLootBoxes,
+            lootBoxesOpened,
+            ...profileData
+        } = profile;
+
         return {
-            ...profile,
+            ...profileData,
             game_pass: profile.gamePass,
-            worker_bots: profile.workerBots.map(wb => wb.botType),
-            lootBoxes: profile.lootBoxes.map(lb => lb.boxType),
-            lootBoxes_opened: profile.lootBoxesOpened.map(lbo => lbo.count),
+            worker_bots: workerBots.map(wb => wb.botType),
+            lootBoxes: dbLootBoxes.map(lb => lb.boxType),
+            lootBoxes_opened: lootBoxesOpened.map(lbo => lbo.count),
         };
     }
 }
