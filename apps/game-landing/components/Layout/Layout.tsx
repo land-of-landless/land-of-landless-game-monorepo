@@ -1,21 +1,14 @@
 import { PropsWithChildren } from "react";
-import { Box } from "@mui/material";
-import useToggle from "../../hooks/useToggle";
 import Header from "./Header";
 import Footer from "./Footer";
 
 function Layout({ children }: PropsWithChildren) {
   return (
-    <Box
-      sx={{
-        paddingTop: "1rem",
-        width: "100%",
-      }}
-    >
+    <div className="pt-4 w-full">
       <Header handleOpen={() => {}} />
-      <Box sx={{ minHeight: "90vh" }}>{children}</Box>
+      <main className="min-h-[90vh]">{children}</main>
       <Footer />
-    </Box>
+    </div>
   );
 }
 

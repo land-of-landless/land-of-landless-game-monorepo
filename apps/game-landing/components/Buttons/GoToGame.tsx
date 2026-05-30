@@ -1,60 +1,21 @@
-import { Box } from "@mui/material";
 import React from "react";
 import NextLink from "next/link";
-import { Link } from "@mui/material";
-
 import { semangatBold } from "@/fonts";
 
-type Props = {};
-
-const GoToGame = (props: Props) => {
+const GoToGame = () => {
   return (
-    <Link
-      component={NextLink}
-      href={"https://game.thelol.xyz"}
+    <NextLink
+      href="https://game.thelol.xyz"
       target="_blank"
-      // className={semangatBold.className}
-      // sx={{
-      //   fontSize: { xs: "1.5rem", md: "2rem" },
-      //   fontWeight: { xs: 400 },
-      //   display: "block",
-      //   textDecoration: "none",
-      //   backgroundColor: "orange",
-      //   p: { xs: 0, sm: 1 },
-      //   py: { xs: 2 },
-      //   mt: { xs: 2 },
-      //   color: "black",
-      //   borderRadius: "25px",
-      //   textAlign: "center",
-      //   width: "100%",
-      //   margin: "auto",
-      // }}
-      sx={{
-        textDecoration: "none",
-      }}
+      rel="noopener noreferrer"
+      className="block no-underline"
     >
-      <Box
-        className={`${semangatBold.className} play-now-button`}
-        sx={{
-          fontSize: { xs: "1.5rem", md: "2rem" },
-          fontWeight: { xs: 400 },
-          display: "block",
-          textDecoration: "none",
-          backgroundColor: "orange",
-          p: { xs: 0, sm: 1 },
-          py: { xs: 2 },
-          mt: { xs: 2 },
-          color: "black",
-          borderRadius: "25px",
-          textAlign: "center",
-          width: "100%",
-          margin: "auto",
-          cursor: "pointer",
-        }}
+      <div
+        className={`${semangatBold.className} play-now-button text-2xl md:text-3xl font-normal bg-[orange] px-0 sm:px-4 py-4 mt-4 text-black rounded-[25px] text-center w-full mx-auto cursor-pointer hover:bg-orange-400 transition-colors`}
       >
         Play Now
-      </Box>
-    </Link>
+      </div>
+    </NextLink>
   );
 };
 
