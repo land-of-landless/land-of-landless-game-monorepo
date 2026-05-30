@@ -50,61 +50,63 @@ export default function SimpleBackdrop({ state, handleClose }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/50 z-[200]"
+            className="fixed inset-0 bg-black/60 z-[200]"
           />
           {/* Drawer */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed top-0 right-0 bottom-0 w-full max-w-[25rem] bg-white z-[201] shadow-2xl rounded-l-[24px] overflow-hidden"
             aria-label="Main navigation menu"
           >
             <div className="flex flex-col h-full justify-between">
               <div>
-                {/* Logo */}
-                <div className="flex justify-center pt-6 pb-4">
+                {/* Logo and Close Button */}
+                <div className="flex justify-between items-center px-8 pt-8 pb-4">
                   <Image
                     src={landOfLandlessLogo}
                     alt="Land of Landless Logo"
                     width={64}
                     height={64}
-                    className="rounded-full"
+                    className="rounded-full shadow-md"
                   />
-                </div>
-                <div className="flex justify-end pr-8 py-4">
                   <button
                     aria-label="close side drawer button"
                     onClick={handleClose}
-                    className="p-2 text-[#ffcf89] hover:bg-black/5 rounded-full transition-colors"
+                    className="p-2 text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
                   >
                     <X size={32} />
                   </button>
                 </div>
-                <hr className="border-gray-200" />
-                <nav className="flex flex-col items-center py-4 space-y-4">
+
+                <div className="px-8 mb-8">
+                  <hr className="border-gray-200" />
+                </div>
+
+                <nav className="flex flex-col px-8 space-y-6">
                   {pages.map((page) => (
-                    <div
+                    <Link
                       key={page.to}
-                      className="w-40 p-1 flex items-center gap-4 rounded-lg transition-all hover:bg-[#9945ff14] hover:scale-105"
+                      href={page.to}
+                      target={page.target}
+                      prefetch={page.prefetch}
+                      onClick={() => handleLinkClick(page.to)}
+                      className="flex items-center gap-6 p-4 rounded-2xl transition-all hover:bg-orange-50 group no-underline"
                     >
-                      <div className="text-gray-700">{page.icon}</div>
-                      <Link
-                        href={page.to}
-                        target={page.target}
-                        prefetch={page.prefetch}
-                        onClick={() => handleLinkClick(page.to)}
-                        className="w-full text-left text-black block text-[1.2rem] font-medium no-underline focus:ring-2 focus:ring-[#9969ff] focus:rounded-lg outline-none"
-                      >
+                      <div className="text-orange-600 group-hover:scale-110 transition-transform">
+                        {page.icon}
+                      </div>
+                      <span className="text-gray-900 text-2xl font-bold">
                         {page.label}
-                      </Link>
-                    </div>
+                      </span>
+                    </Link>
                   ))}
                 </nav>
-                <hr className="border-gray-200" />
               </div>
-              <div>
+
+              <div className="pb-12 border-t border-gray-100 pt-8">
                 <DrawerSocials />
               </div>
             </div>

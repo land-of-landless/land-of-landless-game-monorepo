@@ -1,131 +1,101 @@
-import * as React from "react";
-import Image from "next/image";
-import { semangatRegular, semangatBold } from "@/fonts";
-import Footer from "./Layout/Footer";
+import React from "react";
+import { motion } from "framer-motion";
+import { semangatRegular, lenasRegular } from "@/fonts";
+import { Swords, Gift, RefreshCcw } from "lucide-react";
 
-const RoadMapComp = () => {
+const roadmapItems = [
+  {
+    title: "Simon Emperor says",
+    description: "Complete missions soldier!",
+    subDescription: "For LOL! For Expansion! For Juicy Prizes!",
+    icon: <Swords className="text-orange-600" size={32} />,
+    color: "border-orange-200",
+    bgColor: "bg-orange-50",
+    side: "left",
+  },
+  {
+    title: "Let's share a memecoin!",
+    description: "Gamer🎮 or a Degen🐒, you're welcome!",
+    subDescription: "You do missions, Emperor gives you candy!",
+    icon: <Gift className="text-red-600" size={32} />,
+    color: "border-red-200",
+    bgColor: "bg-red-50",
+    side: "right",
+  },
+  {
+    title: "Help Emperor Tai Colonize!",
+    description: "Ops! Emperor spotted new planets",
+    subDescription: "we need help, invite your friends!",
+    icon: <RefreshCcw className="text-green-600" size={32} />,
+    color: "border-green-200",
+    bgColor: "bg-green-50",
+    side: "left",
+  },
+];
+
+const RoadMap = () => {
   return (
-    <div className="absolute top-[800vh] w-full" id={"roadmap"}>
-      <div className="w-full flex flex-col justify-between items-center bg-[#FAF3E3]">
-        <div
-          className={`${semangatBold.className} text-[3rem] sm:text-[4rem] md:text-[4rem] pt-8 text-[#000000]`}
-        >
-          Explain like I&apos;m 5
-        </div>
+    <section
+      id="roadmap"
+      className="py-[320px] bg-[#fdfaf1] relative overflow-hidden flex flex-col items-center"
+    >
+      <h2
+        className={`${lenasRegular.className} text-5xl md:text-7xl font-bold mb-24 text-center text-gray-900`}
+      >
+        Explain like I&apos;m 5
+      </h2>
 
-        <div className="relative w-full max-w-6xl mx-auto py-8 px-4">
-          {/* Vertical line */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-0.5 bg-gray-300 hidden sm:block" />
+      <div className="relative w-full max-w-4xl px-4 flex flex-col items-center">
+        {/* Vertical Line */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full bg-orange-300" />
 
-          {/* Timeline items */}
-          <div className="space-y-32">
-            {/* Item 1 */}
-            <div className="relative flex flex-col sm:flex-row items-center justify-center">
-              <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
-                <div
-                  className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}
+        <div className="space-y-64 w-full">
+          {roadmapItems.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: item.side === "left" ? -50 : 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className={`flex items-center w-full ${
+                item.side === "left" ? "flex-row" : "flex-row-reverse"
+              }`}
+            >
+              {/* Content */}
+              <div
+                className={`w-[45%] ${
+                  item.side === "left" ? "text-right pr-12" : "text-left pl-12"
+                }`}
+              >
+                <h3
+                  className={`${semangatRegular.className} text-4xl text-blue-800 mb-2`}
                 >
-                  <s>Simon</s> Emperor says
-                </div>
+                  {item.title}
+                </h3>
+                <p className="text-lg text-gray-700">{item.subDescription}</p>
               </div>
-              <div className="relative z-10 my-4 sm:my-0">
-                <div className="w-16 h-16 rounded-full border-2 border-primary bg-[#FAF3E3] flex items-center justify-center p-2">
-                  <Image
-                    src="/icons/expansion_yellow_like_sun.png"
-                    alt="Expansion"
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-              <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
-                <div
-                  className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold text-black`}
-                >
-                  Complete missions soldier!
-                </div>
-                <div
-                  className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}
-                >
-                  For LOL! For Expansion! For Juicy Prizes!
-                </div>
-              </div>
-            </div>
 
-            {/* Item 2 */}
-            <div className="relative flex flex-col sm:flex-row-reverse items-center justify-center">
-              <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
-                <div
-                  className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}
-                >
-                  Gamer🎮 or a Degen🐒, you&apos;re welcome!
-                </div>
+              {/* Icon Circle */}
+              <div className="relative z-10 w-16 h-16 flex items-center justify-center bg-white border-4 border-orange-400 rounded-full shadow-lg shrink-0">
+                {item.icon}
               </div>
-              <div className="relative z-10 my-4 sm:my-0">
-                <div className="w-16 h-16 rounded-full border-2 border-primary bg-[#FAF3E3] flex items-center justify-center p-2">
-                  <Image
-                    src="/icons/prize_with_ribbon_red.png"
-                    alt="Prize"
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-              <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
-                <div
-                  className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold text-black`}
-                >
-                  Let&apos;s share a memecoin!
-                </div>
-                <div
-                  className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}
-                >
-                  You do missions, Emperor gives you candy!
-                </div>
-              </div>
-            </div>
 
-            {/* Item 3 */}
-            <div className="relative flex flex-col sm:flex-row items-center justify-center">
-              <div className="w-full sm:w-1/2 sm:pr-12 text-center sm:text-right">
-                <div
-                  className={`${semangatRegular.className} text-[1.3rem] sm:text-[1.6rem] md:text-[2rem] lg:text-[2.5rem] text-secondary-dark`}
-                >
-                  Help Emperor Tai Colonize!
-                </div>
+              {/* Description */}
+              <div
+                className={`w-[45%] ${
+                  item.side === "left" ? "text-left pl-12" : "text-right pr-12"
+                }`}
+              >
+                <h4 className="text-3xl font-bold text-gray-900 mb-2">
+                  {item.description}
+                </h4>
               </div>
-              <div className="relative z-10 my-4 sm:my-0">
-                <div className="w-16 h-16 rounded-full border-2 border-primary bg-[#FAF3E3] flex items-center justify-center p-2">
-                  <Image
-                    src="/icons/repeat_green.png"
-                    alt="Repeat"
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
-                </div>
-              </div>
-              <div className="w-full sm:w-1/2 sm:pl-12 text-center sm:text-left">
-                <div
-                  className={`${semangatRegular.className} text-[1.7rem] sm:text-[1.8rem] md:text-[1.9rem] lg:text-[2rem] font-bold text-black`}
-                >
-                  Ops! Emperor spotted new planets
-                </div>
-                <div
-                  className={`${semangatRegular.className} text-[1.2rem] sm:text-[1.3rem] md:text-[1.4rem] lg:text-[1.5rem] font-bold text-gray-900`}
-                >
-                  we need help, invite your friends!
-                </div>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          ))}
         </div>
       </div>
-      <Footer />
-    </div>
+    </section>
   );
 };
 
-export default RoadMapComp;
+export default RoadMap;

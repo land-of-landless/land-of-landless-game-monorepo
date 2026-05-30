@@ -18,46 +18,49 @@ type Props = {
 
 function Header({ handleOpen }: Props) {
   return (
-    <header className="absolute top-[10px] inset-x-0 z-[100] mx-4 w-[calc(100%-2rem)] sm:mx-6 sm:w-[calc(100%-3rem)] md:mx-8 md:w-[calc(100%-4rem)]">
-      <div className="flex h-14 w-full items-center justify-between gap-4 rounded-[50px] border border-white/37 bg-white/24 px-2 py-10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-[5.1px] sm:px-8 md:px-6">
-        <Link
-          href="/"
-          className="relative h-11 w-11 shrink-0 sm:h-12 sm:w-12"
-          aria-label="Land of Landless home"
-        >
-          <Image
-            src="/land_of_landless_logo-round.png"
-            alt="lol logo"
-            fill
-            priority
-            className="object-contain"
-          />
-        </Link>
+    <header
+      className="absolute top-[10px] left-0 right-0 mx-auto w-[90%] px-4 md:px-8 bg-white/24 rounded-[50px] shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-[5.1px] border border-white/37 z-[100] flex justify-between items-center h-20"
+      id="test"
+    >
+      <div className="flex items-center pl-2 md:pl-6">
+        <div className="relative w-14 h-14 md:w-16 md:h-16">
+          <Link href="/" className="relative w-full h-full block">
+            <Image
+              src="/land_of_landless_logo-round.png"
+              alt="lol logo"
+              fill
+              priority
+              className="object-contain"
+            />
+          </Link>
+        </div>
+      </div>
 
-        <div className="flex items-center gap-4 sm:gap-6">
-          <nav className="hidden items-center gap-6 md:flex lg:gap-8">
-            {pages.map((page) => (
-              <Link
-                href={page.to}
-                key={page.to}
-                target={page.target}
-                prefetch={page.prefetch}
-                className="text-[1.2rem] font-medium text-white transition-opacity hover:opacity-80"
-              >
+      <div className="flex items-center">
+        <nav className="hidden md:flex items-center">
+          {pages.map((page) => (
+            <Link
+              href={page.to}
+              key={page.to}
+              target={page.target}
+              prefetch={page.prefetch}
+              className="mx-6"
+            >
+              <div className="text-white text-[1.2rem] hover:text-orange-200 transition-colors">
                 {page.label}
-              </Link>
-            ))}
-          </nav>
+              </div>
+            </Link>
+          ))}
+        </nav>
 
+        <div className="flex items-center ml-2">
           <HeaderSocials />
-
           <button
-            type="button"
-            className="flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-white transition-colors hover:bg-white/10"
-            onClick={handleOpen}
-            aria-label="Open navigation menu"
+            aria-label="open side drawer button"
+            className="flex justify-center items-center cursor-pointer ml-6 p-2 hover:bg-white/10 rounded-full transition-colors"
+            onClick={() => handleOpen()}
           >
-            <Menu size={28} strokeWidth={2.5} />
+            <Menu size={32} color="white" />
           </button>
         </div>
       </div>

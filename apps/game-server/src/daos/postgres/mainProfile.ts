@@ -6,10 +6,11 @@ import {
     lootBoxesOpened,
 } from "../../models/postgres/schema.js";
 import { eq } from "drizzle-orm";
+import { MainProfile } from "../../models/redis/mainProfile.js";
 
 export class MainProfilePostgresDAO {
     static async createProfile(profileData: any) {
-        return await db.transaction(async tx => {
+        return await db.transaction(async (tx) => {
             await tx.insert(mainProfiles).values({
                 userId: profileData.userId,
                 profilePictureIndex: profileData.profilePictureIndex,
@@ -41,10 +42,9 @@ export class MainProfilePostgresDAO {
                     : null,
                 atmosphereTrashType1: profileData.atmosphere_trash_type1,
                 atmosphereTrashType2: profileData.atmosphere_trash_type2,
-                atmosphereTrashUpdatedAt:
-                    profileData.atmosphere_trash_updated_at
-                        ? new Date(profileData.atmosphere_trash_updated_at)
-                        : null,
+                atmosphereTrashUpdatedAt: profileData.atmosphere_trash_updated_at
+                    ? new Date(profileData.atmosphere_trash_updated_at)
+                    : null,
                 lastDailyRewardClaimedAt: profileData.lastDailyRewardClaimedAt
                     ? new Date(profileData.lastDailyRewardClaimedAt)
                     : null,
@@ -58,22 +58,20 @@ export class MainProfilePostgresDAO {
                     profileData.worker_bots.map((botType: any) => ({
                         userId: profileData.userId,
                         botType,
-                    }))
+                    })),
                 );
             }
 
             if (profileData.lootBoxes?.length > 0) {
                 await tx.insert(lootBoxes).values(
-                    profileData.lootBoxes.map(
-                        (boxType: any, index: number) => ({
-                            userId: profileData.userId,
-                            boxType,
-                            timer: profileData.lootBoxesTimers?.[index]
-                                ? new Date(profileData.lootBoxesTimers[index])
-                                : null,
-                            position: index,
-                        })
-                    )
+                    profileData.lootBoxes.map((boxType: any, index: number) => ({
+                        userId: profileData.userId,
+                        boxType,
+                        timer: profileData.lootBoxesTimers[index]
+                            ? new Date(profileData.lootBoxesTimers[index])
+                            : null,
+                        position: index,
+                    })),
                 );
             }
 
@@ -84,8 +82,8 @@ export class MainProfilePostgresDAO {
                             userId: profileData.userId,
                             boxTypeIndex: index,
                             count,
-                        })
-                    )
+                        }),
+                    ),
                 );
             }
 
@@ -94,7 +92,7 @@ export class MainProfilePostgresDAO {
     }
 
     static async saveProfile(profile: any) {
-        return await db.transaction(async tx => {
+        return await db.transaction(async (tx) => {
             await tx
                 .update(mainProfiles)
                 .set({
@@ -127,10 +125,9 @@ export class MainProfilePostgresDAO {
                         : null,
                     atmosphereTrashType1: profile.atmosphere_trash_type1,
                     atmosphereTrashType2: profile.atmosphere_trash_type2,
-                    atmosphereTrashUpdatedAt:
-                        profile.atmosphere_trash_updated_at
-                            ? new Date(profile.atmosphere_trash_updated_at)
-                            : null,
+                    atmosphereTrashUpdatedAt: profile.atmosphere_trash_updated_at
+                        ? new Date(profile.atmosphere_trash_updated_at)
+                        : null,
                     lastDailyRewardClaimedAt: profile.lastDailyRewardClaimedAt
                         ? new Date(profile.lastDailyRewardClaimedAt)
                         : null,
@@ -141,22 +138,18 @@ export class MainProfilePostgresDAO {
                 .where(eq(mainProfiles.userId, profile.userId));
 
             // Update worker bots (simpler to delete and re-insert for parallel impl)
-            await tx
-                .delete(workerBots)
-                .where(eq(workerBots.userId, profile.userId));
+            await tx.delete(workerBots).where(eq(workerBots.userId, profile.userId));
             if (profile.worker_bots?.length > 0) {
                 await tx.insert(workerBots).values(
                     profile.worker_bots.map((botType: any) => ({
                         userId: profile.userId,
                         botType,
-                    }))
+                    })),
                 );
             }
 
             // Update loot boxes
-            await tx
-                .delete(lootBoxes)
-                .where(eq(lootBoxes.userId, profile.userId));
+            await tx.delete(lootBoxes).where(eq(lootBoxes.userId, profile.userId));
             if (profile.lootBoxes?.length > 0) {
                 await tx.insert(lootBoxes).values(
                     profile.lootBoxes.map((boxType: any, index: number) => ({
@@ -166,7 +159,7 @@ export class MainProfilePostgresDAO {
                             ? new Date(profile.lootBoxesTimers[index])
                             : null,
                         position: index,
-                    }))
+                    })),
                 );
             }
 
@@ -181,8 +174,8 @@ export class MainProfilePostgresDAO {
                             userId: profile.userId,
                             boxTypeIndex: index,
                             count,
-                        })
-                    )
+                        }),
+                    ),
                 );
             }
 
@@ -196,51 +189,42 @@ export class MainProfilePostgresDAO {
             with: {
                 workerBots: true,
                 lootBoxes: {
-                    orderBy: (lootBoxes: { position: any }, { asc }: any) => [
-                        asc(lootBoxes.position),
-                    ],
+                    orderBy: (lootBoxes, { asc }) => [asc(lootBoxes.position)],
                 },
                 lootBoxesOpened: {
-                    orderBy: (
-                        lootBoxesOpened: { boxTypeIndex: any },
-                        { asc }: any
-                    ) => [asc(lootBoxesOpened.boxTypeIndex)],
+                    orderBy: (lootBoxesOpened, { asc }) => [
+                        asc(lootBoxesOpened.boxTypeIndex),
+                    ],
                 },
             },
         });
 
         if (!profile) return null;
 
-        // Extract relations to prevent them from being included twice or as raw objects in the spread
-        const {
-            workerBots,
-            lootBoxes: dbLootBoxes,
-            lootBoxesOpened,
-            ...profileData
-        } = profile;
-
+        // Map back to Redis-like structure if needed, or return as is
         return {
-            ...profileData,
+            ...profile,
+            userId: profile.userId,
             game_pass: profile.gamePass,
-            game_pass_purchase_time:
-                profile.gamePassPurchaseTime?.toISOString() || "",
-            worker_bots: workerBots.map(b => b.botType),
-            lootBoxes: dbLootBoxes.map(b => b.boxType),
-            lootBoxesTimers: dbLootBoxes.map(b => b.timer?.toISOString() || ""),
+            game_pass_purchase_time: profile.gamePassPurchaseTime?.toISOString(),
+            worker_bots: profile.workerBots.map((b) => b.botType),
+            lootBoxes: profile.lootBoxes.map((b) => b.boxType),
+            lootBoxesTimers: profile.lootBoxes.map(
+                (b) => b.timer?.toISOString() || "",
+            ),
             lootBox_keys: profile.lootBoxKeys,
-            lootBoxes_opened: lootBoxesOpened.map(b => b.count),
+            lootBoxes_opened: profile.lootBoxesOpened.map((b) => b.count),
             energy_generation_rate: profile.energyGenerationRate,
             energy_max: profile.energyMax,
-            energy_updated_at: profile.energyUpdatedAt?.toISOString() || "",
+            energy_updated_at: profile.energyUpdatedAt?.toISOString(),
             mineral_generation_rate: profile.mineralGenerationRate,
             mineral_max: profile.mineralMax,
-            mineral_updated_at: profile.mineralUpdatedAt?.toISOString() || "",
+            mineral_updated_at: profile.mineralUpdatedAt?.toISOString(),
             atmosphere_trash_type1: profile.atmosphereTrashType1,
             atmosphere_trash_type2: profile.atmosphereTrashType2,
             atmosphere_trash_updated_at:
-                profile.atmosphereTrashUpdatedAt?.toISOString() || "",
-            lastDailyRewardClaimedAt:
-                profile.lastDailyRewardClaimedAt?.toISOString() || "",
+                profile.atmosphereTrashUpdatedAt?.toISOString(),
+            lastDailyRewardClaimedAt: profile.lastDailyRewardClaimedAt?.toISOString(),
         };
     }
 
@@ -249,14 +233,14 @@ export class MainProfilePostgresDAO {
             where: eq(mainProfiles.refCode, refCode),
         });
         if (!profile) return null;
-        return this.findProfileByUserId(profile.userId);
+        return this.findProfileByUserId(profile.userId as string);
     }
 
     static async findAllProfiles() {
         const allProfiles = await db.query.mainProfiles.findMany();
         // This is expensive if we fetch relations for all, but for migration purposes:
         return Promise.all(
-            allProfiles.map(p => this.findProfileByUserId(p.userId as string))
+            allProfiles.map((p) => this.findProfileByUserId(p.userId as string)),
         );
     }
 
@@ -277,19 +261,12 @@ export class MainProfilePostgresDAO {
 
         if (!profile) return null;
 
-        const {
-            workerBots,
-            lootBoxes: dbLootBoxes,
-            lootBoxesOpened,
-            ...profileData
-        } = profile;
-
         return {
-            ...profileData,
+            ...profile,
             game_pass: profile.gamePass,
-            worker_bots: workerBots.map(wb => wb.botType),
-            lootBoxes: dbLootBoxes.map(lb => lb.boxType),
-            lootBoxes_opened: lootBoxesOpened.map(lbo => lbo.count),
+            worker_bots: profile.workerBots.map((wb) => wb.botType),
+            lootBoxes: profile.lootBoxes.map((lb) => lb.boxType),
+            lootBoxes_opened: profile.lootBoxesOpened.map((lbo) => lbo.count),
         };
     }
 }

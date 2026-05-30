@@ -4,8 +4,3 @@ build
 .devmode.json
 logs
 
-
-## env files
-.env
-*.env
-.env.*
