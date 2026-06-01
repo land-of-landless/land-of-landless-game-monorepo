@@ -54,7 +54,7 @@ export default class ShopService {
     ): Promise<void> {
         const fetchedUserProfile = await ProfileService.getProfile(userId);
         fetchedUserProfile.gems += gemAmount;
-        fetchedUserProfile.tickets_type1 += ticketAmount;
+        fetchedUserProfile.ticketsType1 += ticketAmount;
         await MainProfileDAO.saveProfile(fetchedUserProfile);
     }
 

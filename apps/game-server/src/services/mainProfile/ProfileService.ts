@@ -125,6 +125,24 @@ export default class ProfileService {
     static async openLootBoxEnd(userId: string, position: number) { return {} as any; }
     static async openLootBoxEndWithGems(userId: string, position: number) { return {} as any; }
     static async openLootBoxEndWithKey(userId: string, position: number) { return {} as any; }
-    static async chargeEnergy(userId: string, amount: number) {}
-    static async addLootBox(userId: string, boxType: any) {}
+    static async chargeEnergy(userId: string, amount: number) {
+        const profile = await this.getProfile(userId);
+        if (profile.energy < amount) throw ERRORS.VALIDATION("Not enough energy");
+        profile.energy -= amount;
+        await MainProfileDAO.saveProfile(profile);
+    }
+    static async addLootBox(userId: string, boxType: any) {
+        const profile = await this.getProfile(userId);
+        let blankSpot = -1;
+        for (let i = 0; i < profile.lootBoxes.length; i++) {
+            if (profile.lootBoxes[i] === "") {
+                blankSpot = i;
+                break;
+            }
+        }
+        if (blankSpot !== -1) {
+            profile.lootBoxes[blankSpot] = boxType;
+            await MainProfileDAO.saveProfile(profile);
+        }
+    }
 }

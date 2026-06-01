@@ -38,15 +38,9 @@ export class MineDAO {
         const res = await db.query.mines.findFirst({ where: eq(mines.userId, userId) });
         if (!res) return null;
         const minerRows = await db.select().from(miners).where(eq(miners.userId, userId));
-        const minersInfo: any = {
-            miner1: { level: 0 },
-            miner2: { level: 0 },
-            miner3: { level: 0 }
-        };
+        const minersInfo: any = {};
         minerRows.forEach(m => {
-            if (m.minerId >= 1 && m.minerId <= 3) {
-                minersInfo[`miner${m.minerId}`] = { level: m.level };
-            }
+            minersInfo[`miner${m.minerId}`] = { level: m.level };
         });
         return {
             userId: res.userId,
