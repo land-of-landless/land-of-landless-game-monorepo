@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
+import { MainProfileDAO } from "@/daos/postgres/mainProfile.js";
 import { ApiResponse } from "@/api/v1/utils/response.js";
 import ReferralService from "@/services/mainProfile/ReferralService.js";
 import DailyRewardService from "@/services/mainProfile/DailyRewardService.js";
@@ -74,7 +74,7 @@ export default class MainProfileController {
             await checkRateLimit(userPreferencesRateLimit, req.auth.userId);
 
             // utilize updatePreferences service
-            const updatedProfile = await ProfileService.updatePreferences(
+            const updatedProfile = await (ProfileService as any).updatePreferences(
                 req.auth.userId,
                 name,
                 profilePictureIndex,
@@ -103,7 +103,7 @@ export default class MainProfileController {
 
             if (operation === "start") {
                 const { profile, startToOpenTime } =
-                    await ProfileService.openLootBoxStart(
+                    await (ProfileService as any).openLootBoxStart(
                         req.auth!.userId,
                         lootBoxIndex
                     );
@@ -115,7 +115,7 @@ export default class MainProfileController {
                 });
             } else if (operation === "end") {
                 const { profile, rewards } =
-                    await ProfileService.openLootBoxEnd(
+                    await (ProfileService as any).openLootBoxEnd(
                         req.auth!.userId,
                         lootBoxIndex
                     );
@@ -126,7 +126,7 @@ export default class MainProfileController {
                 });
             } else if (operation === "end-with-gems") {
                 const { profile, rewards } =
-                    await ProfileService.openLootBoxEndWithGems(
+                    await (ProfileService as any).openLootBoxEndWithGems(
                         req.auth!.userId,
                         lootBoxIndex
                     );
@@ -137,7 +137,7 @@ export default class MainProfileController {
                 });
             } else if (operation === "end-with-key") {
                 const { profile, rewards } =
-                    await ProfileService.openLootBoxEndWithKey(
+                    await (ProfileService as any).openLootBoxEndWithKey(
                         req.auth!.userId,
                         lootBoxIndex
                     );

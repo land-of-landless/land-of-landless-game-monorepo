@@ -1,13 +1,13 @@
+import { eq } from "drizzle-orm";
 import { db } from "./connection.js";
 import {
     miniGames,
     mg2RemainingNumbers,
     mg3BoxesState,
 } from "../../models/postgres/schema.js";
-import { eq } from "drizzle-orm";
 
-export class MiniGamesPostgresDAO {
-    static async save(data: any) {
+export class MiniGamesDAO {
+    static async saveMiniGamesProfile(data: any) {
         return await db.transaction(async (tx) => {
             await tx
                 .insert(miniGames)
@@ -59,7 +59,11 @@ export class MiniGamesPostgresDAO {
         });
     }
 
-    static async findByUserId(userId: string) {
+    static async createMiniGamesProfile(data: any) {
+        return this.saveMiniGamesProfile(data);
+    }
+
+    static async findMiniGamesProfileByUserId(userId: string) {
         const res = await db.query.miniGames.findFirst({
             where: eq(miniGames.userId, userId),
         });

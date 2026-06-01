@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { db } from "./connection.js";
 import {
     mainProfiles,
@@ -5,11 +6,10 @@ import {
     lootBoxes,
     lootBoxesOpened,
 } from "../../models/postgres/schema.js";
-import { eq } from "drizzle-orm";
 
-export class MainProfilePostgresDAO {
+export class MainProfileDAO {
     static async createProfile(profileData: any) {
-        return await db.transaction(async tx => {
+        return await db.transaction(async (tx) => {
             await tx.insert(mainProfiles).values({
                 userId: profileData.userId,
                 profilePictureIndex: profileData.profilePictureIndex,
@@ -140,7 +140,7 @@ export class MainProfilePostgresDAO {
                 })
                 .where(eq(mainProfiles.userId, profile.userId));
 
-            // Update worker bots (simpler to delete and re-insert for parallel impl)
+            // Update worker bots
             await tx
                 .delete(workerBots)
                 .where(eq(workerBots.userId, profile.userId));
@@ -196,22 +196,16 @@ export class MainProfilePostgresDAO {
             with: {
                 workerBots: true,
                 lootBoxes: {
-                    orderBy: (lootBoxes: { position: any }, { asc }: any) => [
-                        asc(lootBoxes.position),
-                    ],
+                    orderBy: (lootBoxes, { asc }) => [asc(lootBoxes.position)],
                 },
                 lootBoxesOpened: {
-                    orderBy: (
-                        lootBoxesOpened: { boxTypeIndex: any },
-                        { asc }: any
-                    ) => [asc(lootBoxesOpened.boxTypeIndex)],
+                    orderBy: (lootBoxesOpened, { asc }) => [asc(lootBoxesOpened.boxTypeIndex)],
                 },
             },
         });
 
         if (!profile) return null;
 
-        // Extract relations to prevent them from being included twice or as raw objects in the spread
         const {
             workerBots,
             lootBoxes: dbLootBoxes,
@@ -229,6 +223,8 @@ export class MainProfilePostgresDAO {
             lootBoxesTimers: dbLootBoxes.map(b => b.timer?.toISOString() || ""),
             lootBox_keys: profile.lootBoxKeys,
             lootBoxes_opened: lootBoxesOpened.map(b => b.count),
+            tickets_type1: profile.ticketsType1,
+            tickets_type2: profile.ticketsType2,
             energy_generation_rate: profile.energyGenerationRate,
             energy_max: profile.energyMax,
             energy_updated_at: profile.energyUpdatedAt?.toISOString() || "",
@@ -254,42 +250,8 @@ export class MainProfilePostgresDAO {
 
     static async findAllProfiles() {
         const allProfiles = await db.query.mainProfiles.findMany();
-        // This is expensive if we fetch relations for all, but for migration purposes:
         return Promise.all(
             allProfiles.map(p => this.findProfileByUserId(p.userId as string))
         );
-    }
-
-    /**
-     * Finds a user profile by their user ID using Relational Query API for performance.
-     * @param userId - The ID of the user.
-     * @returns The MainProfile entity if found, otherwise null.
-     */
-    static async findProfileByIdFast(userId: string) {
-        const profile = await db.query.mainProfiles.findFirst({
-            where: (mainProfiles, { eq }) => eq(mainProfiles.userId, userId),
-            with: {
-                workerBots: true,
-                lootBoxes: true,
-                lootBoxesOpened: true,
-            },
-        });
-
-        if (!profile) return null;
-
-        const {
-            workerBots,
-            lootBoxes: dbLootBoxes,
-            lootBoxesOpened,
-            ...profileData
-        } = profile;
-
-        return {
-            ...profileData,
-            game_pass: profile.gamePass,
-            worker_bots: workerBots.map(wb => wb.botType),
-            lootBoxes: dbLootBoxes.map(lb => lb.boxType),
-            lootBoxes_opened: lootBoxesOpened.map(lbo => lbo.count),
-        };
     }
 }

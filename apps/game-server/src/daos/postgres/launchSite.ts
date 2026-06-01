@@ -1,13 +1,13 @@
+import { eq } from "drizzle-orm";
 import { db } from "./connection.js";
 import {
     launchSites,
     satelliteTimers,
     dysonSphereTimers,
 } from "../../models/postgres/schema.js";
-import { eq } from "drizzle-orm";
 
-export class LaunchSitePostgresDAO {
-    static async save(data: any) {
+export class LaunchSiteDAO {
+    static async saveLaunchSiteProfile(data: any) {
         return await db.transaction(async (tx) => {
             await tx
                 .insert(launchSites)
@@ -64,12 +64,11 @@ export class LaunchSitePostgresDAO {
         });
     }
 
-    /**
-     * Finds a launch site by user ID using the Relational Query API.
-     * @param userId - The ID of the user.
-     * @returns The launch site data or null.
-     */
-    static async findByUserId(userId: string) {
+    static async createLaunchSite(data: any) {
+        return this.saveLaunchSiteProfile(data);
+    }
+
+    static async findLaunchSiteByUserId(userId: string) {
         const res = await db.query.launchSites.findFirst({
             where: (launchSites, { eq }) => eq(launchSites.userId, userId),
             with: {

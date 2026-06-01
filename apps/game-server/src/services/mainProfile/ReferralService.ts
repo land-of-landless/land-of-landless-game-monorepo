@@ -5,7 +5,6 @@ import {
     REFERRAL_CODE_INVALID,
     REFERRAL_SELF_USE,
 } from "@/api/v1/errors/index.js";
-import { MainProfile } from "@/models/redis/mainProfile.js";
 
 // TODO: implement a better logic for handling referral system and prizes
 // ideally referer would not get an immediate reward but rather get their rewards when the new user reaches certain milestones
@@ -59,7 +58,7 @@ export default class ReferralService {
     }
 
     private static applyReferralRewards(
-        profile: MainProfile,
+        profile: any,
         type: "referee" | "referrer"
     ) {
         if (type === "referee") {

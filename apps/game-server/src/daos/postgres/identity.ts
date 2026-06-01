@@ -1,8 +1,8 @@
+import { eq } from "drizzle-orm";
 import { db } from "./connection.js";
 import { identities, identityIps } from "../../models/postgres/schema.js";
-import { eq } from "drizzle-orm";
 
-export class IdentityPostgresDAO {
+export class IdentityDAO {
     static async save(data: any) {
         return await db.transaction(async (tx) => {
             await tx

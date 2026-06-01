@@ -1,5 +1,5 @@
 import OxaPay from "@/daos/oxaPay/index.js";
-import BillingDAO from "@/daos/redis/billing.js";
+import { BillingDAO } from "@/daos/postgres/billing.js";
 import _ from "lodash";
 import { paymentLogger } from "@/utils/logger.js";
 import {

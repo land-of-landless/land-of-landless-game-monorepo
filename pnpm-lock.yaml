@@ -261,9 +261,6 @@ importers:
       redis:
         specifier: ^4.7.1
         version: 4.7.1
-      redis-om:
-        specifier: ^0.4.7
-        version: 0.4.7
       winston:
         specifier: ^3.19.0
         version: 3.19.0
@@ -1814,18 +1811,6 @@ packages:
   '@js-temporal/polyfill@0.5.1':
     resolution: {integrity: sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ==}
     engines: {node: '>=12'}
-
-  '@jsep-plugin/assignment@1.3.0':
-    resolution: {integrity: sha512-VVgV+CXrhbMI3aSusQyclHkenWSAm95WaiKrMxRFam3JSUiIaQjoMIw2sEs/OX4XifnqeQUN4DYbJjlA8EfktQ==}
-    engines: {node: '>= 10.16.0'}
-    peerDependencies:
-      jsep: ^0.4.0||^1.0.0
-
-  '@jsep-plugin/regex@1.0.4':
-    resolution: {integrity: sha512-q7qL4Mgjs1vByCaTnDFcBnV9HS7GVPJX5vyVoCgZHNSC9rjwIlmbXG5sUuorR5ndfHAIlJ8pVStxvjXHbNvtUg==}
-    engines: {node: '>= 10.16.0'}
-    peerDependencies:
-      jsep: ^0.4.0||^1.0.0
 
   '@mantine/core@8.3.18':
     resolution: {integrity: sha512-9tph1lTVogKPjTx02eUxDUOdXacPzK62UuSqb4TdGliI54/Xgxftq0Dfqu6XuhCxn9J5MDJaNiLDvL/1KRkYqA==}
@@ -5257,10 +5242,6 @@ packages:
   jsbi@4.3.2:
     resolution: {integrity: sha512-9fqMSQbhJykSeii05nxKl4m6Eqn2P6rOlYiS+C5Dr/HPIU/7yZxu5qzbs40tgaFORiw2Amd0mirjxatXYMkIew==}
 
-  jsep@1.4.0:
-    resolution: {integrity: sha512-B7qPcEVE3NVkmSJbaYxvv4cHkVW7DQsZz13pUMrfS8z8Q/BuShN+gcTXrUlPiGqM2/t/EEaI030bpxMqY8gMlw==}
-    engines: {node: '>= 10.16.0'}
-
   json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
 
@@ -5283,11 +5264,6 @@ packages:
     resolution: {integrity: sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==}
     hasBin: true
 
-  jsonpath-plus@10.4.0:
-    resolution: {integrity: sha512-T92WWatJXmhBbKsgH/0hl+jxjdXrifi5IKeMY02DWggRxX0UElcbVzPlmgLTbvsPeW1PasQ6xE2Q75stkhGbsA==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
-
   jsonwebtoken@9.0.3:
     resolution: {integrity: sha512-MT/xP0CrubFRNLNKvxJ2BYfy53Zkm++5bX9dtuPbqAeQpTVe0MQTFhao8+Cp//EmJp244xt6Drw/GVEGCUj40g==}
     engines: {node: '>=12', npm: '>=6'}
@@ -5295,9 +5271,6 @@ packages:
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
     engines: {node: '>=4.0'}
-
-  just-clone@6.2.0:
-    resolution: {integrity: sha512-1IynUYEc/HAwxhi3WDpIpxJbZpMCvvrrmZVqvj9EhpvbH8lls7HhdhiByjL7DkAaWlLIzpC0Xc/VPvy/UxLNjA==}
 
   jwa@2.0.1:
     resolution: {integrity: sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==}
@@ -6367,10 +6340,6 @@ packages:
     resolution: {integrity: sha512-1qny3OExCf0UvUV/5wpYKf2YwPcOqXzkwKKSmKHiE6ZMQs5heeE/c8eXK+PNllPvmjgAbfnsbpkGZWy8cBpn9w==}
     engines: {node: '>=4'}
 
-  redis-om@0.4.7:
-    resolution: {integrity: sha512-s0N+RNkW0qNeMhTbaxYZqhbBR8W/nOdMsGm25EOls0jxLHvMj9O7nD2mSgpwYycxc1/wUkePAMnp9y6u3VH9fw==}
-    engines: {node: '>= 14'}
-
   redis-parser@3.0.0:
     resolution: {integrity: sha512-DJnGAeenTdpMEH6uAJRK/uiyEIH9WVsUmoLwzudwGJUwZPp80PDBWPHXSAGNPwNvIXAbe7MSUB1zQFugFml66A==}
     engines: {node: '>=4'}
@@ -7117,10 +7086,6 @@ packages:
     resolution: {integrity: sha512-rvKSBiC5zqCCiDZ9kAOszZcDvdAHwwIKJG33Ykj43OKcWsnmcBRL09YTU4nOeHZ8Y2a7l1MgTd08SBe9A8Qj6A==}
     engines: {node: '>=18'}
 
-  ulid@2.4.0:
-    resolution: {integrity: sha512-fIRiVTJNcSRmXKPZtGzFQv9WRrZ3M9eoptl/teFJvjOzmpU+/K/JH6HZ8deBfb5vMEpicJcLn7JmvdknlMq7Zg==}
-    hasBin: true
-
   unbox-primitive@1.1.0:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
@@ -7558,6 +7523,7 @@ snapshots:
       zod: 4.3.6
     transitivePeerDependencies:
       - supports-color
+    optional: true
 
   '@colyseus/core@0.17.41(@colyseus/better-call@1.3.3(zod@4.3.6))(@colyseus/schema@4.0.20(typescript@6.0.3))(@colyseus/ws-transport@0.17.13(@colyseus/core@0.17.41)(bufferutil@4.1.0)(express@4.22.1))(@pm2/io@6.1.0)(express@4.22.1)(zod@4.3.6)':
     dependencies:
@@ -7747,7 +7713,7 @@ snapshots:
 
   '@colyseus/ws-transport@0.17.13(@colyseus/core@0.17.41)(bufferutil@4.1.0)(express@4.22.1)':
     dependencies:
-      '@colyseus/core': 0.17.41(@colyseus/better-call@1.3.3(zod@4.3.6))(@colyseus/schema@4.0.20(typescript@5.9.2))(@colyseus/ws-transport@0.17.13)(@pm2/io@6.1.0)(express@4.22.1)(zod@4.3.6)
+      '@colyseus/core': 0.17.41(@colyseus/better-call@1.3.3(zod@4.3.6))(@colyseus/schema@4.0.20(typescript@6.0.3))(@colyseus/ws-transport@0.17.13(@colyseus/core@0.17.41)(bufferutil@4.1.0)(express@4.22.1))(@pm2/io@6.1.0)(express@4.22.1)(zod@4.3.6)
       '@types/ws': 8.18.1
       ws: 8.20.1(bufferutil@4.1.0)
     optionalDependencies:
@@ -8414,14 +8380,6 @@ snapshots:
     dependencies:
       jsbi: 4.3.2
     optional: true
-
-  '@jsep-plugin/assignment@1.3.0(jsep@1.4.0)':
-    dependencies:
-      jsep: 1.4.0
-
-  '@jsep-plugin/regex@1.0.4(jsep@1.4.0)':
-    dependencies:
-      jsep: 1.4.0
 
   '@mantine/core@8.3.18(@mantine/hooks@8.3.18(react@18.3.1))(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -12261,8 +12219,6 @@ snapshots:
   jsbi@4.3.2:
     optional: true
 
-  jsep@1.4.0: {}
-
   json-buffer@3.0.1: {}
 
   json-parse-even-better-errors@2.3.1:
@@ -12279,12 +12235,6 @@ snapshots:
   json5@1.0.2:
     dependencies:
       minimist: 1.2.8
-
-  jsonpath-plus@10.4.0:
-    dependencies:
-      '@jsep-plugin/assignment': 1.3.0(jsep@1.4.0)
-      '@jsep-plugin/regex': 1.0.4(jsep@1.4.0)
-      jsep: 1.4.0
 
   jsonwebtoken@9.0.3:
     dependencies:
@@ -12305,8 +12255,6 @@ snapshots:
       array.prototype.flat: 1.3.3
       object.assign: 4.1.7
       object.values: 1.2.1
-
-  just-clone@6.2.0: {}
 
   jwa@2.0.1:
     dependencies:
@@ -13338,13 +13286,6 @@ snapshots:
 
   redis-errors@1.2.0: {}
 
-  redis-om@0.4.7:
-    dependencies:
-      jsonpath-plus: 10.4.0
-      just-clone: 6.2.0
-      redis: 4.7.1
-      ulid: 2.4.0
-
   redis-parser@3.0.0:
     dependencies:
       redis-errors: 1.2.0
@@ -14271,8 +14212,6 @@ snapshots:
       random-bytes: 1.0.0
 
   uint8array-extras@1.5.0: {}
-
-  ulid@2.4.0: {}
 
   unbox-primitive@1.1.0:
     dependencies:

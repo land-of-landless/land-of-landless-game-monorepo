@@ -1,5 +1,5 @@
 import { connectLogicalRedisInstance } from "@/daos/redis/connectRedis/index.js";
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
+import { MainProfileDAO } from "@/daos/postgres/mainProfile.js";
 import logger from "@/utils/logger.js";
 
 /**

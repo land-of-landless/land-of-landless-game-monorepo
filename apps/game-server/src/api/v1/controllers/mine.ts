@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { MineDAO } from "@/daos/redis/mine.js";
+import { MineDAO } from "@/daos/postgres/mine.js";
 import MineService from "@/services/mine/MineService.js";
 import { MineUpgradeInput } from "@/validators/schemas.js";
 import { MineMinerId } from "@/constants/mine.js";

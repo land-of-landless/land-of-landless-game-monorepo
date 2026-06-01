@@ -1,4 +1,4 @@
-import { FactoryDAO } from "@/daos/redis/factory.js";
+import { FactoryDAO } from "@/daos/postgres/factory.js";
 import FactoryService from "@/services/factory/FactoryService.js";
 import { NextFunction, Request, Response } from "express";
 import {

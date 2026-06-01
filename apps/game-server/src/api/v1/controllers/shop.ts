@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ShopPurchaseInput } from "@/validators/schemas.js";
 import { ApiResponse } from "../utils/response.ts";
 import ShopService from "@/services/shop/ShopService.js";
-import BillingDAO from "@/daos/redis/billing.js";
+import { BillingDAO } from "@/daos/postgres/billing.js";
 import {
     billingInvoiceFetchRateLimit,
     billingPurchaseRateLimit,
