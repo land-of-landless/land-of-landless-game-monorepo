@@ -2,11 +2,10 @@ import { db } from "@/daos/postgres/connection.js";
 import { MainProfileDAO } from "@/daos/postgres/mainProfile.js";
 import { MineDAO } from "@/daos/postgres/mine.js";
 import { FactoryDAO } from "@/daos/postgres/factory.js";
-import { redisFastClient } from "@/daos/redis/connectRedis/fast.js";
 import {
     DAILY_REWARD_COOLDOWN_HOURS,
     DAILY_CLAIM_REWARDS,
-    DAILY_REWARD_MAX_CONSECUTIVE_HOURS,
+
     DailyRewardsClaimKey,
     DAILY_REWARD_RESET_CYCLE_DAYS,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,

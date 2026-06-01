@@ -1,6 +1,7 @@
 import { auth } from "@colyseus/auth";
 import crypto from "crypto";
 import _ from "lodash";
+import { appConfig, isDevelopment } from "@/config/environment.js";
 import { BillingDAO } from "@/daos/postgres/billing.js";
 import { EnergyGeneratorDAO } from "@/daos/postgres/energyGenerator.js";
 import { MiniGamesDAO } from "@/daos/postgres/miniGames.js";
@@ -26,8 +27,28 @@ import {
     EMPTY_LAUNCHES_BY_ITEM,
 } from "@/constants/stats.js";
 
+auth.oauth.defaults.origin = isDevelopment()
+    ? appConfig.hosts.local
+    : appConfig.hosts.remote;
+
+auth.oauth.addProvider("google", {
+    key: appConfig.google.clientId,
+    secret: appConfig.google.clientSecret,
+    scope: ["openid"],
+    custom_params: {
+        access_type: "offline",
+        approval_prompt: "auto",
+        pkce: true,
+    },
+});
+
 const generateRandomRefCode = (length: number) => {
-    return Math.random().toString(36).substring(2, 2 + length).toUpperCase();
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let refCode = "";
+    for (let i = 0; i < length; i++) {
+        refCode += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return refCode;
 };
 
 const generateRandomName = () => {
