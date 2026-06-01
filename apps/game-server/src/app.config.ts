@@ -186,12 +186,10 @@ export default defineServer({
             await connectLogicalRedisInstance();
             await connectFastRedisInstance();
 
-            // Create or update Redis OM indexes for all data models. This is required for searching.
-            // await identityRepository.createIndex();
         } catch (error) {
             logger.error("error", {
                 error: error instanceof Error ? error.message : error,
-            });
+
         }
     },
 });
