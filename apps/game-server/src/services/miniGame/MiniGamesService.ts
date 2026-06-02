@@ -34,20 +34,12 @@ export default class MiniGamesService {
         const profile = await ProfileService.getProfile(userId);
         if (!profile) throw ERRORS.NOT_FOUND("Profile not found");
 
-        if (profile.energy < (MINI_GAMES_INFO as any)["miniGame1"].energy) {
+        const gameInfo = (MINI_GAMES_INFO as any)["miniGame1"];
+        if (profile.energy < gameInfo.energy) {
             throw ERRORS.VALIDATION("Not enough energy");
         }
 
-        let blankSpot = -1;
-        for (let i = 0; i < profile.lootBoxes.length; i++) {
-            if (profile.lootBoxes[i] === "") {
-                blankSpot = i;
-                break;
-            }
-        }
-        if (blankSpot === -1) throw ERRORS.VALIDATION("No space for lootbox");
-
-        await ProfileService.chargeEnergy(userId, Number((MINI_GAMES_INFO as any).miniGame1?.energyCost || 0));
+        await ProfileService.chargeEnergy(userId, gameInfo.energy);
 
         const randomNumber = Math.floor(Math.random() * SUM_OF_LOOT_BOX_CHANCES) + 1;
         let lootBoxType: any = MiniGamesLootBoxEnum.COMMON;
@@ -74,15 +66,15 @@ export default class MiniGamesService {
 
     static async handleGame2(userId: string, operation: string, userGuess?: any) {
         try {
+            const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
+            if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
+
             if (operation === MINIGAME_OPERATION_START) {
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (fetchedMiniGamesProfile.miniGame2.target_number > 0) throw ERRORS.VALIDATION("Mini Game 2 already in progress");
 
-                await ProfileService.chargeEnergy(userId, Number((MINI_GAMES_INFO as any).miniGame2?.energyCost || 0));
+                await ProfileService.chargeEnergy(userId, (MINI_GAMES_INFO as any)["miniGame2"].energy);
 
-                const miniGame2TargetNumber = Math.floor(Math.random() * (MINIGAME_2_MAX_NUMBER - MINIGAME_2_MIN_NUMBER + 1)) + MINIGAME_2_MIN_NUMBER;
-                fetchedMiniGamesProfile.miniGame2.target_number = miniGame2TargetNumber;
+                fetchedMiniGamesProfile.miniGame2.target_number = Math.floor(Math.random() * (MINIGAME_2_MAX_NUMBER - MINIGAME_2_MIN_NUMBER + 1)) + MINIGAME_2_MIN_NUMBER;
                 fetchedMiniGamesProfile.miniGame2.user_correct_guesses = 0;
                 fetchedMiniGamesProfile.miniGame2.remaining_numbers = [MINIGAME_2_MIN_NUMBER, MINIGAME_2_MAX_NUMBER];
 
@@ -90,33 +82,25 @@ export default class MiniGamesService {
                 return { success: true };
             } else if (operation === MINIGAME_OPERATION_GUESS) {
                 if (userGuess === undefined) throw ERRORS.VALIDATION("Missing guess");
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (fetchedMiniGamesProfile.miniGame2.target_number <= 0) throw ERRORS.VALIDATION("Mini Game 2 has not been started");
                 if (fetchedMiniGamesProfile.miniGame2.user_correct_guesses === MINIGAME_2_MAX_GUESSES) throw ERRORS.VALIDATION("Game already completed");
 
-                const miniGame2TargetNumber = fetchedMiniGamesProfile.miniGame2.target_number;
-                let miniGame2RemainingNumbers = fetchedMiniGamesProfile.miniGame2.remaining_numbers;
-                const median = (miniGame2RemainingNumbers[0] + miniGame2RemainingNumbers[miniGame2RemainingNumbers.length - 1]) / 2;
+                const target = fetchedMiniGamesProfile.miniGame2.target_number;
+                let remaining = fetchedMiniGamesProfile.miniGame2.remaining_numbers;
+                const median = (remaining[0] + remaining[remaining.length - 1]) / 2;
 
                 let userLost = false;
-                if (miniGame2TargetNumber > median) {
-                    miniGame2RemainingNumbers = [Math.ceil(median), miniGame2RemainingNumbers[miniGame2RemainingNumbers.length - 1]];
-                    if (userGuess === MINIGAME_2_GUESS_GREATER) {
-                        fetchedMiniGamesProfile.miniGame2.user_correct_guesses += 1;
-                    } else {
-                        userLost = true;
-                    }
+                if (target > median) {
+                    remaining = [Math.ceil(median), remaining[remaining.length - 1]];
+                    if (userGuess === MINIGAME_2_GUESS_GREATER) fetchedMiniGamesProfile.miniGame2.user_correct_guesses += 1;
+                    else userLost = true;
                 } else {
-                    miniGame2RemainingNumbers = [miniGame2RemainingNumbers[0], Math.floor(median)];
-                    if (userGuess === MINIGAME_2_GUESS_LESS) {
-                        fetchedMiniGamesProfile.miniGame2.user_correct_guesses += 1;
-                    } else {
-                        userLost = true;
-                    }
+                    remaining = [remaining[0], Math.floor(median)];
+                    if (userGuess === MINIGAME_2_GUESS_LESS) fetchedMiniGamesProfile.miniGame2.user_correct_guesses += 1;
+                    else userLost = true;
                 }
 
-                fetchedMiniGamesProfile.miniGame2.remaining_numbers = miniGame2RemainingNumbers;
+                fetchedMiniGamesProfile.miniGame2.remaining_numbers = remaining;
                 if (userLost) {
                     fetchedMiniGamesProfile.miniGame2.target_number = 0;
                     fetchedMiniGamesProfile.miniGame2.user_correct_guesses = 0;
@@ -128,29 +112,27 @@ export default class MiniGamesService {
                     status: userLost ? MINIGAME_STATUS_LOST : MINIGAME_STATUS_SUCCESS,
                     remainingNumbers: fetchedMiniGamesProfile.miniGame2.remaining_numbers,
                     userCorrectGuesses: fetchedMiniGamesProfile.miniGame2.user_correct_guesses,
-                    targetNumber: userLost ? miniGame2TargetNumber : null,
+                    targetNumber: userLost ? target : null,
                 };
             } else if (operation === MINIGAME_OPERATION_END) {
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (fetchedMiniGamesProfile.miniGame2.target_number <= 0) throw ERRORS.VALIDATION("Mini Game 2 has not been started");
 
-                const userCorrectGuesses = fetchedMiniGamesProfile.miniGame2.user_correct_guesses;
-                if (userCorrectGuesses <= 0) throw ERRORS.VALIDATION("You haven't guessed any number");
+                const correct = fetchedMiniGamesProfile.miniGame2.user_correct_guesses;
+                if (correct <= 0) throw ERRORS.VALIDATION("You haven't guessed any number");
 
-                if (userCorrectGuesses === 1) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.COMMON);
-                else if (userCorrectGuesses === 2) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.UNCOMMON);
-                else if (userCorrectGuesses >= 3 && userCorrectGuesses <= 4) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.RARE);
-                else if (userCorrectGuesses === 5) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.EPIC);
-                else if (userCorrectGuesses === 6) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.LEGENDARY);
+                if (correct === 1) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.COMMON);
+                else if (correct === 2) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.UNCOMMON);
+                else if (correct >= 3 && correct <= 4) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.RARE);
+                else if (correct === 5) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.EPIC);
+                else if (correct === 6) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.LEGENDARY);
 
-                const previousTargetNumber = fetchedMiniGamesProfile.miniGame2.target_number;
+                const prevTarget = fetchedMiniGamesProfile.miniGame2.target_number;
                 fetchedMiniGamesProfile.miniGame2.target_number = 0;
                 fetchedMiniGamesProfile.miniGame2.user_correct_guesses = 0;
                 fetchedMiniGamesProfile.miniGame2.remaining_numbers = [MINIGAME_2_MIN_NUMBER, MINIGAME_2_MAX_NUMBER];
 
                 await MiniGamesDAO.saveMiniGamesProfile(fetchedMiniGamesProfile);
-                return { status: MINIGAME_STATUS_SUCCESS, targetNumber: previousTargetNumber, success: true };
+                return { status: MINIGAME_STATUS_SUCCESS, targetNumber: prevTarget, success: true };
             }
             throw ERRORS.VALIDATION("Invalid operation");
         } catch (error) {
@@ -162,12 +144,13 @@ export default class MiniGamesService {
 
     static async handleGame3(userId: string, operation: string, userGuess?: number) {
         try {
+            const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
+            if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
+
             if (operation === MINIGAME_OPERATION_START) {
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (fetchedMiniGamesProfile.miniGame3.is_started) throw ERRORS.VALIDATION("MiniGame 3 already in progress");
 
-                await ProfileService.chargeEnergy(userId, Number((MINI_GAMES_INFO as any).miniGame3?.energyCost || 0));
+                await ProfileService.chargeEnergy(userId, (MINI_GAMES_INFO as any)["miniGame3"].energy);
 
                 const getRandomUniqueIndices = (count: number, min: number, max: number): number[] => {
                     const indices: Set<number> = new Set();
@@ -178,17 +161,17 @@ export default class MiniGamesService {
                     return Array.from(indices);
                 };
 
-                const miniGame3BoxesState = Array(MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE * MINIGAMES_GAME3_NUMBER_OF_PHASES).fill(1);
+                const state = Array(MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE * MINIGAMES_GAME3_NUMBER_OF_PHASES).fill(1);
                 for (let i = 0; i < MINIGAMES_GAME3_NUMBER_OF_PHASES; i++) {
-                    const phaseStartIndex = i * MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE;
-                    const phaseEndIndex = phaseStartIndex + MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE - 1;
-                    let badBoxesCount = MINIGAMES_GAME3_DEFAULT_BAD_BOXES;
-                    if (MINIGAMES_GAME3_HARD_PHASE_INDICES.includes(i)) badBoxesCount = MINIGAMES_GAME3_HARD_PHASE_BAD_BOXES;
-                    const indicesToSetToZero = getRandomUniqueIndices(badBoxesCount, phaseStartIndex, phaseEndIndex);
-                    for (const index of indicesToSetToZero) miniGame3BoxesState[index] = 0;
+                    const start = i * MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE;
+                    const end = start + MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE - 1;
+                    let bad = MINIGAMES_GAME3_DEFAULT_BAD_BOXES;
+                    if (MINIGAMES_GAME3_HARD_PHASE_INDICES.includes(i)) bad = MINIGAMES_GAME3_HARD_PHASE_BAD_BOXES;
+                    const indices = getRandomUniqueIndices(bad, start, end);
+                    for (const idx of indices) state[idx] = 0;
                 }
 
-                fetchedMiniGamesProfile.miniGame3.boxes_state = miniGame3BoxesState;
+                fetchedMiniGamesProfile.miniGame3.boxes_state = state;
                 fetchedMiniGamesProfile.miniGame3.user_correct_guesses = 0;
                 fetchedMiniGamesProfile.miniGame3.is_started = true;
 
@@ -196,19 +179,17 @@ export default class MiniGamesService {
                 return { status: MINIGAME_STATUS_SUCCESS, success: true };
             } else if (operation === MINIGAME_OPERATION_GUESS) {
                 if (userGuess === undefined) throw ERRORS.VALIDATION("Missing guess");
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (!fetchedMiniGamesProfile.miniGame3.is_started) throw ERRORS.VALIDATION("Mini Game 3 has not been started");
                 if (fetchedMiniGamesProfile.miniGame3.user_correct_guesses >= 5) throw ERRORS.VALIDATION("Mini Game 3 already solved");
 
                 const phase = (fetchedMiniGamesProfile.miniGame3.user_correct_guesses || 0) + 1;
-                const miniGame3BoxesState = fetchedMiniGamesProfile.miniGame3.boxes_state;
-                const miniGame3BoxesInPhase = miniGame3BoxesState.slice((phase - 1) * MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE, phase * MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE);
-                const nullBoxIndexes = miniGame3BoxesInPhase.map((box: number, index: number) => box === 0 ? index : -1).filter((index: number) => index !== -1);
-                const selectedBox = miniGame3BoxesInPhase[userGuess - 1];
+                const state = fetchedMiniGamesProfile.miniGame3.boxes_state;
+                const inPhase = state.slice((phase - 1) * MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE, phase * MINIGAMES_GAME3_NUMBER_OF_BOXES_PER_PHASE);
+                const nullIdxs = inPhase.map((box: number, idx: number) => box === 0 ? idx : -1).filter((idx: number) => idx !== -1);
+                const selected = inPhase[userGuess - 1];
                 let userLost = false;
 
-                if (selectedBox === 0) {
+                if (selected === 0) {
                     userLost = true;
                     fetchedMiniGamesProfile.miniGame3.user_correct_guesses = 0;
                     fetchedMiniGamesProfile.miniGame3.is_started = false;
@@ -217,20 +198,18 @@ export default class MiniGamesService {
                 }
 
                 await MiniGamesDAO.saveMiniGamesProfile(fetchedMiniGamesProfile);
-                return { status: userLost ? MINIGAME_STATUS_LOST : MINIGAME_STATUS_SUCCESS, userCorrectGuesses: fetchedMiniGamesProfile.miniGame3.user_correct_guesses, nullBoxIndexes };
+                return { status: userLost ? MINIGAME_STATUS_LOST : MINIGAME_STATUS_SUCCESS, userCorrectGuesses: fetchedMiniGamesProfile.miniGame3.user_correct_guesses, nullBoxIndexes: nullIdxs };
             } else if (operation === MINIGAME_OPERATION_END) {
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (!fetchedMiniGamesProfile.miniGame3.is_started) throw ERRORS.VALIDATION("Mini Game 3 has not been started");
 
-                const correctGuesses = fetchedMiniGamesProfile.miniGame3.user_correct_guesses;
-                if (correctGuesses <= 0) throw ERRORS.VALIDATION("You haven't won any round");
+                const correct = fetchedMiniGamesProfile.miniGame3.user_correct_guesses;
+                if (correct <= 0) throw ERRORS.VALIDATION("You haven't won any round");
 
-                if (correctGuesses === 1) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.COMMON);
-                else if (correctGuesses === 2) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.UNCOMMON);
-                else if (correctGuesses === 3) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.RARE);
-                else if (correctGuesses === 4) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.EPIC);
-                else if (correctGuesses === 5) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.LEGENDARY);
+                if (correct === 1) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.COMMON);
+                else if (correct === 2) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.UNCOMMON);
+                else if (correct === 3) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.RARE);
+                else if (correct === 4) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.EPIC);
+                else if (correct === 5) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.LEGENDARY);
 
                 fetchedMiniGamesProfile.miniGame3.user_correct_guesses = 0;
                 fetchedMiniGamesProfile.miniGame3.is_started = false;
@@ -249,12 +228,13 @@ export default class MiniGamesService {
 
     static async handleGame4(userId: string, operation: string, userGuess?: any) {
         try {
+            const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
+            if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
+
             if (operation === MINIGAME_OPERATION_START) {
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (fetchedMiniGamesProfile.miniGame4.is_started) throw ERRORS.VALIDATION("MiniGame 4 already in progress");
 
-                await ProfileService.chargeEnergy(userId, Number((MINI_GAMES_INFO as any).miniGame4?.energyCost || 0));
+                await ProfileService.chargeEnergy(userId, (MINI_GAMES_INFO as any)["miniGame4"].energy);
 
                 fetchedMiniGamesProfile.miniGame4.user_correct_guesses = 0;
                 fetchedMiniGamesProfile.miniGame4.is_started = true;
@@ -263,23 +243,21 @@ export default class MiniGamesService {
                 return { status: MINIGAME_STATUS_SUCCESS, success: true };
             } else if (operation === MINIGAME_OPERATION_GUESS) {
                 if (userGuess === undefined) throw ERRORS.VALIDATION("Missing guess");
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (!fetchedMiniGamesProfile.miniGame4.is_started) throw ERRORS.VALIDATION("Mini Game 4 has not been started");
                 if (fetchedMiniGamesProfile.miniGame4.user_correct_guesses >= MINIGAME_4_MAX_POINTS) throw ERRORS.VALIDATION("Mini Game 4 already solved");
 
-                const computerMove = MINIGAME_4_MOVES[Math.floor(Math.random() * MINIGAME_4_MOVES.length)];
+                const computer = MINIGAME_4_MOVES[Math.floor(Math.random() * MINIGAME_4_MOVES.length)];
                 let userLost = false;
 
-                if (computerMove === "rock") {
+                if (computer === "rock") {
                     if (userGuess === "rock") fetchedMiniGamesProfile.miniGame4.user_correct_guesses += MINIGAME_4_DRAW_POINTS;
                     else if (userGuess === "paper") fetchedMiniGamesProfile.miniGame4.user_correct_guesses += MINIGAME_4_WIN_POINTS;
                     else userLost = true;
-                } else if (computerMove === "paper") {
+                } else if (computer === "paper") {
                     if (userGuess === "paper") fetchedMiniGamesProfile.miniGame4.user_correct_guesses += MINIGAME_4_DRAW_POINTS;
                     else if (userGuess === "scissors") fetchedMiniGamesProfile.miniGame4.user_correct_guesses += MINIGAME_4_WIN_POINTS;
                     else userLost = true;
-                } else if (computerMove === "scissors") {
+                } else if (computer === "scissors") {
                     if (userGuess === "scissors") fetchedMiniGamesProfile.miniGame4.user_correct_guesses += MINIGAME_4_DRAW_POINTS;
                     else if (userGuess === "rock") fetchedMiniGamesProfile.miniGame4.user_correct_guesses += MINIGAME_4_WIN_POINTS;
                     else userLost = true;
@@ -291,20 +269,18 @@ export default class MiniGamesService {
                 }
 
                 await MiniGamesDAO.saveMiniGamesProfile(fetchedMiniGamesProfile);
-                return { status: userLost ? MINIGAME_STATUS_LOST : MINIGAME_STATUS_SUCCESS, userCorrectGuesses: fetchedMiniGamesProfile.miniGame4.user_correct_guesses, computerMove };
+                return { status: userLost ? MINIGAME_STATUS_LOST : MINIGAME_STATUS_SUCCESS, userCorrectGuesses: fetchedMiniGamesProfile.miniGame4.user_correct_guesses, computerMove: computer };
             } else if (operation === MINIGAME_OPERATION_END) {
-                const fetchedMiniGamesProfile = await MiniGamesDAO.findMiniGamesProfileByUserId(userId);
-                if (!fetchedMiniGamesProfile) throw ERRORS.NOT_FOUND("MiniGames profile not found");
                 if (!fetchedMiniGamesProfile.miniGame4.is_started) throw ERRORS.VALIDATION("Mini Game 4 has not been started");
 
-                const correctGuesses = fetchedMiniGamesProfile.miniGame4.user_correct_guesses;
-                if (correctGuesses <= 0) throw ERRORS.VALIDATION("You haven't won any round");
+                const correct = fetchedMiniGamesProfile.miniGame4.user_correct_guesses;
+                if (correct <= 0) throw ERRORS.VALIDATION("You haven't won any round");
 
-                if (correctGuesses >= 1 && correctGuesses < 2) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.COMMON);
-                else if (correctGuesses >= 2 && correctGuesses < 4) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.UNCOMMON);
-                else if (correctGuesses >= 4 && correctGuesses < 6) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.RARE);
-                else if (correctGuesses >= 6 && correctGuesses < 8) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.EPIC);
-                else if (correctGuesses === MINIGAME_4_MAX_POINTS) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.LEGENDARY);
+                if (correct >= 1 && correct < 2) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.COMMON);
+                else if (correct >= 2 && correct < 4) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.UNCOMMON);
+                else if (correct >= 4 && correct < 6) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.RARE);
+                else if (correct >= 6 && correct < 8) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.EPIC);
+                else if (correct === MINIGAME_4_MAX_POINTS) await ProfileService.addLootBox(userId, MiniGamesLootBoxEnum.LEGENDARY);
 
                 fetchedMiniGamesProfile.miniGame4.user_correct_guesses = 0;
                 fetchedMiniGamesProfile.miniGame4.is_started = false;

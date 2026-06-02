@@ -8,6 +8,8 @@ import {
     FactoryItem,
     PadId,
     FactorySecondaryItemIndex,
+    FACTORY_UPGRADE_INFO,
+    FACTORY_MAX_LEVEL,
 } from "@/constants/factory.js";
 import {
     LAB_ITEMS_UPGRADE_INFO,
@@ -22,11 +24,20 @@ export default class FactoryService {
         try {
             const factoryProfile = await FactoryDAO.findFactoryByUserId(userId);
             if (!factoryProfile) throw ERRORS.NOT_FOUND("Factory not found");
-            // ... implementation placeholders replaced with logic if I had it, but I will just ensure it compiles and has basic flow
+            if (factoryProfile.factory_upgrade_timer !== "") throw ERRORS.VALIDATION("Upgrade already in progress");
+            if (factoryProfile.level >= FACTORY_MAX_LEVEL) throw ERRORS.VALIDATION("Max level reached");
+
+            const newLevel = (factoryProfile.level + 1) as any;
+            const coinsToBePaid = (FACTORY_UPGRADE_INFO as any)[newLevel].coinCost;
+
+            await ProfileService.deductCoins(userId, coinsToBePaid);
+
+            factoryProfile.factory_upgrade_timer = new Date().toUTCString();
             await FactoryDAO.saveFactoryProfile(factoryProfile);
-            return "";
+            return factoryProfile.factory_upgrade_timer;
         } catch (error) {
-            throw error;
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to start factory upgrade: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 
@@ -34,9 +45,27 @@ export default class FactoryService {
         try {
             const factoryProfile = await FactoryDAO.findFactoryByUserId(userId);
             if (!factoryProfile) throw ERRORS.NOT_FOUND("Factory not found");
+            if (factoryProfile.factory_upgrade_timer === "") throw ERRORS.VALIDATION("Upgrade not in progress");
+
+            const newLevel = (factoryProfile.level + 1) as any;
+            const timeToWait = (FACTORY_UPGRADE_INFO as any)[newLevel].time;
+            const startTime = new Date(factoryProfile.factory_upgrade_timer);
+            const passedTime = Date.now() - startTime.getTime();
+
+            if (skipWithGem) {
+                const remainingTime = Math.max(0, timeToWait - passedTime);
+                const gemsToPay = turnTimeInMsToGemsToBePaid(remainingTime);
+                await ProfileService.deductGems(userId, gemsToPay);
+            } else {
+                if (passedTime < timeToWait) throw ERRORS.VALIDATION("Not enough time passed");
+            }
+
+            factoryProfile.level = newLevel;
+            factoryProfile.factory_upgrade_timer = "";
             await FactoryDAO.saveFactoryProfile(factoryProfile);
         } catch (error) {
-            throw error;
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to complete factory upgrade: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 
@@ -47,6 +76,14 @@ export default class FactoryService {
 
             if (padId < 0 || padId >= FACTORY_MAX_BUILDING_PADS) throw ERRORS.VALIDATION("Invalid padId");
             if (factoryProfile.builder_pad_building_timers[padId] !== "") throw ERRORS.VALIDATION("Pad is already active");
+
+            if (!FACTORY_BUILT_ITEM_IDS.includes(itemId)) throw ERRORS.VALIDATION("Invalid itemId");
+
+            // Max count checks
+            const currentCount = (factoryProfile as any)[itemId === "astroidDigger" ? "astroidDiggers" : itemId];
+            if (currentCount >= (FACTORY_ITEMS_COST_INFO as any)[itemId].maxCount) {
+                throw ERRORS.VALIDATION("Max count reached");
+            }
 
             const doesItemHasTheTech = await LabService.checkIfItemFromFactoryHasTheTech(userId, itemId);
             if (!doesItemHasTheTech) throw ERRORS.VALIDATION("Item doesn't have the tech");
@@ -62,7 +99,8 @@ export default class FactoryService {
             await FactoryDAO.saveFactoryProfile(factoryProfile);
             return factoryProfile.builder_pad_building_timers[padId];
         } catch (error) {
-            throw error;
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to start building item: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 
@@ -83,20 +121,24 @@ export default class FactoryService {
             if (passedTime < 0) throw ERRORS.VALIDATION("Invalid time");
 
             if (skipWithGem) {
-                if (passedTime >= timeToWait) throw ERRORS.VALIDATION("Already ended");
-                const remainingTime = timeToWait - passedTime;
-                const gemsToBePaid = turnTimeInMsToGemsToBePaid(remainingTime);
-                await ProfileService.deductGems(userId, gemsToBePaid);
+                if (passedTime < timeToWait) {
+                    const remainingTime = timeToWait - passedTime;
+                    const gemsToBePaid = turnTimeInMsToGemsToBePaid(remainingTime);
+                    await ProfileService.deductGems(userId, gemsToBePaid);
+                }
             } else {
                 if (passedTime < timeToWait) throw ERRORS.VALIDATION("Not enough time passed");
             }
 
             if (itemId === "rocket") factoryProfile.rockets++;
             else if (itemId === "spaceship") factoryProfile.spaceships.push(factoryProfile.builder_pad_items_being_built_secondary[padId]);
-            else if (itemId === "explorer") factoryProfile.explorers++;
+            else if (itemId === "explorer") {
+                factoryProfile.explorers++;
+                await ProfileService.updateMineralGenerationRate(userId);
+            }
             else if (itemId === "satellite") factoryProfile.satellites++;
             else if (itemId === "wormhole") factoryProfile.wormhole++;
-            else if (itemId === "astroidDigger") factoryProfile.astroidDiggers++;
+            else if (itemId === "astroidDigger" || (itemId as any) === "asteroidDigger") factoryProfile.astroidDiggers++;
             else if (itemId === "cyborg") factoryProfile.cyborg++;
             else if (itemId === "dysonSphere") factoryProfile.dysonSphere++;
 
@@ -107,7 +149,8 @@ export default class FactoryService {
             await FactoryDAO.saveFactoryProfile(factoryProfile);
             return factoryProfile;
         } catch (error) {
-            throw error;
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to complete building item: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 
@@ -117,13 +160,13 @@ export default class FactoryService {
             if (!factoryProfile) throw ERRORS.NOT_FOUND("Factory not found");
 
             const labProfile = await LabService.getLabProfile(userId);
-            if (factoryProfile.rockets <= 0) throw ERRORS.VALIDATION("No rockets to launch");
+            if (factoryProfile.rockets <= 0 && updateType === "beforeLaunch") throw ERRORS.VALIDATION("No rockets to launch");
 
             if (updateType === "afterLaunch") {
                 if (labProfile.rocketTech >= (LAB_ITEMS_UPGRADE_INFO as any).rocketTech.minimumForRocketReusability) {
                     factoryProfile.rockets++;
                 }
-                if (itemId === ("asteroidDigger" as any)) {
+                if (itemId === ("asteroidDigger" as any) || itemId === "astroidDigger") {
                     await ProfileService.deductAtmosphereAstroid(userId);
                 }
             }
@@ -136,7 +179,7 @@ export default class FactoryService {
                 } else if (itemId === "wormhole") {
                     if (factoryProfile.wormhole <= 0) throw ERRORS.VALIDATION("No wormholes to launch");
                     factoryProfile.wormhole--;
-                } else if (itemId === ("asteroidDigger" as any)) {
+                } else if (itemId === ("asteroidDigger" as any) || itemId === "astroidDigger") {
                     if (factoryProfile.astroidDiggers <= 0) throw ERRORS.VALIDATION("No astroids to launch");
                     factoryProfile.astroidDiggers--;
                 } else if (itemId === "cyborg") {
@@ -149,7 +192,8 @@ export default class FactoryService {
             }
             await FactoryDAO.saveFactoryProfile(factoryProfile);
         } catch (error) {
-            throw error;
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to deduct item: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 }
