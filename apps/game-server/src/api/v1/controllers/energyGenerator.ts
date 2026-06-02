@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
+import { EnergyGeneratorDAO } from "@/daos/postgres/energyGenerator.js";
 import EnergyGeneratorService from "@/services/energyGenerator/EnergyGeneratorService.js";
 import { EnergyGeneratorUpgradeInput } from "../../../validators/schemas.js";
 import { ApiResponse } from "../utils/response.ts";

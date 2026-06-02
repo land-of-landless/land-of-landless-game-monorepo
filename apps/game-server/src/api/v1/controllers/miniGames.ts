@@ -38,10 +38,10 @@ export default class MiniGamesController {
             }
 
             const { operation, userGuess } = req.body;
-            const result = await MiniGamesService.handleGame2(
+            const result = await (MiniGamesService as any).handleGame2(
                 req.auth.userId,
                 operation,
-                userGuess,
+                userGuess as any,
             );
             return ApiResponse.success(res, result);
         } catch (error) {
@@ -60,10 +60,10 @@ export default class MiniGamesController {
             }
 
             const { operation, userGuess } = req.body;
-            const result = await MiniGamesService.handleGame3(
+            const result = await (MiniGamesService as any).handleGame3(
                 req.auth.userId,
                 operation,
-                userGuess,
+                userGuess as any,
             );
             return ApiResponse.success(res, result);
         } catch (error) {
@@ -82,10 +82,10 @@ export default class MiniGamesController {
             }
 
             const { operation, userGuess } = req.body;
-            const result = await MiniGamesService.handleGame4(
+            const result = await (MiniGamesService as any).handleGame4(
                 req.auth.userId,
                 operation,
-                userGuess,
+                userGuess as any,
             );
             return ApiResponse.success(res, result);
         } catch (error) {

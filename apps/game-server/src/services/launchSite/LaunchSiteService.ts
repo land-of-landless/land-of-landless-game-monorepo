@@ -1,374 +1,135 @@
-import { LaunchSite } from "@/models/redis/launchSite.js";
-import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
-import _ from "lodash";
-import { launchSiteRepository } from "@/daos/redis/repositories/index.js";
+import { LaunchSiteDAO } from "@/daos/postgres/launchSite.js";
+import FactoryService from "@/services/factory/FactoryService.ts";
+import LabService from "@/services/lab/LabService.ts";
+import ProfileService from "@/services/mainProfile/ProfileService.ts";
 import {
-    LAUNCH_SITE_BASE_CHANCE_OF_LAUNCH,
-    LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_CLEAN_ATMOSPHERE,
-    LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_ROCKET_TECH,
     LAUNCH_SITE_ITEMS_INFO,
-    LaunchSiteLevelIndex,
-    LAUNCH_SITE_MAX_LEVEL,
-    LAUNCH_SITE_UPGRADE_INFO,
     LAUNCHABLE_ITEMS,
     LaunchableItem,
+    LAUNCH_SITE_MAX_LEVEL,
+    LAUNCH_SITE_UPGRADE_INFO,
+    LaunchSiteLevelIndex,
 } from "@/constants/launchSite.js";
-import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import LabService from "@/services/lab/LabService.js";
+import {
+    LAUNCH_SITE_BASE_CHANCE_OF_LAUNCH,
+    LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_ROCKET_TECH,
+    LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_CLEAN_ATMOSPHERE,
+} from "@/constants/launchSite.js";
 import {
     LAB_ITEMS_UPGRADE_INFO,
+} from "@/constants/lab.js";
+import {
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_2,
-} from "@/constants/index.js";
-import FactoryService from "@/services/factory/FactoryService.js";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
+} from "@/constants/mainProfile.js";
+import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
+import { ERRORS } from "@/common/errors/appError.js";
+import logger from "@/utils/logger.js";
 
-/**
- * Service for Launch Site-related operations.
- * Handles business logic for upgrades, launch chance calculations, and launching items.
- */
 export default class LaunchSiteService {
-    /**
-     * Starts the upgrade process for the main Launch Site building.
-     */
     static async upgradeLaunchSiteStart(userId: string): Promise<string> {
         try {
-            const launchSiteProfile =
-                await LaunchSiteDAO.findLaunchSiteByUserId(userId);
+            const launchSiteProfile = await LaunchSiteDAO.findLaunchSiteByUserId(userId);
+            if (!launchSiteProfile) throw ERRORS.NOT_FOUND("Launch site not found");
+            if (launchSiteProfile.launch_site_upgrade_timer !== "") throw ERRORS.VALIDATION("Upgrade already in progress");
+            if (launchSiteProfile.level >= LAUNCH_SITE_MAX_LEVEL) throw ERRORS.VALIDATION("Max level reached");
 
-            if (!launchSiteProfile) {
-                throw ERRORS.NOT_FOUND("launchSiteProfile not found");
-            }
+            const newLevel = (launchSiteProfile.level + 1) as LaunchSiteLevelIndex;
+            const coinsToBePaid = LAUNCH_SITE_UPGRADE_INFO[newLevel].coinCost;
 
-            if (launchSiteProfile.launch_site_upgrade_timer !== "") {
-                throw ERRORS.VALIDATION("Upgrade already in progress");
-            }
+            await ProfileService.deductCoins(userId, coinsToBePaid);
 
-            if (launchSiteProfile.level === LAUNCH_SITE_MAX_LEVEL) {
-                throw ERRORS.VALIDATION("Max level reached");
-            }
-
-            const newLevel = (launchSiteProfile.level +
-                1) as LaunchSiteLevelIndex;
-            const { coinCost, mineralCost } =
-                LAUNCH_SITE_UPGRADE_INFO[newLevel];
-
-            await ProfileService.deductMineralAndCoin(
-                userId,
-                mineralCost,
-                coinCost,
-            );
-
-            const now = new Date();
-            launchSiteProfile.launch_site_upgrade_timer = now.toUTCString();
-
-            await launchSiteRepository.save(launchSiteProfile);
+            launchSiteProfile.launch_site_upgrade_timer = new Date().toUTCString();
+            await LaunchSiteDAO.saveLaunchSiteProfile(launchSiteProfile);
             return launchSiteProfile.launch_site_upgrade_timer;
         } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
-            logger.error(
-                `[LaunchSiteService.upgradeLaunchSiteStart] Error for userId: ${userId}`,
-                { error },
-            );
-            throw ERRORS.DB_ERROR(
-                `Failed to start launch site upgrade: ${error instanceof Error ? error.message : "Unknown error"}`,
-            );
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to start launch site upgrade: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 
-    /**
-     * Completes the upgrade process for the main Launch Site building.
-     */
-    static async upgradeLaunchSiteEnd(
-        userId: string,
-        skipWithGem: boolean,
-    ): Promise<LaunchSite> {
+    static async upgradeLaunchSiteEnd(userId: string, skipWithGem: boolean): Promise<any> {
         try {
-            const launchSiteProfile =
-                await LaunchSiteDAO.findLaunchSiteByUserId(userId);
+            const launchSiteProfile = await LaunchSiteDAO.findLaunchSiteByUserId(userId);
+            if (!launchSiteProfile) throw ERRORS.NOT_FOUND("Launch site not found");
+            if (launchSiteProfile.launch_site_upgrade_timer === "") throw ERRORS.VALIDATION("Upgrade not in progress");
 
-            if (!launchSiteProfile) {
-                throw ERRORS.NOT_FOUND("launch site not found");
-            }
-
-            if (launchSiteProfile.launch_site_upgrade_timer === "") {
-                throw ERRORS.VALIDATION("Upgrade isn't in progress");
-            }
-
-            if (launchSiteProfile.level === LAUNCH_SITE_MAX_LEVEL) {
-                throw ERRORS.VALIDATION("Max level reached");
-            }
-
-            const newLevel = (launchSiteProfile.level +
-                1) as LaunchSiteLevelIndex;
+            const newLevel = (launchSiteProfile.level + 1) as LaunchSiteLevelIndex;
             const timeToWait = LAUNCH_SITE_UPGRADE_INFO[newLevel].time;
-
-            const now = new Date();
-            const startTime = new Date(
-                launchSiteProfile.launch_site_upgrade_timer,
-            );
-            const passedTime = Math.floor(now.getTime() - startTime.getTime());
-
-            if (passedTime < 0) {
-                throw ERRORS.VALIDATION("Invalid time");
-            }
+            const startTime = new Date(launchSiteProfile.launch_site_upgrade_timer);
+            const passedTime = Date.now() - startTime.getTime();
 
             if (skipWithGem) {
-                if (passedTime >= timeToWait) {
-                    throw ERRORS.VALIDATION("Already ended");
-                }
-
-                const remainingTime = timeToWait - passedTime;
-                const gemsToBePaid = turnTimeInMsToGemsToBePaid(remainingTime);
-
-                await ProfileService.deductGems(userId, gemsToBePaid);
+                const remainingTime = Math.max(0, timeToWait - passedTime);
+                const gemsToPay = turnTimeInMsToGemsToBePaid(remainingTime);
+                await ProfileService.deductGems(userId, gemsToPay);
             } else {
-                if (passedTime < timeToWait) {
-                    throw ERRORS.VALIDATION("Not enough time passed");
-                }
+                if (passedTime < timeToWait) throw ERRORS.VALIDATION("Not enough time passed");
             }
 
             launchSiteProfile.level = newLevel;
             launchSiteProfile.launch_site_upgrade_timer = "";
-
-            await launchSiteRepository.save(launchSiteProfile);
+            await LaunchSiteDAO.saveLaunchSiteProfile(launchSiteProfile);
             return launchSiteProfile;
         } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
-            logger.error(
-                `[LaunchSiteService.upgradeLaunchSiteEnd] Error for userId: ${userId}`,
-                { error },
-            );
-            throw ERRORS.DB_ERROR(
-                `Failed to end launch site upgrade: ${error instanceof Error ? error.message : "Unknown error"}`,
-            );
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to complete launch site upgrade: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 
-    /**
-     * Calculates the current chance of successful launch.
-     */
-    static async calculateCurrentChanceOfLaunch(
-        userId: string,
-    ): Promise<number> {
+    static async calculateCurrentChanceOfLaunch(userId: string): Promise<number> {
         try {
-            const profileProfile = await ProfileService.getProfile(userId);
-
-            if (!profileProfile) {
-                throw ERRORS.NOT_FOUND("Profile not found");
-            }
-
+            const profile = await ProfileService.getProfile(userId);
             const labProfile = await LabService.getLabProfile(userId);
 
             let finalCalculatedChance = LAUNCH_SITE_BASE_CHANCE_OF_LAUNCH;
+            finalCalculatedChance += Math.floor((labProfile.rocketTech / LAB_ITEMS_UPGRADE_INFO.rocketTech.maxStep) * LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_ROCKET_TECH);
 
-            const theAmountChanceRocketTechAdds = Math.floor(
-                (labProfile.rocketTech /
-                    LAB_ITEMS_UPGRADE_INFO.rocketTech.maxStep) *
-                    LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_ROCKET_TECH,
-            );
+            const totalTrash = (profile.atmosphere_trash_type1 || 0) + (profile.atmosphere_trash_type2 || 0);
+            const maxTrash = PROFILE_MAX_NUM_OF_TRASH_TYPE_1 + PROFILE_MAX_NUM_OF_TRASH_TYPE_2;
 
-            const theAmountChanceTrashCleaningAdds = Math.floor(
-                ((profileProfile.atmosphere_trash_type1 +
-                    profileProfile.atmosphere_trash_type2) /
-                    (PROFILE_MAX_NUM_OF_TRASH_TYPE_1 +
-                        PROFILE_MAX_NUM_OF_TRASH_TYPE_2)) *
-                    LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_CLEAN_ATMOSPHERE,
-            );
+            finalCalculatedChance += Math.floor((totalTrash / maxTrash) * LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_CLEAN_ATMOSPHERE);
 
-            finalCalculatedChance += theAmountChanceRocketTechAdds;
-            finalCalculatedChance += theAmountChanceTrashCleaningAdds;
-
-            return finalCalculatedChance;
+            return Math.min(100, finalCalculatedChance);
         } catch (error) {
-            logger.error(
-                `[LaunchSiteService.calculateCurrentChanceOfLaunch] Error for userId: ${userId}`,
-                { error },
-            );
-            throw ERRORS.DB_ERROR(
-                `Failed to calculate chance of launch: ${error instanceof Error ? error.message : "Unknown error"}`,
-            );
+            return LAUNCH_SITE_BASE_CHANCE_OF_LAUNCH;
         }
     }
 
-    /**
-     * Launches an item from the Launch Site.
-     */
-    static async launchItem(
-        userId: string,
-        itemType: LaunchableItem,
-    ): Promise<{
-        launchStatus: "success" | "failure";
-        message?: string;
-    }> {
+    static async launchItem(userId: string, itemType: LaunchableItem): Promise<any> {
         try {
-            const launchSiteProfile =
-                await LaunchSiteDAO.findLaunchSiteByUserId(userId);
+            const launchSiteProfile = await LaunchSiteDAO.findLaunchSiteByUserId(userId);
+            if (!launchSiteProfile) throw ERRORS.NOT_FOUND("launch site not found");
+            if (!LAUNCHABLE_ITEMS.includes(itemType)) throw ERRORS.VALIDATION("Invalid item type");
 
-            if (!launchSiteProfile) {
-                throw ERRORS.NOT_FOUND("launch site not found");
+            const chanceOfSuccessFulLaunch = await this.calculateCurrentChanceOfLaunch(userId);
+            const itemId = itemType === "asteroidDigger" ? "astroidDigger" : itemType;
+
+            // Check max count
+            const currentLaunched = (launchSiteProfile as any)[itemType === "asteroidDigger" ? "astroid_diggers_launched" : (itemType === "dysonSphere" ? "dyson_sphere_parts_launched" : (itemType === "wormhole" ? "wormholes_launched" : `${itemType}s_launched`))];
+            if (currentLaunched >= (LAUNCH_SITE_ITEMS_INFO as any)[itemType].maxCount) {
+                throw ERRORS.VALIDATION("Max count reached for launched item");
             }
 
-            if (!LAUNCHABLE_ITEMS.includes(itemType)) {
-                throw ERRORS.VALIDATION("Invalid item type");
+            await FactoryService.deductItemForLaunchSite(userId, itemId as any, "beforeLaunch");
+
+            if (Math.random() * 100 > chanceOfSuccessFulLaunch) {
+                return { launchStatus: "failure", message: "bad luck! rocket exploded" };
             }
 
-            const chanceOfSuccessFulLaunch =
-                await LaunchSiteService.calculateCurrentChanceOfLaunch(userId);
+            await FactoryService.deductItemForLaunchSite(userId, itemId as any, "afterLaunch");
 
-            switch (itemType) {
-                case "satellite":
-                    if (
-                        launchSiteProfile.satellites_launched >=
-                        LAUNCH_SITE_ITEMS_INFO["satellite"].maxCount
-                    ) {
-                        throw ERRORS.VALIDATION("Max count reached");
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "satellite",
-                        "beforeLaunch",
-                    );
-                    if (Math.random() * 100 > chanceOfSuccessFulLaunch) {
-                        return {
-                            launchStatus: "failure",
-                            message: "bad luck! rocket exploded",
-                        };
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "satellite",
-                        "afterLaunch",
-                    );
-                    launchSiteProfile.satellites_launched += 1;
-                    break;
-                case "wormhole":
-                    if (
-                        launchSiteProfile.wormholes_launched >=
-                        LAUNCH_SITE_ITEMS_INFO["wormhole"].maxCount
-                    ) {
-                        throw ERRORS.VALIDATION("Max count reached");
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "wormhole",
-                        "beforeLaunch",
-                    );
-                    if (Math.random() * 100 > chanceOfSuccessFulLaunch) {
-                        return {
-                            launchStatus: "failure",
-                            message: "bad luck! rocket exploded",
-                        };
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "wormhole",
-                        "afterLaunch",
-                    );
-                    launchSiteProfile.wormholes_launched += 1;
-                    break;
-                case "asteroidDigger":
-                    if (
-                        launchSiteProfile.astroid_diggers_launched >=
-                        LAUNCH_SITE_ITEMS_INFO.asteroidDigger.maxCount
-                    ) {
-                        throw ERRORS.VALIDATION("Max count reached");
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "astroidDigger",
-                        "beforeLaunch",
-                    );
-                    if (Math.random() * 100 > chanceOfSuccessFulLaunch) {
-                        return {
-                            launchStatus: "failure",
-                            message: "bad luck! rocket exploded",
-                        };
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "astroidDigger",
-                        "afterLaunch",
-                    );
-                    launchSiteProfile.astroid_diggers_launched += 1;
-                    break;
-                case "cyborg":
-                    if (
-                        launchSiteProfile.cyborgs_launched >=
-                        LAUNCH_SITE_ITEMS_INFO["cyborg"].maxCount
-                    ) {
-                        throw ERRORS.VALIDATION("Max count reached");
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "cyborg",
-                        "beforeLaunch",
-                    );
-                    if (Math.random() * 100 > chanceOfSuccessFulLaunch) {
-                        return {
-                            launchStatus: "failure",
-                            message: "bad luck! rocket exploded",
-                        };
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "cyborg",
-                        "afterLaunch",
-                    );
-                    launchSiteProfile.cyborgs_launched += 1;
-                    break;
-                case "dysonSphere":
-                    if (
-                        launchSiteProfile.dyson_sphere_parts_launched >=
-                        LAUNCH_SITE_ITEMS_INFO.dysonSphere.maxCount
-                    ) {
-                        throw ERRORS.VALIDATION("Max count reached");
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "dysonSphere",
-                        "beforeLaunch",
-                    );
-                    if (Math.random() * 100 > chanceOfSuccessFulLaunch) {
-                        return {
-                            launchStatus: "failure",
-                            message: "bad luck! rocket exploded",
-                        };
-                    }
-                    await FactoryService.deductItemForLaunchSite(
-                        userId,
-                        "dysonSphere",
-                        "afterLaunch",
-                    );
-                    launchSiteProfile.dyson_sphere_parts_launched += 1;
-                    break;
-                default:
-                    throw ERRORS.VALIDATION("Invalid item type");
-            }
+            if (itemType === "satellite") launchSiteProfile.satellites_launched += 1;
+            else if (itemType === "wormhole") launchSiteProfile.wormholes_launched += 1;
+            else if (itemType === "asteroidDigger") launchSiteProfile.astroid_diggers_launched += 1;
+            else if (itemType === "cyborg") launchSiteProfile.cyborgs_launched += 1;
+            else if (itemType === "dysonSphere") launchSiteProfile.dyson_sphere_parts_launched += 1;
 
-            await launchSiteRepository.save(launchSiteProfile);
-            return {
-                launchStatus: "success",
-                message: "congrats! rocket launched",
-            };
+            await LaunchSiteDAO.saveLaunchSiteProfile(launchSiteProfile);
+            return { launchStatus: "success", message: "congrats! rocket launched" };
         } catch (error) {
-            if (error instanceof Error && "code" in error) {
-                throw error;
-            }
-            logger.error(
-                `[LaunchSiteService.launchItem] Error for userId: ${userId}`,
-                { error },
-            );
-            throw ERRORS.DB_ERROR(
-                `Failed to launch item: ${error instanceof Error ? error.message : "Unknown error"}`,
-            );
+            if (error instanceof Error && "code" in error) throw error;
+            throw ERRORS.DB_ERROR(`Failed to launch item: ${error instanceof Error ? error.message : "Unknown error"}`);
         }
     }
 }
