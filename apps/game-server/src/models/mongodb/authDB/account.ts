@@ -1,5 +1,5 @@
 import { Schema, InferSchemaType } from "mongoose";
-import { authDBConn } from "@/daos/mongodb/connectDB.js";
+import { authDBConn } from "@/daos/mongodb/connectDB";
 
 const AccountSchema = new Schema(
     {

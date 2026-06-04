@@ -9,23 +9,23 @@ import {
     type ShopPassItemIndex,
     type ShopRobotItemIndex,
     type ShopCoinItemIndex,
-} from "@/constants/shop.js";
-import { ENERGY_GENERATOR_MAX_ENERGY_VALUE_WITH_GAME_PASS } from "@/constants/energyGenerator.js";
-import BillingDAO from "@/daos/redis/billing.js";
-import ProfileService from "@/services/mainProfile/ProfileService.js";
+} from "@/constants/shop";
+import { ENERGY_GENERATOR_MAX_ENERGY_VALUE_WITH_GAME_PASS } from "@/constants/energyGenerator";
+import BillingDAO from "@/daos/redis/billing";
+import ProfileService from "@/services/mainProfile/ProfileService";
 import {
     mainProfileRepository,
     billingRepository,
-} from "@/daos/redis/repositories/index.js";
-import InvoiceService from "@/services/payment/InvoiceService.js";
+} from "@/daos/redis/repositories/index";
+import InvoiceService from "@/services/payment/InvoiceService";
 import type {
     CreateInvoiceResult,
     ProviderInvoice,
     ProviderInvoiceStatus,
-} from "@/services/payment/paymentProviderTypes.js";
-import { paymentLogger, logger } from "@/utils/logger.js";
-import { INVALID_INPUT } from "@/api/v1/errors/index.js";
-import { ERRORS } from "@/common/errors/appError.js";
+} from "@/services/payment/paymentProviderTypes";
+import { paymentLogger, logger } from "@/utils/logger";
+import { INVALID_INPUT } from "@/api/v1/errors/index";
+import { ERRORS } from "@/common/errors/appError";
 
 type MoneyPurchaseResult = CreateInvoiceResult & {
     invoiceId: string;

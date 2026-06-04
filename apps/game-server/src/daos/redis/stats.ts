@@ -1,8 +1,8 @@
-import { statsRepository } from "@/daos/redis/repositories/index.js";
-import { Stats } from "@/models/redis/stats.js";
+import { statsRepository } from "@/daos/redis/repositories/index";
+import { Stats } from "@/models/redis/stats";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
 
 /**
  * Data Access Object for user Stats.

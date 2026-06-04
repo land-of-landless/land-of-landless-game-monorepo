@@ -1,22 +1,22 @@
 import { NextFunction, Request, Response } from "express";
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
-import { ApiResponse } from "@/api/v1/utils/response.js";
-import ReferralService from "@/services/mainProfile/ReferralService.js";
-import DailyRewardService from "@/services/mainProfile/DailyRewardService.js";
-import ProfileService from "@/services/mainProfile/ProfileService.js";
+import MainProfileDAO from "@/daos/redis/mainProfile";
+import { ApiResponse } from "@/api/v1/utils/response";
+import ReferralService from "@/services/mainProfile/ReferralService";
+import DailyRewardService from "@/services/mainProfile/DailyRewardService";
+import ProfileService from "@/services/mainProfile/ProfileService";
 import {
     ProfileLootBoxInput,
     UpdateProfileInput,
     UseReferralCodeInput,
-} from "@/validators/schemas.js";
-import { ERRORS } from "@/common/errors/appError.js";
+} from "@/validators/schemas";
+import { ERRORS } from "@/common/errors/appError";
 import _ from "lodash";
 
 import {
     checkRateLimit,
     referralAndDailyRewardRateLimit,
     userPreferencesRateLimit,
-} from "@/utils/customRateLimiters.js";
+} from "@/utils/customRateLimiters";
 
 /**
  * Controller class for handling profile-related API endpoints

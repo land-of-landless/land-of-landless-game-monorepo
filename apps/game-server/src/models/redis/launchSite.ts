@@ -1,4 +1,4 @@
-import { LaunchSiteLevelIndex } from "@/constants/launchSite.js";
+import { LaunchSiteLevelIndex } from "@/constants/launchSite";
 import { Schema, Entity } from "redis-om";
 
 /**

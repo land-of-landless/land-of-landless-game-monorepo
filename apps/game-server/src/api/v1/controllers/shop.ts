@@ -1,15 +1,15 @@
 import { Request, Response, NextFunction } from "express";
-import { ShopPurchaseInput } from "@/validators/schemas.js";
+import { ShopPurchaseInput } from "@/validators/schemas";
 import { ApiResponse } from "../utils/response.ts";
-import ShopService from "@/services/shop/ShopService.js";
-import BillingDAO from "@/daos/redis/billing.js";
+import ShopService from "@/services/shop/ShopService";
+import BillingDAO from "@/daos/redis/billing";
 import {
     billingInvoiceFetchRateLimit,
     billingPurchaseRateLimit,
     checkRateLimit,
-} from "@/utils/customRateLimiters.js";
+} from "@/utils/customRateLimiters";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
+import { ERRORS } from "@/common/errors/appError";
 
 export default class ShopController {
     static async purchase(

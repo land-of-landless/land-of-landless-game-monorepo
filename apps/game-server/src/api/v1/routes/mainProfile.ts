@@ -1,13 +1,13 @@
 // import router from express
 import { auth } from "@colyseus/auth";
 import { Router, Request, Response, NextFunction } from "express";
-import ProfileController from "@/api/v1/controllers/mainProfile.js";
+import ProfileController from "@/api/v1/controllers/mainProfile";
 import {
     validateBody,
     PROFILE_LOOT_BOX_SCHEMA,
     UPDATE_PROFILE_SCHEMA,
     USE_REFERRAL_CODE_SCHEMA,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const MAIN_PROFILE_ROUTER = Router();
 

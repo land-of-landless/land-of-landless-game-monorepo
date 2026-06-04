@@ -1,13 +1,13 @@
-import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { ERRORS, AppError } from "@/common/errors/appError.js";
+import ProfileService from "@/services/mainProfile/ProfileService";
+import { ERRORS, AppError } from "@/common/errors/appError";
 import {
     DAILY_REWARD_COOLDOWN_HOURS,
     DAILY_CLAIM_REWARDS,
     DAILY_REWARD_MAX_CONSECUTIVE_HOURS,
     DailyRewardsClaimKey,
     DAILY_REWARD_RESET_CYCLE_DAYS,
-} from "@/constants/mainProfile.js";
-import logger from "@/utils/logger.js";
+} from "@/constants/mainProfile";
+import logger from "@/utils/logger";
 
 export default class DailyRewardService {
     /**

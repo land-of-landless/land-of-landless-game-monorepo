@@ -1,4 +1,4 @@
-import { db } from "./connection.js";
+import { db } from "./connection";
 import {
     billings,
     invoices,
@@ -20,7 +20,7 @@ import {
     stats,
     lootBoxesByType,
     launchesByItem,
-} from "../../models/postgres/schema.js";
+} from "../../models/postgres/schema";
 import { eq, and } from "drizzle-orm";
 
 export class BillingPostgresDAO {

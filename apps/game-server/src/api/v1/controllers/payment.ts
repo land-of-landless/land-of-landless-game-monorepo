@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { INVALID_PAYMENT_CALLBACK } from "../errors/index.ts";
-import { ProcessInvoiceInput } from "@/validators/schemas.js";
-import PaymentService from "@/services/payment/PaymentService.js";
-import ShopService from "@/services/shop/ShopService.js";
+import { ProcessInvoiceInput } from "@/validators/schemas";
+import PaymentService from "@/services/payment/PaymentService";
+import ShopService from "@/services/shop/ShopService";
 import { ApiResponse } from "../utils/response.ts";
-import type { OxaPayWebhookRequest } from "@/middlewares/oxaPayWebhook.js";
-import { normalizeOxaPayStatus } from "@/daos/oxaPay/index.js";
+import type { OxaPayWebhookRequest } from "@/middlewares/oxaPayWebhook";
+import { normalizeOxaPayStatus } from "@/daos/oxaPay/index";
 
 export default class PaymentController {
     static async processPaymentCallback(

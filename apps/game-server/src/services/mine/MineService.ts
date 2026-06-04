@@ -1,15 +1,15 @@
-import { MineDAO } from "@/daos/redis/mine.js";
-import { mineRepository } from "@/daos/redis/repositories/index.js";
-import ProfileService from "@/services/mainProfile/ProfileService.js";
+import { MineDAO } from "@/daos/redis/mine";
+import { mineRepository } from "@/daos/redis/repositories/index";
+import ProfileService from "@/services/mainProfile/ProfileService";
 import {
     MINE_MAX_MINER_COUNT,
     MINE_MAX_LEVEL_PER_MINER,
     MineMinerId,
     MINE_UPGRADE_INFO,
     MineUpgradeLevel,
-} from "@/constants/mine.js";
-import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
-import { ERRORS } from "@/common/errors/appError.js";
+} from "@/constants/mine";
+import { turnTimeInMsToGemsToBePaid } from "@/utils/index";
+import { ERRORS } from "@/common/errors/appError";
 
 /**
  * Service class for handling Mine business logic.

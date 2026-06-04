@@ -17,42 +17,42 @@ import {
     validateEnvironment,
     isTest,
     isDevelopment,
-} from "@/config/environment.js";
+} from "@/config/environment";
 
-import logger, { paymentLogger } from "@/utils/logger.js";
+import logger, { paymentLogger } from "@/utils/logger";
 
 // --- Express Middlewares ---
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
-import globalRateLimiterMiddleWare from "@/middlewares/globalRateLimiter.js";
-import { errorHandler, notFoundHandler } from "@/middlewares/errorHandler.js";
+import globalRateLimiterMiddleWare from "@/middlewares/globalRateLimiter";
+import { errorHandler, notFoundHandler } from "@/middlewares/errorHandler";
 
 // Auth module
 import { auth } from "@colyseus/auth";
-import "./config/auth.js";
+import "./config/auth";
 
 /**
  *
  * Import your Room files
  */
-import { MyRoom } from "@/rooms/MyRoom.js";
+import { MyRoom } from "@/rooms/MyRoom";
 import { RedisPresence } from "colyseus";
 import { RedisDriver } from "@colyseus/redis-driver";
 import {
     connectFastRedisInstance,
     connectLogicalRedisInstance,
-} from "@/daos/redis/connectRedis/index.js";
-import { createRedisIndexes } from "@/daos/redis/repositories/index.js";
+} from "@/daos/redis/connectRedis/index";
+import { createRedisIndexes } from "@/daos/redis/repositories/index";
 
 // --- API and Service Imports ---
-import v1Router from "@/api/v1/routes/index.js";
+import v1Router from "@/api/v1/routes/index";
 import _ from "lodash";
-import basicAuthMiddleware from "@/middlewares/basicPassAuth.js";
-import { clientIpMiddleware } from "@/middlewares/clientIpExtractor.js";
-import { convertMsToStringTime } from "./utils/time.js";
-import { AppError, ERRORS } from "./common/errors/appError.js";
+import basicAuthMiddleware from "@/middlewares/basicPassAuth";
+import { clientIpMiddleware } from "@/middlewares/clientIpExtractor";
+import { convertMsToStringTime } from "./utils/time";
+import { AppError, ERRORS } from "./common/errors/appError";
 
 // math add function
 

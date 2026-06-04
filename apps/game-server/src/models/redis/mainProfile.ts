@@ -1,4 +1,4 @@
-import { DAILY_CLAIM_REWARDS } from "@/constants/mainProfile.js";
+import { DAILY_CLAIM_REWARDS } from "@/constants/mainProfile";
 import { MiniGamesLootBox } from "@/constants/miniGames.ts";
 import { Schema, Entity } from "redis-om";
 

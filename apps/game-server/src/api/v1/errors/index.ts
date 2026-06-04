@@ -1,4 +1,4 @@
-import { AppError } from "@/common/errors/appError.js";
+import { AppError } from "@/common/errors/appError";
 import _ from "lodash";
 
 //

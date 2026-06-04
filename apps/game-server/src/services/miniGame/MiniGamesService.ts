@@ -1,6 +1,6 @@
-import ProfileService from "@/services/mainProfile/ProfileService.js";
-import MiniGamesDAO from "@/daos/redis/miniGames.js";
-import { MiniGamesLootBox } from "@/constants/index.js";
+import ProfileService from "@/services/mainProfile/ProfileService";
+import MiniGamesDAO from "@/daos/redis/miniGames";
+import { MiniGamesLootBox } from "@/constants/index";
 import {
     MINI_GAMES_INFO,
     MiniGamesLootBoxEnum,
@@ -28,16 +28,16 @@ import {
     MINIGAME_4_DRAW_POINTS,
     MINIGAME_STATUS_SUCCESS,
     MINIGAME_STATUS_LOST,
-} from "@/constants/miniGames.js";
+} from "@/constants/miniGames";
 import {
     NOT_ENOUGH_ENERGY,
     NOT_ENOUGH_SPACE_FOR_LOOTBOX,
     PROFILE_NOT_FOUND,
     MINIGAME_INVALID_OPERATION,
     MINIGAME_MISSING_GUESS,
-} from "@/api/v1/errors/index.js";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
+} from "@/api/v1/errors/index";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
 
 export default class MiniGamesService {
     /**

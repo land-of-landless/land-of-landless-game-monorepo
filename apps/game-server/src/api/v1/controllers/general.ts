@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { ApiResponse } from "../utils/response.ts";
-import ProfileAggregationService from "@/services/mainProfile/ProfileAggregationService.js";
-import { ERRORS } from "@/common/errors/appError.js";
+import ProfileAggregationService from "@/services/mainProfile/ProfileAggregationService";
+import { ERRORS } from "@/common/errors/appError";
 import _ from "lodash";
-import ProfileService from "@/services/mainProfile/ProfileService.js";
+import ProfileService from "@/services/mainProfile/ProfileService";
 
 /**
  * Controller class for handling general profile-related API endpoints

@@ -1,5 +1,5 @@
-import { db } from "./connection.js";
-import { identities, identityIps } from "../../models/postgres/schema.js";
+import { db } from "./connection";
+import { identities, identityIps } from "../../models/postgres/schema";
 import { eq } from "drizzle-orm";
 
 export class IdentityPostgresDAO {

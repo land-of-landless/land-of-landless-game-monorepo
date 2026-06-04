@@ -1,4 +1,4 @@
-import { FactoryItem } from "./factory.js";
+import { FactoryItem } from "./factory";
 
 /**
  * Information about the lab upgrade.

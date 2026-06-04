@@ -1,9 +1,9 @@
-import { db } from "./connection.js";
+import { db } from "./connection";
 import {
     launchSites,
     satelliteTimers,
     dysonSphereTimers,
-} from "../../models/postgres/schema.js";
+} from "../../models/postgres/schema";
 import { eq } from "drizzle-orm";
 
 export class LaunchSitePostgresDAO {

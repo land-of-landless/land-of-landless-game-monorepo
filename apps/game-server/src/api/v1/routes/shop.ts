@@ -7,7 +7,7 @@ import {
     INVOICE_SCHEMA,
     ShopPurchaseInput,
     InvoiceInput,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const shopRouter = Router();
 

@@ -8,7 +8,7 @@ import {
     FACTORY_BUILD_ITEM_SCHEMA,
     FactoryUpgradeInput,
     FactoryBuildItemInput,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const factoryRouter = Router();
 

@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import OxaPay from "@/daos/oxaPay/index.js";
-import { PAYMENT_UNAUTHENTICATED_REQUEST } from "@/api/v1/errors/index.js";
-import { paymentLogger } from "@/utils/logger.js";
-import type { OxaPayWebhookPayload } from "@/daos/oxaPay/types.js";
+import OxaPay from "@/daos/oxaPay/index";
+import { PAYMENT_UNAUTHENTICATED_REQUEST } from "@/api/v1/errors/index";
+import { paymentLogger } from "@/utils/logger";
+import type { OxaPayWebhookPayload } from "@/daos/oxaPay/types";
 
 export type OxaPayWebhookRequest = Request & {
     oxaPayWebhookPayload?: OxaPayWebhookPayload;

@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from "redis";
-import { appConfig, isTest } from "@/config/environment.js";
-import { dbLogger } from "@/utils/logger.js";
+import { appConfig, isTest } from "@/config/environment";
+import { dbLogger } from "@/utils/logger";
 
 const redisFastClient: RedisClientType = createClient({
     username: appConfig.redis.fastInstance.user,

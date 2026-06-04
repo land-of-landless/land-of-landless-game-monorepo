@@ -1,8 +1,8 @@
-import LabService from "@/services/lab/LabService.js";
+import LabService from "@/services/lab/LabService";
 import { Request, Response, NextFunction } from "express";
-import { ERRORS } from "@/common/errors/appError.js";
-import { LabUpgradeItem } from "@/constants/lab.js";
-import { LabUpgradeInput, LabUpgradeItemInput } from "@/validators/schemas.js";
+import { ERRORS } from "@/common/errors/appError";
+import { LabUpgradeItem } from "@/constants/lab";
+import { LabUpgradeInput, LabUpgradeItemInput } from "@/validators/schemas";
 import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
 

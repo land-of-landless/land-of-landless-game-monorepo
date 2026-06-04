@@ -6,15 +6,15 @@
 
 import type { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { LAUNCHABLE_ITEMS } from "@/constants/launchSite.js";
-import { ALLOWED_FLAGS } from "@/constants/flags.js";
+import { LAUNCHABLE_ITEMS } from "@/constants/launchSite";
+import { ALLOWED_FLAGS } from "@/constants/flags";
 import {
     isProfane,
     isProfaneHive,
     isProfaneProfanityDev,
     isProfaneSightenginePattern,
     isProfaneSightengineML,
-} from "@/utils/profanity.js";
+} from "@/utils/profanity";
 import {
     PROFILE_NAME_MAX_LENGTH,
     PROFILE_NAME_MIN_LENGTH,
@@ -24,7 +24,7 @@ import {
     LOOT_BOX_MAX_INDEX_PREMIUM_USER,
     LOOT_BOX_MAX_INDEX_REGULAR_USER,
     PROFILE_PFP_IDS,
-} from "@/constants/mainProfile.js";
+} from "@/constants/mainProfile";
 
 // ===== COMMON SCHEMAS =====
 

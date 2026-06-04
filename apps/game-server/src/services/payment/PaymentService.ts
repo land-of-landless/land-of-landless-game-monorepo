@@ -1,19 +1,19 @@
-import OxaPay from "@/daos/oxaPay/index.js";
-import BillingDAO from "@/daos/redis/billing.js";
-import ShopService from "@/services/shop/ShopService.js";
-import { AdditionalJson } from "@/constants/payment.js";
+import OxaPay from "@/daos/oxaPay/index";
+import BillingDAO from "@/daos/redis/billing";
+import ShopService from "@/services/shop/ShopService";
+import { AdditionalJson } from "@/constants/payment";
 import _ from "lodash";
-import { paymentLogger } from "@/utils/logger.js";
+import { paymentLogger } from "@/utils/logger";
 import {
     PAYMENT_INVALID_USER,
     PAYMENT_INVALID_INVOICE,
     PAYMENT_INVOICE_NOT_PAID,
     INVALID_INPUT,
-} from "@/api/v1/errors/index.js";
+} from "@/api/v1/errors/index";
 import type {
     ProviderInvoice,
     ProviderInvoiceStatus,
-} from "@/services/payment/paymentProviderTypes.js";
+} from "@/services/payment/paymentProviderTypes";
 
 /**
  * PaymentService handles payment processing and validation logic.

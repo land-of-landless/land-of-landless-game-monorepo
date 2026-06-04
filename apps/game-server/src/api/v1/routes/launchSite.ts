@@ -15,7 +15,7 @@ import {
     LAUNCH_ITEM_SCHEMA,
     LaunchSiteUpgradeInput,
     LaunchItemInput,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const router = Router();
 

@@ -1,6 +1,6 @@
-import { connectLogicalRedisInstance } from "@/daos/redis/connectRedis/index.js";
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
-import logger from "@/utils/logger.js";
+import { connectLogicalRedisInstance } from "@/daos/redis/connectRedis/index";
+import MainProfileDAO from "@/daos/redis/mainProfile";
+import logger from "@/utils/logger";
 
 /**
  * Background worker for handling time-based profile updates
