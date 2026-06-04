@@ -7,6 +7,7 @@ dotenv.config();
 
 const pool = new pg.Pool({
     connectionString: process.env.POSTGRES_URL,
+    ssl: true,
 });
 
 export const db = drizzle(pool, { schema });

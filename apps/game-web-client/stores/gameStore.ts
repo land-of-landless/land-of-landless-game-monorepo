@@ -10,6 +10,7 @@ interface GameState {
   takeDamage: (amount: number) => void;
   heal: (amount: number) => void;
   addCoins: (amount: number) => void;
+  setScoreMultiplier: (multiplier: number) => void;
 }
 
 interface GameComputed {
@@ -33,6 +34,7 @@ export const useGameStore = create<GameState>()((set) => ({
       health: Math.min(state.maxHealth, state.health + amount),
     })),
   addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
+  setScoreMultiplier: (multiplier) => set({ scoreMultiplier: multiplier }),
 }));
 
 // 2. Computed State Hook (Raw Zustand Implementation)
