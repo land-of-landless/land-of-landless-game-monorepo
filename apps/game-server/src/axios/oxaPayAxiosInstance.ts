@@ -1,5 +1,5 @@
 import axios from "axios";
-import { appConfig } from "@/config/environment.js";
+import { appConfig } from "@/config/environment";
 
 const oxaPayAxiosInstance = axios.create({
     baseURL: appConfig.oxapay.baseUrl,

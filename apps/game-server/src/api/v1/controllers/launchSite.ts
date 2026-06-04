@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
-import LaunchSiteService from "@/services/launchSite/LaunchSiteService.js";
-import { LaunchSiteUpgradeInput, LaunchItemInput } from "@/validators/schemas.js";
-import { LAUNCH_SITE_NOT_FOUND } from "@/api/v1/errors/index.js";
+import { LaunchSiteDAO } from "@/daos/redis/launchSite";
+import LaunchSiteService from "@/services/launchSite/LaunchSiteService";
+import { LaunchSiteUpgradeInput, LaunchItemInput } from "@/validators/schemas";
+import { LAUNCH_SITE_NOT_FOUND } from "@/api/v1/errors/index";
 import { ApiResponse } from "../utils/response.ts";
 
 /**

@@ -1,7 +1,7 @@
-import { LaunchSite } from "@/models/redis/launchSite.js";
-import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
+import { LaunchSite } from "@/models/redis/launchSite";
+import { turnTimeInMsToGemsToBePaid } from "@/utils/index";
 import _ from "lodash";
-import { launchSiteRepository } from "@/daos/redis/repositories/index.js";
+import { launchSiteRepository } from "@/daos/redis/repositories/index";
 import {
     LAUNCH_SITE_BASE_CHANCE_OF_LAUNCH,
     LAUNCH_SITE_CHANCE_OF_SUCCESSFUL_LAUNCH_BUMP_FOR_FULL_CLEAN_ATMOSPHERE,
@@ -12,19 +12,19 @@ import {
     LAUNCH_SITE_UPGRADE_INFO,
     LAUNCHABLE_ITEMS,
     LaunchableItem,
-} from "@/constants/launchSite.js";
-import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import LabService from "@/services/lab/LabService.js";
+} from "@/constants/launchSite";
+import ProfileService from "@/services/mainProfile/ProfileService";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
+import { FactoryDAO } from "@/daos/redis/factory";
+import LabService from "@/services/lab/LabService";
 import {
     LAB_ITEMS_UPGRADE_INFO,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_2,
-} from "@/constants/index.js";
-import FactoryService from "@/services/factory/FactoryService.js";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
+} from "@/constants/index";
+import FactoryService from "@/services/factory/FactoryService";
+import { LaunchSiteDAO } from "@/daos/redis/launchSite";
 
 /**
  * Service for Launch Site-related operations.

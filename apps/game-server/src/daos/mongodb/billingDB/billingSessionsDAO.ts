@@ -1,7 +1,7 @@
 import _ from "lodash";
 import BillingSessionModel, {
     BillingSessionType,
-} from "@/models/mongodb/billingDB/sessions.js";
+} from "@/models/mongodb/billingDB/sessions";
 import {
     QueryFilter,
     ProjectionType,

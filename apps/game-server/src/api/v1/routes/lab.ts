@@ -7,7 +7,7 @@ import {
     LAB_UPGRADE_ITEM_SCHEMA,
     LabUpgradeInput,
     LabUpgradeItemInput,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const labRouter = Router();
 

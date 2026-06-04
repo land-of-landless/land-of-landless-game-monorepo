@@ -1,11 +1,11 @@
-import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { REFERRAL_REWARDS, ReferralRewards } from "@/constants/mainProfile.js";
+import ProfileService from "@/services/mainProfile/ProfileService";
+import { REFERRAL_REWARDS, ReferralRewards } from "@/constants/mainProfile";
 import {
     REFERRAL_ALREADY_USED,
     REFERRAL_CODE_INVALID,
     REFERRAL_SELF_USE,
-} from "@/api/v1/errors/index.js";
-import { MainProfile } from "@/models/redis/mainProfile.js";
+} from "@/api/v1/errors/index";
+import { MainProfile } from "@/models/redis/mainProfile";
 
 // TODO: implement a better logic for handling referral system and prizes
 // ideally referer would not get an immediate reward but rather get their rewards when the new user reaches certain milestones

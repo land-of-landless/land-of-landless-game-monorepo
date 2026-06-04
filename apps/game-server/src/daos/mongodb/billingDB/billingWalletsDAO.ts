@@ -1,7 +1,7 @@
 import _ from "lodash";
 import BillingWalletModel, {
     BillingWalletType,
-} from "@/models/mongodb/billingDB/wallet.js";
+} from "@/models/mongodb/billingDB/wallet";
 import {
     QueryFilter,
     ProjectionType,

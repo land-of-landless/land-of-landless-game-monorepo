@@ -1,31 +1,31 @@
-import BillingDAO from "@/daos/redis/billing.js";
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
-import MiniGamesDAO from "@/daos/redis/miniGames.js";
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
+import BillingDAO from "@/daos/redis/billing";
+import EnergyGeneratorDAO from "@/daos/redis/energyGenerator";
+import MiniGamesDAO from "@/daos/redis/miniGames";
+import MainProfileDAO from "@/daos/redis/mainProfile";
 import { auth } from "@colyseus/auth";
 import _ from "lodash";
 import crypto from "crypto";
-import { MINE_MAX_MINERALS_VALUE } from "@/constants/mine.js";
-import { MineDAO } from "@/daos/redis/mine.js";
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
-import StatsDAO from "@/daos/redis/stats.js";
+import { MINE_MAX_MINERALS_VALUE } from "@/constants/mine";
+import { MineDAO } from "@/daos/redis/mine";
+import { FactoryDAO } from "@/daos/redis/factory";
+import { LaunchSiteDAO } from "@/daos/redis/launchSite";
+import StatsDAO from "@/daos/redis/stats";
 import {
     EMPTY_LAUNCHES_BY_ITEM,
     EMPTY_LOOT_BOXES_OPENED_BY_TYPE,
-} from "@/constants/stats.js";
-import { LabDAO } from "@/daos/redis/lab.js";
+} from "@/constants/stats";
+import { LabDAO } from "@/daos/redis/lab";
 import {
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_2,
     PROFILE_PFP_IDS,
     PROFILE_DEFAULT_NAMES,
-} from "@/constants/mainProfile.js";
+} from "@/constants/mainProfile";
 import {
     ENERGY_GENERATOR_BASE_ENERGY_GENERATION_RATE,
     ENERGY_GENERATOR_MAX_ENERGY_VALUE,
-} from "@/constants/index.js";
-import { appConfig, isDevelopment } from "@/config/environment.js";
+} from "@/constants/index";
+import { appConfig, isDevelopment } from "@/config/environment";
 
 /**
  * This file configures the authentication layer for the application using `@colyseus/auth`.

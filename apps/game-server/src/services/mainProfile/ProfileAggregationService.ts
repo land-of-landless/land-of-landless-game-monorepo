@@ -1,12 +1,12 @@
-import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { MineDAO } from "@/daos/redis/mine.js";
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import { LabDAO } from "@/daos/redis/lab.js";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
-import MiniGamesDAO from "@/daos/redis/miniGames.js";
-import StatsDAO from "@/daos/redis/stats.js";
-import { dbLogger } from "@/utils/logger.js";
+import ProfileService from "@/services/mainProfile/ProfileService";
+import { MineDAO } from "@/daos/redis/mine";
+import EnergyGeneratorDAO from "@/daos/redis/energyGenerator";
+import { FactoryDAO } from "@/daos/redis/factory";
+import { LabDAO } from "@/daos/redis/lab";
+import { LaunchSiteDAO } from "@/daos/redis/launchSite";
+import MiniGamesDAO from "@/daos/redis/miniGames";
+import StatsDAO from "@/daos/redis/stats";
+import { dbLogger } from "@/utils/logger";
 
 export default class ProfileAggregationService {
     /**

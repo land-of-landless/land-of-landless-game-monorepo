@@ -2,8 +2,8 @@
     "compilerOptions": {
         "outDir": "build",
         "target": "ESNext",
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
         "strict": true,
         "allowJs": true,
         "strictNullChecks": false,

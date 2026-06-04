@@ -10,7 +10,7 @@ import {
     MiniGame3Input,
     MINI_GAME_4_SCHEMA,
     MiniGame4Input,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const miniGamesRouter = Router();
 

@@ -1,4 +1,4 @@
-import { RATE_LIMITS_CONFIG } from "@/constants/index.js";
+import { RATE_LIMITS_CONFIG } from "@/constants/index";
 
 interface ErrorOptions {
     code?: number;

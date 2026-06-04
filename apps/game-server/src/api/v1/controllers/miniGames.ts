@@ -4,8 +4,8 @@ import {
     MiniGame2Input,
     MiniGame3Input,
     MiniGame4Input,
-} from "@/validators/schemas.js";
-import MiniGamesService from "@/services/miniGame/MiniGamesService.js";
+} from "@/validators/schemas";
+import MiniGamesService from "@/services/miniGame/MiniGamesService";
 import _ from "lodash";
 import { ERRORS } from "@/common/errors/appError.ts";
 

@@ -1,35 +1,35 @@
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
-import { MainProfile } from "@/models/redis/mainProfile.js";
-import { MineDAO } from "@/daos/redis/mine.js"; // Keep this import if used elsewhere
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import { mainProfileRepository } from "@/daos/redis/repositories/index.js";
-import { ERRORS, AppError } from "@/common/errors/appError.js";
+import MainProfileDAO from "@/daos/redis/mainProfile";
+import { MainProfile } from "@/models/redis/mainProfile";
+import { MineDAO } from "@/daos/redis/mine"; // Keep this import if used elsewhere
+import { FactoryDAO } from "@/daos/redis/factory";
+import { mainProfileRepository } from "@/daos/redis/repositories/index";
+import { ERRORS, AppError } from "@/common/errors/appError";
 import _ from "lodash";
 import {
     BASE_REWARDS,
     GEMS_PER_MINUTE,
     LootBoxRewards,
-} from "@/constants/mainProfile.js";
+} from "@/constants/mainProfile";
 import {
     ENERGY_GENERATOR_BASE_ENERGY_GENERATION_RATE,
     ENERGY_GENERATOR_INCREASE_PER_PANEL,
     ENERGY_GENERATOR_MAX_ENERGY_GENERATION_RATE,
-} from "@/constants/energyGenerator.js";
+} from "@/constants/energyGenerator";
 import {
     MINE_MAX_MINER_COUNT,
     MINE_MAX_MINERAL_GENERATION_RATE,
     MINE_UPGRADE_INFO,
     MINE_MINERAL_GENERATION_PER_EXPLORER,
     MineUpgradeLevel,
-} from "@/constants/mine.js";
+} from "@/constants/mine";
 import {
     MINI_GAMES_INFO,
     MINI_GAMES_LOOT_BOX_INFO,
     MiniGamesKey,
     MiniGamesLootBox,
-} from "@/constants/miniGames.js";
-import logger from "@/utils/logger.js"; // Keep this import if used elsewhere
-import { checkValForProfanity } from "@/utils/profanity.js"; // Keep this import if used elsewhere
+} from "@/constants/miniGames";
+import logger from "@/utils/logger"; // Keep this import if used elsewhere
+import { checkValForProfanity } from "@/utils/profanity"; // Keep this import if used elsewhere
 import { redisFastClient } from "@/daos/redis/connectRedis/fast.ts";
 
 export interface OpenLootBoxStartResult {

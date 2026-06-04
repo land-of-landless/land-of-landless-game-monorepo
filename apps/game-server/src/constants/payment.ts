@@ -1,4 +1,4 @@
-import type { ShopItemType } from "./shop.js";
+import type { ShopItemType } from "./shop";
 
 //types
 export type AdditionalJson = {

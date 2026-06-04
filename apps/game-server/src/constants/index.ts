@@ -2,14 +2,14 @@
 // export * from "@land-of-landless/lol-game-shared-config";
 
 // for local development
-export * from "@/constants/miniGames.js";
-export * from "@/constants/mine.js";
-export * from "@/constants/lab.js";
-export * from "@/constants/factory.js";
-export * from "@/constants/general.js";
-export * from "@/constants/energyGenerator.js";
-export * from "@/constants/payment.js";
-export * from "@/constants/shop.js";
-export * from "@/constants/mainProfile.js";
-export * from "@/constants/flags.js";
-export * from "@/constants/rateLimits.js";
+export * from "@/constants/miniGames";
+export * from "@/constants/mine";
+export * from "@/constants/lab";
+export * from "@/constants/factory";
+export * from "@/constants/general";
+export * from "@/constants/energyGenerator";
+export * from "@/constants/payment";
+export * from "@/constants/shop";
+export * from "@/constants/mainProfile";
+export * from "@/constants/flags";
+export * from "@/constants/rateLimits";

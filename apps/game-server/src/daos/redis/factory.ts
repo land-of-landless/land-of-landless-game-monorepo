@@ -1,8 +1,8 @@
 import { factoryRepository } from "./repositories/index.ts";
-import { Factory } from "@/models/redis/factory.js";
+import { Factory } from "@/models/redis/factory";
 import _ from "lodash";
-import logger from "@/utils/logger.js";
-import { ERRORS } from "@/common/errors/appError.js";
+import logger from "@/utils/logger";
+import { ERRORS } from "@/common/errors/appError";
 
 /**
  * Data Access Object for Factory-related operations.

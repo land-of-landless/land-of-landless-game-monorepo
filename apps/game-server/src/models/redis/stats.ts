@@ -1,7 +1,7 @@
 import {
     LaunchesByItem,
     LootBoxesOpenedByType,
-} from "@/constants/stats.js";
+} from "@/constants/stats";
 import { Schema, Entity } from "redis-om";
 
 export type { LaunchesByItem, LootBoxesOpenedByType };

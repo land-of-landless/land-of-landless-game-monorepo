@@ -9,7 +9,7 @@ import {
 } from "mongoose";
 import BillingTransactionModel, {
     BillingTransactionType,
-} from "@/models/mongodb/billingDB/transaction.js";
+} from "@/models/mongodb/billingDB/transaction";
 
 export default class BillingTransactionDAO {
     static async createTransaction(

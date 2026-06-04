@@ -1,22 +1,22 @@
 import crypto from "crypto";
-import oxaPayAxiosInstance from "@/axios/oxaPayAxiosInstance.js";
-import { appConfig, isDevelopment } from "@/config/environment.js";
-import { paymentLogger } from "@/utils/logger.js";
-import type { AdditionalJson } from "@/constants/payment.js";
-import type { ShopItemType } from "@/constants/shop.js";
+import oxaPayAxiosInstance from "@/axios/oxaPayAxiosInstance";
+import { appConfig, isDevelopment } from "@/config/environment";
+import { paymentLogger } from "@/utils/logger";
+import type { AdditionalJson } from "@/constants/payment";
+import type { ShopItemType } from "@/constants/shop";
 import type {
     CreateInvoiceResult,
     ProviderInvoice,
-} from "@/services/payment/paymentProviderTypes.js";
+} from "@/services/payment/paymentProviderTypes";
 import type {
     OxaPayApiResponse,
     OxaPayCreateInvoiceData,
     OxaPayNormalizedStatus,
     OxaPayPaymentInfoData,
     OxaPayWebhookPayload,
-} from "./types.js";
+} from "./types";
 
-export type { OxaPayWebhookPayload } from "./types.js";
+export type { OxaPayWebhookPayload } from "./types";
 
 function pickTrackId(data: {
     track_id?: string;

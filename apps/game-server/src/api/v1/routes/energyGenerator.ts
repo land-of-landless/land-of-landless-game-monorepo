@@ -6,7 +6,7 @@ import {
     validateBody,
     ENERGY_GENERATOR_UPGRADE_SCHEMA,
     EnergyGeneratorUpgradeInput,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const energyGeneratorRouter = Router();
 

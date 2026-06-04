@@ -5,7 +5,7 @@ import {
     validateBody,
     MINE_UPGRADE_SCHEMA,
     MineUpgradeInput,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 
 const mineRouter = Router();
 

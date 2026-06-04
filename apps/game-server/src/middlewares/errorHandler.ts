@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError, ERRORS } from "../common/errors/appError.ts";
 import logger from "../utils/logger.ts";
-import { isProduction } from "@/config/environment.js";
+import { isProduction } from "@/config/environment";
 
-import { ApiResponse } from "@/api/v1/utils/response.js";
+import { ApiResponse } from "@/api/v1/utils/response";
 
 // Using the ErrorResponse type from response.ts
 type ErrorResponse = {

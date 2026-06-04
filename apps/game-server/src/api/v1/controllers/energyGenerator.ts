@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
-import EnergyGeneratorService from "@/services/energyGenerator/EnergyGeneratorService.js";
-import { EnergyGeneratorUpgradeInput } from "../../../validators/schemas.js";
+import EnergyGeneratorDAO from "@/daos/redis/energyGenerator";
+import EnergyGeneratorService from "@/services/energyGenerator/EnergyGeneratorService";
+import { EnergyGeneratorUpgradeInput } from "../../../validators/schemas";
 import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
 import { ERRORS } from "@/common/errors/appError.ts";

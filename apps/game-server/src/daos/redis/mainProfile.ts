@@ -1,8 +1,8 @@
-import { mainProfileRepository } from "@/daos/redis/repositories/index.js";
-import { MainProfile } from "@/models/redis/mainProfile.js";
+import { mainProfileRepository } from "@/daos/redis/repositories/index";
+import { MainProfile } from "@/models/redis/mainProfile";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
 
 /**
  * Data Access Object for the main User Profile.

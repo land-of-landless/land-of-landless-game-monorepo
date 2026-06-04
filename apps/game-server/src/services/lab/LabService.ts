@@ -1,6 +1,6 @@
-import { labRepository } from "@/daos/redis/repositories/index.js";
-import ProfileService from "@/services/mainProfile/ProfileService.js";
-import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
+import { labRepository } from "@/daos/redis/repositories/index";
+import ProfileService from "@/services/mainProfile/ProfileService";
+import { turnTimeInMsToGemsToBePaid } from "@/utils/index";
 import {
     LAB_FACTORY_ITEMS_UPGRADE_INFO,
     LAB_ITEMS_UPGRADE_INFO,
@@ -8,13 +8,13 @@ import {
     LAB_MAX_LEVEL,
     LAB_UPGRADE_INFO,
     LabUpgradeItem,
-} from "@/constants/lab.js";
-import { Lab } from "@/models/redis/lab.js";
-import { FactoryItem } from "@/constants/index.js";
+} from "@/constants/lab";
+import { Lab } from "@/models/redis/lab";
+import { FactoryItem } from "@/constants/index";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
-import { LabDAO } from "@/daos/redis/lab.js";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
+import { LabDAO } from "@/daos/redis/lab";
 
 /**
  * Service for Lab-related operations.

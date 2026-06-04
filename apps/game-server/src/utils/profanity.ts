@@ -6,7 +6,7 @@ import {
 import filter from "leo-profanity";
 import axios from "axios";
 import OpenAI from "openai";
-import { appConfig } from "@/config/environment.js";
+import { appConfig } from "@/config/environment";
 import _ from "lodash";
 
 // LLM-powered profanity checker (optional, provider-agnostic)
@@ -15,7 +15,7 @@ export {
     isProfaneLLMBatch,
     type ContentContext,
     type LlmProfanityResult,
-} from "@/utils/llmProfanity.js";
+} from "@/utils/llmProfanity";
 
 type ProfanityCheckingTool =
     | "SimpleFilter"

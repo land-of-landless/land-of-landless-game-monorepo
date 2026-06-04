@@ -1,5 +1,5 @@
-import { LAUNCHABLE_ITEMS, LaunchableItem } from "@/constants/launchSite.js";
-import { MiniGamesLootBox } from "@/constants/miniGames.js";
+import { LAUNCHABLE_ITEMS, LaunchableItem } from "@/constants/launchSite";
+import { MiniGamesLootBox } from "@/constants/miniGames";
 
 export type LootBoxesOpenedByType = Record<MiniGamesLootBox, number>;
 

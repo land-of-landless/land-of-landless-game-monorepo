@@ -1,8 +1,8 @@
 import { mineRepository } from "./repositories/index.ts";
 import { Mine } from "../../models/redis/mine.ts";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
 
 /**
  * Data Access Object for Mine-related operations.

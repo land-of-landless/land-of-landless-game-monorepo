@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from "redis";
-import { dbLogger } from "../../../utils/logger.js";
-import { appConfig, isTest } from "@/config/environment.js";
+import { dbLogger } from "../../../utils/logger";
+import { appConfig, isTest } from "@/config/environment";
 
 const redisLogicalClient: RedisClientType = createClient({
     username: appConfig.redis.mainLogicInstance.user,

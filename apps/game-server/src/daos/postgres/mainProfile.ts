@@ -1,10 +1,10 @@
-import { db } from "./connection.js";
+import { db } from "./connection";
 import {
     mainProfiles,
     workerBots,
     lootBoxes,
     lootBoxesOpened,
-} from "../../models/postgres/schema.js";
+} from "../../models/postgres/schema";
 import { eq } from "drizzle-orm";
 
 export class MainProfilePostgresDAO {

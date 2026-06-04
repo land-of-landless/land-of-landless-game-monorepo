@@ -4,11 +4,11 @@ import { auth } from "@colyseus/auth";
 import {
     validateBody,
     PROCESS_INVOICE_SCHEMA,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 import {
     verifyOxaPayWebhook,
     OxaPayWebhookRequest,
-} from "@/middlewares/oxaPayWebhook.js";
+} from "@/middlewares/oxaPayWebhook";
 
 const paymentRouter = Router();
 

@@ -1,18 +1,18 @@
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import FactoryService from "@/services/factory/FactoryService.js";
+import { FactoryDAO } from "@/daos/redis/factory";
+import FactoryService from "@/services/factory/FactoryService";
 import { NextFunction, Request, Response } from "express";
 import {
     FactoryUpgradeInput,
     FactoryBuildItemInput,
-} from "@/validators/schemas.js";
+} from "@/validators/schemas";
 import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
+import { ERRORS } from "@/common/errors/appError";
 import {
     PadId,
     FactorySecondaryItemIndex,
     FactoryItem,
-} from "@/constants/factory.js";
+} from "@/constants/factory";
 
 export default class FactoryController {
     static async getFactoryProfile(

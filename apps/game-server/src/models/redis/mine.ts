@@ -1,4 +1,4 @@
-import { MineMinerId, MineUpgradeLevel } from "@/constants/index.js";
+import { MineMinerId, MineUpgradeLevel } from "@/constants/index";
 import { Schema, Entity } from "redis-om";
 
 // levels : 1 to 3

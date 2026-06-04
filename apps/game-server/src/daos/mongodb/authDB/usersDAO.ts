@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { MongoClient, Db, Collection } from "mongodb";
 import { dbLogger } from "../../../utils/logger.ts";
-import UserModel, { UserType } from "@/models/mongodb/authDB/user.js";
+import UserModel, { UserType } from "@/models/mongodb/authDB/user";
 import {
     QueryFilter,
     ProjectionType,

@@ -1,8 +1,8 @@
-import { miniGamesRepository } from "@/daos/redis/repositories/index.js";
-import { MiniGames } from "@/models/redis/miniGames.js";
+import { miniGamesRepository } from "@/daos/redis/repositories/index";
+import { MiniGames } from "@/models/redis/miniGames";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
 
 /**
  * Data Access Object for Mini-Game related operations.

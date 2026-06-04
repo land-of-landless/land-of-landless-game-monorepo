@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { MineDAO } from "@/daos/redis/mine.js";
-import MineService from "@/services/mine/MineService.js";
-import { MineUpgradeInput } from "@/validators/schemas.js";
-import { MineMinerId } from "@/constants/mine.js";
+import { MineDAO } from "@/daos/redis/mine";
+import MineService from "@/services/mine/MineService";
+import { MineUpgradeInput } from "@/validators/schemas";
+import { MineMinerId } from "@/constants/mine";
 import { ApiResponse } from "../utils/response.ts";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
+import { ERRORS } from "@/common/errors/appError";
 
 export class mineController {
     static async getMineProfile(

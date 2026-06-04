@@ -1,8 +1,8 @@
-import { energyGeneratorRepository } from "@/daos/redis/repositories/index.js";
-import { EnergyGenerator } from "@/models/redis/energyGenerator.js";
+import { energyGeneratorRepository } from "@/daos/redis/repositories/index";
+import { EnergyGenerator } from "@/models/redis/energyGenerator";
 import _ from "lodash";
-import { ERRORS } from "@/common/errors/appError.js";
-import logger from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError";
+import logger from "@/utils/logger";
 
 /**
  * Data Access Object for Energy Generator operations.

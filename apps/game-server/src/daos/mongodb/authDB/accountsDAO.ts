@@ -1,5 +1,5 @@
 import _ from "lodash";
-import AccountModel, { AccountType } from "@/models/mongodb/authDB/account.js";
+import AccountModel, { AccountType } from "@/models/mongodb/authDB/account";
 import {
     QueryFilter,
     ProjectionType,

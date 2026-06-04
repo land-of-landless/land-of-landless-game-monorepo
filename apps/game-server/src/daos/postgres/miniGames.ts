@@ -1,9 +1,9 @@
-import { db } from "./connection.js";
+import { db } from "./connection";
 import {
     miniGames,
     mg2RemainingNumbers,
     mg3BoxesState,
-} from "../../models/postgres/schema.js";
+} from "../../models/postgres/schema";
 import { eq } from "drizzle-orm";
 
 export class MiniGamesPostgresDAO {
