@@ -10,16 +10,9 @@ import _ from "lodash";
 import { ERRORS } from "@/common/errors/appError.ts";
 
 export default class MiniGamesController {
-    static async runGame1(
-        req: Request,
-        res: Response,
-        next: NextFunction,
-    ) {
+    static async runGame1(req: Request, res: Response, next: NextFunction) {
         try {
-            if (_.isNil(req.auth)) {
-                return ERRORS.UNAUTHORIZED();
-            }
-
+            if (_.isNil(req.auth)) return ERRORS.UNAUTHORIZED();
             const result = await MiniGamesService.runGame1(req.auth.userId);
             return ApiResponse.success(res, result);
         } catch (error) {
@@ -27,66 +20,33 @@ export default class MiniGamesController {
         }
     }
 
-    static async runGame2(
-        req: Request<unknown, unknown, MiniGame2Input>,
-        res: Response,
-        next: NextFunction,
-    ) {
+    static async runGame2(req: Request<unknown, unknown, MiniGame2Input>, res: Response, next: NextFunction) {
         try {
-            if (_.isNil(req.auth)) {
-                return ERRORS.UNAUTHORIZED();
-            }
-
+            if (_.isNil(req.auth)) return ERRORS.UNAUTHORIZED();
             const { operation, userGuess } = req.body;
-            const result = await MiniGamesService.handleGame2(
-                req.auth.userId,
-                operation,
-                userGuess,
-            );
+            const result = await MiniGamesService.handleGame2(req.auth.userId, operation, userGuess);
             return ApiResponse.success(res, result);
         } catch (error) {
             return next(error);
         }
     }
 
-    static async runGame3(
-        req: Request<unknown, unknown, MiniGame3Input>,
-        res: Response,
-        next: NextFunction,
-    ) {
+    static async runGame3(req: Request<unknown, unknown, MiniGame3Input>, res: Response, next: NextFunction) {
         try {
-            if (_.isNil(req.auth)) {
-                return ERRORS.UNAUTHORIZED();
-            }
-
+            if (_.isNil(req.auth)) return ERRORS.UNAUTHORIZED();
             const { operation, userGuess } = req.body;
-            const result = await MiniGamesService.handleGame3(
-                req.auth.userId,
-                operation,
-                userGuess,
-            );
+            const result = await MiniGamesService.handleGame3(req.auth.userId, operation, userGuess);
             return ApiResponse.success(res, result);
         } catch (error) {
             return next(error);
         }
     }
 
-    static async runGame4(
-        req: Request<unknown, unknown, MiniGame4Input>,
-        res: Response,
-        next: NextFunction,
-    ) {
+    static async runGame4(req: Request<unknown, unknown, MiniGame4Input>, res: Response, next: NextFunction) {
         try {
-            if (_.isNil(req.auth)) {
-                return ERRORS.UNAUTHORIZED()
-            }
-
+            if (_.isNil(req.auth)) return ERRORS.UNAUTHORIZED();
             const { operation, userGuess } = req.body;
-            const result = await MiniGamesService.handleGame4(
-                req.auth.userId,
-                operation,
-                userGuess,
-            );
+            const result = await MiniGamesService.handleGame4(req.auth.userId, operation, userGuess);
             return ApiResponse.success(res, result);
         } catch (error) {
             return next(error);

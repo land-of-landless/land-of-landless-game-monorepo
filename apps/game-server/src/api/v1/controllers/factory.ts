@@ -1,4 +1,4 @@
-import { FactoryDAO } from "@/daos/redis/factory.js";
+import FactoryDAO from "@/daos/factory.js";
 import FactoryService from "@/services/factory/FactoryService.js";
 import { NextFunction, Request, Response } from "express";
 import {
@@ -34,9 +34,7 @@ export default class FactoryController {
                 userId = req.auth.userId;
             }
 
-            const factoryProfile = await FactoryDAO.findFactoryByUserId(
-                userId as string,
-            );
+            const factoryProfile = await FactoryDAO.findFactoryByUserId(userId as string);
             return ApiResponse.success(res, factoryProfile);
         } catch (error) {
             next(error);
@@ -57,28 +55,14 @@ export default class FactoryController {
             const userId = req.auth.userId;
 
             if (operation === "start") {
-                const startToUpgradeTime =
-                    await FactoryService.upgradeFactoryStart(userId);
-
-                return ApiResponse.success(res, {
-                    status: "success",
-                    success: true,
-                    startToUpgradeTime,
-                });
+                const startToUpgradeTime = await FactoryService.upgradeFactoryStart(userId);
+                return ApiResponse.success(res, { status: "success", success: true, startToUpgradeTime });
             } else if (operation === "end") {
                 await FactoryService.upgradeFactoryEnd(userId, false);
-
-                return ApiResponse.success(res, {
-                    status: "success",
-                    success: true,
-                });
+                return ApiResponse.success(res, { status: "success", success: true });
             } else if (operation === "end-with-gem") {
                 await FactoryService.upgradeFactoryEnd(userId, true);
-
-                return ApiResponse.success(res, {
-                    status: "success",
-                    success: true,
-                });
+                return ApiResponse.success(res, { status: "success", success: true });
             }
 
             throw ERRORS.VALIDATION("Invalid operation");
@@ -95,9 +79,7 @@ export default class FactoryController {
         try {
             const operation = req.body.operation;
             const itemId = req.body.itemId as FactoryItem;
-            const secondaryItemId = (
-                req.body.secondaryItemId ? req.body.secondaryItemId : 0
-            ) as FactorySecondaryItemIndex;
+            const secondaryItemId = (req.body.secondaryItemId ? req.body.secondaryItemId : 0) as FactorySecondaryItemIndex;
             const padId = req.body.padId as unknown as PadId;
 
             if (_.isNil(req.auth) || _.isNil(req.auth.userId)) {
@@ -106,32 +88,14 @@ export default class FactoryController {
             const userId = req.auth.userId;
 
             if (operation === "start") {
-                const startToUpgradeTime = await FactoryService.buildItemStart(
-                    userId,
-                    itemId,
-                    padId,
-                    secondaryItemId,
-                );
-
-                return ApiResponse.success(res, {
-                    status: "success",
-                    success: true,
-                    startToUpgradeTime,
-                });
+                const startToUpgradeTime = await FactoryService.buildItemStart(userId, itemId, padId, secondaryItemId);
+                return ApiResponse.success(res, { status: "success", success: true, startToUpgradeTime });
             } else if (operation === "end") {
                 await FactoryService.buildItemEnd(userId, itemId, padId, false);
-
-                return ApiResponse.success(res, {
-                    status: "success",
-                    success: true,
-                });
+                return ApiResponse.success(res, { status: "success", success: true });
             } else if (operation === "end-with-gem") {
                 await FactoryService.buildItemEnd(userId, itemId, padId, true);
-
-                return ApiResponse.success(res, {
-                    status: "success",
-                    success: true,
-                });
+                return ApiResponse.success(res, { status: "success", success: true });
             }
 
             throw ERRORS.VALIDATION("Invalid operation");

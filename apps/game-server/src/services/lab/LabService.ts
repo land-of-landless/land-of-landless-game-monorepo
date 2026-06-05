@@ -1,4 +1,4 @@
-import { labRepository } from "@/daos/redis/repositories/index.js";
+import LabDAO from "@/daos/lab.js";
 import ProfileService from "@/services/mainProfile/ProfileService.js";
 import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
 import {
@@ -9,22 +9,16 @@ import {
     LAB_UPGRADE_INFO,
     LabUpgradeItem,
 } from "@/constants/lab.js";
-import { Lab } from "@/models/redis/lab.js";
 import { FactoryItem } from "@/constants/index.js";
-import _ from "lodash";
 import { ERRORS } from "@/common/errors/appError.js";
 import logger from "@/utils/logger.js";
-import { LabDAO } from "@/daos/redis/lab.js";
 
 /**
  * Service for Lab-related operations.
- * Handles business logic for upgrades, research, and technology checks.
+ * Backed by PostgreSQL via LabDAO (drizzle-orm).
  */
 export default class LabService {
-    /**
-     * Retrieves the lab profile for a user.
-     */
-    static async getLabProfile(userId: string): Promise<Lab> {
+    static async getLabProfile(userId: string) {
         const labProfile = await LabDAO.findLabByUserId(userId);
         if (!labProfile) {
             throw ERRORS.NOT_FOUND("Lab not found");
@@ -32,9 +26,6 @@ export default class LabService {
         return labProfile;
     }
 
-    /**
-     * Starts the upgrade process for the main Lab building.
-     */
     static async upgradeLabStart(userId: string): Promise<string> {
         try {
             const labProfile = await LabDAO.findLabByUserId(userId);
@@ -57,9 +48,9 @@ export default class LabService {
             await ProfileService.deductCoins(userId, coinsToBePaid);
 
             const now = new Date();
-            labProfile.lab_upgrade_timer = now.toUTCString();
+            labProfile.lab_upgrade_timer = now.toISOString();
 
-            await labRepository.save(labProfile);
+            await LabDAO.saveLabProfile(labProfile);
             return labProfile.lab_upgrade_timer;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
@@ -75,13 +66,7 @@ export default class LabService {
         }
     }
 
-    /**
-     * Completes the upgrade process for the main Lab building.
-     */
-    static async upgradeLabEnd(
-        userId: string,
-        skipWithGem: boolean,
-    ): Promise<Lab> {
+    static async upgradeLabEnd(userId: string, skipWithGem: boolean) {
         try {
             const labProfile = await LabDAO.findLabByUserId(userId);
 
@@ -112,10 +97,8 @@ export default class LabService {
                 if (passedTime >= timeToWait) {
                     throw ERRORS.VALIDATION("Already ended");
                 }
-
                 const remainingTime = timeToWait - passedTime;
                 const gemsToBePaid = turnTimeInMsToGemsToBePaid(remainingTime);
-
                 await ProfileService.deductGems(userId, gemsToBePaid);
             } else {
                 if (passedTime < timeToWait) {
@@ -126,7 +109,7 @@ export default class LabService {
             labProfile.level = newLevel;
             labProfile.lab_upgrade_timer = "";
 
-            await labRepository.save(labProfile);
+            await LabDAO.saveLabProfile(labProfile);
             return labProfile;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
@@ -142,13 +125,7 @@ export default class LabService {
         }
     }
 
-    /**
-     * Upgrades a specific technology item within the Lab.
-     */
-    static async upgradeItem(
-        userId: string,
-        itemId: LabUpgradeItem,
-    ): Promise<Lab> {
+    static async upgradeItem(userId: string, itemId: LabUpgradeItem) {
         try {
             const labProfile = await LabDAO.findLabByUserId(userId);
 
@@ -187,7 +164,7 @@ export default class LabService {
 
             labProfile[itemId] = targetItemLevel;
 
-            await labRepository.save(labProfile);
+            await LabDAO.saveLabProfile(labProfile);
             return labProfile;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
@@ -203,9 +180,6 @@ export default class LabService {
         }
     }
 
-    /**
-     * Checks if the user has researched the required technology in the lab to build a specific factory item.
-     */
     static async checkIfItemFromFactoryHasTheTech(
         userId: string,
         itemId: FactoryItem,

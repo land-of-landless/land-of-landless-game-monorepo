@@ -1,5 +1,5 @@
 import OxaPay from "@/daos/oxaPay/index.js";
-import BillingDAO from "@/daos/redis/billing.js";
+import BillingDAO from "@/daos/billing.js";
 import ShopService from "@/services/shop/ShopService.js";
 import { AdditionalJson } from "@/constants/payment.js";
 import _ from "lodash";

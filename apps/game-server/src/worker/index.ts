@@ -1,5 +1,4 @@
-import { connectLogicalRedisInstance } from "@/daos/redis/connectRedis/index.js";
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
+import MainProfileDAO from "@/daos/mainProfile.js";
 import logger from "@/utils/logger.js";
 
 /**
@@ -10,9 +9,7 @@ const runWorker = async () => {
     logger.info("Profile Update Worker started.");
 
     try {
-        // Connect to the database
-        await connectLogicalRedisInstance();
-        logger.info("Worker connected to Redis.");
+        logger.info("Worker connected to PostgreSQL via MainProfileDAO.");
 
         // Define the profile update task
         const performProfileUpdates = async () => {
@@ -20,18 +17,17 @@ const runWorker = async () => {
             const startTime = Date.now();
 
             try {
-                // Get all user IDs (this would need to be implemented in MainProfileDAO)
-                // For now, we'll implement a placeholder
                 logger.info(
                     "Profile update task: checking for users needing updates",
                 );
 
                 // TODO: Implement batch profile updates
                 // This would typically:
-                // 1. Get all user IDs
+                // 1. Get all user IDs via MainProfileDAO.findAllProfiles()
                 // 2. Filter users who haven't been updated recently
-                // 3. Update profiles in batches to avoid overwhelming Redis
+                // 3. Update profiles in batches
 
+                await MainProfileDAO.findAllProfiles();
                 logger.info("Profile update task completed.");
             } catch (error) {
                 logger.error(
@@ -52,10 +48,10 @@ const runWorker = async () => {
 
         logger.info("Profile Update Worker initialized successfully");
     } catch (error) {
-        logger.error("Worker failed to start or connect to the database:", {
+        logger.error("Worker failed to start:", {
             error: error instanceof Error ? error.message : "Unknown error",
         });
-        process.exit(1); // Exit if DB connection fails
+        process.exit(1);
     }
 };
 

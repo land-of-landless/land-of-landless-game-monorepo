@@ -1,5 +1,4 @@
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
-import { energyGeneratorRepository } from "@/daos/redis/repositories/index.js";
+import EnergyGeneratorDAO from "@/daos/energyGenerator.js";
 import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     ENERGY_GENERATOR_COST_PER_PANEL,
@@ -13,12 +12,13 @@ import logger from "@/utils/logger.js";
 
 /**
  * Service class for handling Energy Generator business logic.
+ * Backed by PostgreSQL via EnergyGeneratorDAO (drizzle-orm).
  */
 export default class EnergyGeneratorService {
     /**
      * Starts the upgrade process for an energy generator.
      * @param userId - The ID of the user.
-     * @returns The start time of the upgrade.
+     * @returns The start time of the upgrade (ISO string).
      */
     static async upgradeEnergyGeneratorStart(userId: string) {
         try {
@@ -40,23 +40,26 @@ export default class EnergyGeneratorService {
             let newLevel = (energyGeneratorProfile.level +
                 1) as EnergyGeneratorLevelsType;
 
-            // coins to be paid
             let coinsToBePaid =
                 ENERGY_GENERATOR_UPGRADE_INFO[newLevel].coinCost;
 
-            // set timer
             let now = new Date();
-            energyGeneratorProfile.upgrade_timer = now.toUTCString();
+            energyGeneratorProfile.upgrade_timer = now.toISOString();
 
-            // deduct coins
             await ProfileService.deductCoins(userId, coinsToBePaid);
 
-            await energyGeneratorRepository.save(energyGeneratorProfile);
+            await EnergyGeneratorDAO.saveEnergyGeneratorProfile(
+                energyGeneratorProfile,
+            );
             return energyGeneratorProfile.upgrade_timer;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
             }
+            logger.error(
+                `[EnergyGeneratorService.upgradeEnergyGeneratorStart] Error for userId: ${userId}`,
+                { error },
+            );
             throw ERRORS.DB_ERROR(
                 `Failed to start energy generator upgrade: ${
                     error instanceof Error ? error.message : "Unknown error"
@@ -96,7 +99,6 @@ export default class EnergyGeneratorService {
 
             let timeToWait = ENERGY_GENERATOR_UPGRADE_INFO[newLevel].time;
 
-            // check timer
             let now = new Date();
             let startTime = new Date(energyGeneratorProfile.upgrade_timer);
             let passedTime = Math.floor(now.getTime() - startTime.getTime());
@@ -105,9 +107,7 @@ export default class EnergyGeneratorService {
                 throw ERRORS.VALIDATION("Invalid time");
             }
 
-            // check for skip with gem
             if (skipWithGem) {
-                // turn remaining time to gem equivalent
                 if (passedTime >= timeToWait) {
                     throw ERRORS.VALIDATION("Already ended");
                 }
@@ -115,7 +115,6 @@ export default class EnergyGeneratorService {
                 let remainingTime = timeToWait - passedTime;
                 let gemsToBePaid = turnTimeInMsToGemsToBePaid(remainingTime);
 
-                // deduct Gems
                 await ProfileService.deductGems(userId, gemsToBePaid);
             } else {
                 if (passedTime < timeToWait) {
@@ -123,18 +122,21 @@ export default class EnergyGeneratorService {
                 }
             }
 
-            // update level
             energyGeneratorProfile.level = newLevel;
-
-            // reset timer
             energyGeneratorProfile.upgrade_timer = "";
 
-            await energyGeneratorRepository.save(energyGeneratorProfile);
+            await EnergyGeneratorDAO.saveEnergyGeneratorProfile(
+                energyGeneratorProfile,
+            );
             return energyGeneratorProfile;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
             }
+            logger.error(
+                `[EnergyGeneratorService.upgradeEnergyGeneratorEnd] Error for userId: ${userId}`,
+                { error },
+            );
             throw ERRORS.DB_ERROR(
                 `Failed to complete energy generator upgrade: ${
                     error instanceof Error ? error.message : "Unknown error"
@@ -157,7 +159,6 @@ export default class EnergyGeneratorService {
                 throw ERRORS.NOT_FOUND("Energy generator not found");
             }
 
-            // check if it's being upgraded
             if (energyGeneratorProfile.upgrade_timer !== "") {
                 throw ERRORS.VALIDATION(
                     "wait for energy generator upgrade to finish",
@@ -171,32 +172,35 @@ export default class EnergyGeneratorService {
                 throw ERRORS.VALIDATION("Energy generator is not built");
             }
 
-            // checks to see if we are allowed to build a new panel
             if (
-                ENERGY_GENERATOR_UPGRADE_INFO[currentLevel].maxPanels <
+                ENERGY_GENERATOR_UPGRADE_INFO[currentLevel as EnergyGeneratorLevelsType].maxPanels <
                 newPanelCount
             ) {
                 throw ERRORS.VALIDATION("Max panel count reached");
             }
 
-            // deduct price
             let coinsToBePaid = ENERGY_GENERATOR_COST_PER_PANEL;
             await ProfileService.deductCoins(userId, coinsToBePaid);
 
             energyGeneratorProfile.panel_count = newPanelCount;
 
-            // Update energy generation rate in ProfileService
             await ProfileService.updateEnergyGenerationRate(
                 userId,
                 newPanelCount,
             );
 
-            await energyGeneratorRepository.save(energyGeneratorProfile);
+            await EnergyGeneratorDAO.saveEnergyGeneratorProfile(
+                energyGeneratorProfile,
+            );
             return energyGeneratorProfile;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
             }
+            logger.error(
+                `[EnergyGeneratorService.addPanel] Error for userId: ${userId}`,
+                { error },
+            );
             throw ERRORS.DB_ERROR(
                 `Failed to add panel: ${
                     error instanceof Error ? error.message : "Unknown error"

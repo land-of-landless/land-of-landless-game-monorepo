@@ -1,8 +1,7 @@
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
-import { MainProfile } from "@/models/redis/mainProfile.js";
-import { MineDAO } from "@/daos/redis/mine.js"; // Keep this import if used elsewhere
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import { mainProfileRepository } from "@/daos/redis/repositories/index.js";
+import MainProfileDAO from "@/daos/mainProfile.js";
+import { MainProfile } from "@/types/mainProfile.js";
+import MineDAO from "@/daos/mine.js";
+import FactoryDAO from "@/daos/factory.js";
 import { ERRORS, AppError } from "@/common/errors/appError.js";
 import _ from "lodash";
 import {
@@ -30,7 +29,6 @@ import {
 } from "@/constants/miniGames.js";
 import logger from "@/utils/logger.js"; // Keep this import if used elsewhere
 import { checkValForProfanity } from "@/utils/profanity.js"; // Keep this import if used elsewhere
-import { redisFastClient } from "@/daos/redis/connectRedis/fast.ts";
 
 export interface OpenLootBoxStartResult {
     profile: MainProfile;
@@ -95,20 +93,9 @@ export default class ProfileService {
      * @param profiles - An array of MainProfile instances to save.
      */
     static async saveProfilesAtomic(profiles: MainProfile[]): Promise<void> {
-        const multi = redisFastClient.multi();
-
         for (const profile of profiles) {
-            // Assuming MainProfileDAO.saveProfile internally uses `mainProfileRepository.save`
-            // and that `mainProfileRepository.save` uses `HSET` or similar.
-            // To make it atomic, we need to queue the raw Redis commands.
-            // This requires knowledge of how MainProfileDAO serializes and stores the profile.
-            // For Redis OM, `repository.save()` typically serializes the entity.
-            // A direct `HSET` would be: multi.hSet(profile.key, profile.data);
-            // For simplicity and to reuse existing serialization, we'll queue the save operation.
-            // NOTE: This assumes `mainProfileRepository.save` can be queued in a multi.
-            multi.json.set(profile.userId, "$", profile); // Assuming JSON.SET is used for MainProfile
+            await MainProfileDAO.saveProfile(profile);
         }
-        await multi.exec(); // Execute all commands atomically
     }
 
     /**
@@ -173,7 +160,7 @@ export default class ProfileService {
             }
 
             if (isDirty) {
-                await mainProfileRepository.save(userProfile);
+                await MainProfileDAO.saveProfile(userProfile);
             }
 
             return userProfile;
@@ -339,7 +326,7 @@ export default class ProfileService {
             const startTime = new Date().toUTCString();
             profile.lootBoxesTimers[lootBoxIndex] = startTime;
 
-            await mainProfileRepository.save(profile);
+            await MainProfileDAO.saveProfile(profile);
 
             return {
                 profile,
@@ -418,7 +405,7 @@ export default class ProfileService {
             profile.lootBoxesTimers[lootBoxIndex] = "";
             profile.lootBoxes[lootBoxIndex] = "";
 
-            await mainProfileRepository.save(profile);
+            await MainProfileDAO.saveProfile(profile);
 
             return { rewards, profile };
         } catch (error: any) {
@@ -507,7 +494,7 @@ export default class ProfileService {
             profile.lootBoxesTimers[lootBoxIndex] = "";
             profile.lootBoxes[lootBoxIndex] = "";
 
-            await mainProfileRepository.save(profile);
+            await MainProfileDAO.saveProfile(profile);
             return { profile, rewards };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
@@ -570,7 +557,7 @@ export default class ProfileService {
             // Reset the loot box slot to make it available again.
             profile.lootBoxesTimers[lootBoxIndex] = "";
             profile.lootBoxes[lootBoxIndex] = "";
-            await mainProfileRepository.save(profile);
+            await MainProfileDAO.saveProfile(profile);
 
             return { rewards, profile };
         } catch (error: any) {
@@ -623,7 +610,7 @@ export default class ProfileService {
             // Place the new loot box in the empty slot.
             userProfile.lootBoxes[emptySlotIndex] = lootBoxType;
 
-            return await mainProfileRepository.save(userProfile);
+            return await MainProfileDAO.saveProfile(userProfile);
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
@@ -672,7 +659,7 @@ export default class ProfileService {
 
             // Update the user's profile with the new rate.
             userProfile.energy_generation_rate = newEnergyGenerationRate;
-            return await mainProfileRepository.save(userProfile);
+            return await MainProfileDAO.saveProfile(userProfile);
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
@@ -710,7 +697,7 @@ export default class ProfileService {
 
             // Deduct the energy and save the updated profile.
             userProfile.energy -= gameInfo.energy;
-            await mainProfileRepository.save(userProfile);
+            await MainProfileDAO.saveProfile(userProfile);
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
@@ -771,7 +758,7 @@ export default class ProfileService {
             fetchedUserProfile.energy_updated_at =
                 newEnergyUpdatedAt.toUTCString();
 
-            await mainProfileRepository.save(fetchedUserProfile);
+            await MainProfileDAO.saveProfile(fetchedUserProfile);
 
             return {
                 energy: fetchedUserProfile.energy,
@@ -847,7 +834,7 @@ export default class ProfileService {
             }
 
             userProfile.mineral_generation_rate = newMineralGenerationRate;
-            return await mainProfileRepository.save(userProfile);
+            return await MainProfileDAO.saveProfile(userProfile);
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
@@ -908,7 +895,7 @@ export default class ProfileService {
             fetchedUserProfile.mineral_updated_at =
                 newMineralUpdatedAt.toUTCString();
 
-            await mainProfileRepository.save(fetchedUserProfile);
+            await MainProfileDAO.saveProfile(fetchedUserProfile);
             return {
                 mineral: fetchedUserProfile.mineral,
                 mineral_updated_at: fetchedUserProfile.mineral_updated_at,
@@ -982,7 +969,7 @@ export default class ProfileService {
                 profile.atmosphere_trash_type2 -=
                     amounts.atmosphere_trash_type2;
 
-            await mainProfileRepository.save(profile);
+            await MainProfileDAO.saveProfile(profile);
             return profile;
         } catch (error: any) {
             if (error instanceof AppError) throw error;
@@ -1017,7 +1004,7 @@ export default class ProfileService {
             }
 
             userProfile.coins -= coins;
-            await mainProfileRepository.save(userProfile);
+            await MainProfileDAO.saveProfile(userProfile);
             return userProfile;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
@@ -1051,7 +1038,7 @@ export default class ProfileService {
             }
 
             userProfile.gems -= gems;
-            await mainProfileRepository.save(userProfile);
+            await MainProfileDAO.saveProfile(userProfile);
             return userProfile;
         } catch (error) {
             if (error instanceof Error && "code" in error) {
@@ -1086,7 +1073,7 @@ export default class ProfileService {
             }
 
             userProfile.mineral -= mineralAmount;
-            await mainProfileRepository.save(userProfile);
+            await MainProfileDAO.saveProfile(userProfile);
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
@@ -1130,7 +1117,7 @@ export default class ProfileService {
             userProfile.mineral -= mineralAmount;
             userProfile.coins -= coinAmount;
 
-            await mainProfileRepository.save(userProfile);
+            await MainProfileDAO.saveProfile(userProfile);
         } catch (error) {
             if (error instanceof Error && "code" in error) {
                 throw error;
@@ -1165,7 +1152,7 @@ export default class ProfileService {
 
             userProfile.atmosphere_trash_type2 -= 1;
 
-            await mainProfileRepository.save(userProfile);
+            await MainProfileDAO.saveProfile(userProfile);
         } catch (error) {
             logger.error(
                 `[ProfileService.deductAtmosphereAstroid] Error for userId: ${userId}`,

@@ -42,9 +42,7 @@ import { RedisPresence } from "colyseus";
 import { RedisDriver } from "@colyseus/redis-driver";
 import {
     connectFastRedisInstance,
-    connectLogicalRedisInstance,
 } from "@/daos/redis/connectRedis/index.js";
-import { createRedisIndexes } from "@/daos/redis/repositories/index.js";
 
 // --- API and Service Imports ---
 import v1Router from "@/api/v1/routes/index.js";
@@ -183,13 +181,8 @@ export default defineServer({
             validateEnvironment();
             logger.info("Environment validation passed");
 
-            // Establish the connection to the Redis database.
-            await connectLogicalRedisInstance();
+            // Establish the connection to Redis (rate limiting, profanity cache).
             await connectFastRedisInstance();
-
-            // Create or update Redis OM indexes for all data models. This is required for searching.
-            // await identityRepository.createIndex();
-            await createRedisIndexes();
         } catch (error) {
             logger.error("error", {
                 error: error instanceof Error ? error.message : error,

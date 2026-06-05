@@ -4,11 +4,25 @@ import {
     workerBots,
     lootBoxes,
     lootBoxesOpened,
-} from "../../models/postgres/schema.js";
+} from "../models/schema.js";
 import { eq } from "drizzle-orm";
+import logger from "@/utils/logger.js";
+import { ERRORS } from "@/common/errors/appError.js";
+import { MiniGamesLootBox } from "@/constants/miniGames.js";
+import { MainProfile, WorkerBotType } from "@/types/mainProfile.js";
 
-export class MainProfilePostgresDAO {
+/**
+ * Data Access Object for MainProfile-related operations.
+ * Handles database persistence and retrieval for main user profiles in PostgreSQL.
+ */
+export default class MainProfileDAO {
+    /**
+     * Creates a new main profile for a user.
+     * @param profileData - The initial profile data.
+     * @returns The created profile data.
+     */
     static async createProfile(profileData: any) {
+        try {
         return await db.transaction(async tx => {
             await tx.insert(mainProfiles).values({
                 userId: profileData.userId,
@@ -91,9 +105,19 @@ export class MainProfilePostgresDAO {
 
             return profileData;
         });
+        } catch (error) {
+            logger.error(`[MainProfileDAO.createProfile] Error for userId: ${profileData.userId}`, { error });
+            throw ERRORS.DB_ERROR(`Failed to create profile: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
     }
 
+    /**
+     * Saves an existing main profile.
+     * @param profile - The profile data to save.
+     * @returns The saved profile data.
+     */
     static async saveProfile(profile: any) {
+        try {
         return await db.transaction(async tx => {
             await tx
                 .update(mainProfiles)
@@ -188,9 +212,19 @@ export class MainProfilePostgresDAO {
 
             return profile;
         });
+        } catch (error) {
+            logger.error(`[MainProfileDAO.saveProfile] Error for userId: ${profile.userId}`, { error });
+            throw ERRORS.DB_ERROR(`Failed to save profile: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
     }
 
-    static async findProfileByUserId(userId: string) {
+    /**
+     * Finds a main profile by user ID.
+     * @param userId - The ID of the user.
+     * @returns The profile data if found, otherwise null.
+     */
+    static async findProfileByUserId(userId: string): Promise<MainProfile | null> {
+        try {
         const profile = await db.query.mainProfiles.findFirst({
             where: eq(mainProfiles.userId, userId),
             with: {
@@ -216,48 +250,90 @@ export class MainProfilePostgresDAO {
             workerBots,
             lootBoxes: dbLootBoxes,
             lootBoxesOpened,
+            ticketsType1,
+            ticketsType2,
+            gamePass,
+            gamePassPurchaseTime,
+            lootBoxKeys,
+            energyGenerationRate,
+            energyMax,
+            energyUpdatedAt,
+            mineralGenerationRate,
+            mineralMax,
+            mineralUpdatedAt,
+            atmosphereTrashType1,
+            atmosphereTrashType2,
+            atmosphereTrashUpdatedAt,
+            lastDailyRewardClaimedAt,
             ...profileData
         } = profile;
 
         return {
             ...profileData,
-            game_pass: profile.gamePass,
+            game_pass: gamePass,
             game_pass_purchase_time:
-                profile.gamePassPurchaseTime?.toISOString() || "",
-            worker_bots: workerBots.map(b => b.botType),
-            lootBoxes: dbLootBoxes.map(b => b.boxType),
+                gamePassPurchaseTime?.toISOString() || "",
+            worker_bots: workerBots.map(b => b.botType as WorkerBotType),
+            lootBoxes: dbLootBoxes.map(
+                b => b.boxType as MiniGamesLootBox | "",
+            ),
             lootBoxesTimers: dbLootBoxes.map(b => b.timer?.toISOString() || ""),
-            lootBox_keys: profile.lootBoxKeys,
+            lootBox_keys: lootBoxKeys,
             lootBoxes_opened: lootBoxesOpened.map(b => b.count),
-            energy_generation_rate: profile.energyGenerationRate,
-            energy_max: profile.energyMax,
-            energy_updated_at: profile.energyUpdatedAt?.toISOString() || "",
-            mineral_generation_rate: profile.mineralGenerationRate,
-            mineral_max: profile.mineralMax,
-            mineral_updated_at: profile.mineralUpdatedAt?.toISOString() || "",
-            atmosphere_trash_type1: profile.atmosphereTrashType1,
-            atmosphere_trash_type2: profile.atmosphereTrashType2,
+            tickets_type1: ticketsType1,
+            tickets_type2: ticketsType2,
+            energy_generation_rate: energyGenerationRate,
+            energy_max: energyMax,
+            energy_updated_at: energyUpdatedAt?.toISOString() || "",
+            mineral_generation_rate: mineralGenerationRate,
+            mineral_max: mineralMax,
+            mineral_updated_at: mineralUpdatedAt?.toISOString() || "",
+            atmosphere_trash_type1: atmosphereTrashType1,
+            atmosphere_trash_type2: atmosphereTrashType2,
             atmosphere_trash_updated_at:
-                profile.atmosphereTrashUpdatedAt?.toISOString() || "",
+                atmosphereTrashUpdatedAt?.toISOString() || "",
             lastDailyRewardClaimedAt:
-                profile.lastDailyRewardClaimedAt?.toISOString() || "",
+                lastDailyRewardClaimedAt?.toISOString() || "",
         };
+        } catch (error) {
+            logger.error(`[MainProfileDAO.findProfileByUserId] Error for userId: ${userId}`, { error });
+            throw ERRORS.DB_ERROR(`Failed to find profile: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
     }
 
+    /**
+     * Finds a main profile by referral code.
+     * @param refCode - The referral code to look up.
+     * @returns The profile data if found, otherwise null.
+     */
     static async findProfileByRefCode(refCode: string) {
+        try {
         const profile = await db.query.mainProfiles.findFirst({
             where: eq(mainProfiles.refCode, refCode),
         });
         if (!profile) return null;
         return this.findProfileByUserId(profile.userId);
+        } catch (error) {
+            logger.error(`[MainProfileDAO.findProfileByRefCode] Error for refCode: ${refCode}`, { error });
+            throw ERRORS.DB_ERROR(`Failed to find profile by ref code: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
     }
 
+    /**
+     * Finds all main profiles.
+     * @returns An array of all profile data.
+     */
     static async findAllProfiles() {
+        try {
         const allProfiles = await db.query.mainProfiles.findMany();
         // This is expensive if we fetch relations for all, but for migration purposes:
         return Promise.all(
             allProfiles.map(p => this.findProfileByUserId(p.userId as string))
         );
+        } catch (error) {
+            logger.error(`[MainProfileDAO.findAllProfiles] Error fetching all profiles`, { error });
+            throw ERRORS.DB_ERROR(`Failed to find all profiles: ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
     }
 
     /**
@@ -266,6 +342,7 @@ export class MainProfilePostgresDAO {
      * @returns The MainProfile entity if found, otherwise null.
      */
     static async findProfileByIdFast(userId: string) {
+        try {
         const profile = await db.query.mainProfiles.findFirst({
             where: (mainProfiles, { eq }) => eq(mainProfiles.userId, userId),
             with: {
@@ -291,5 +368,9 @@ export class MainProfilePostgresDAO {
             lootBoxes: dbLootBoxes.map(lb => lb.boxType),
             lootBoxes_opened: lootBoxesOpened.map(lbo => lbo.count),
         };
+        } catch (error) {
+            logger.error(`[MainProfileDAO.findProfileByIdFast] Error for userId: ${userId}`, { error });
+            throw ERRORS.DB_ERROR(`Failed to find profile (fast): ${error instanceof Error ? error.message : "Unknown error"}`);
+        }
     }
 }

@@ -88,6 +88,9 @@ export interface AppConfig {
         model: string;
         cacheTtlSeconds: number;
     };
+    postgres: {
+        url: string;
+    };
     // mongodb: {
     //     uri?: string;
     // };
@@ -189,6 +192,9 @@ export const appConfig: AppConfig = {
             10,
         ),
     },
+    postgres: {
+        url: process.env.POSTGRES_URL || "",
+    },
     // mongodb: {
     //     uri: process.env.MONGODB_URI,
     // },
@@ -212,6 +218,7 @@ export function validateEnvironment(): void {
         required.push(
             "OXAPAY_MERCHANT_API_KEY",
             "OXAPAY_CALLBACK_URL",
+            "POSTGRES_URL",
             "REDIS_DB_HOST",
             "REDIS_DB_USER",
             "REDIS_DB_PASS",

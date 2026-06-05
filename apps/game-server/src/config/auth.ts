@@ -1,20 +1,20 @@
-import BillingDAO from "@/daos/redis/billing.js";
-import EnergyGeneratorDAO from "@/daos/redis/energyGenerator.js";
-import MiniGamesDAO from "@/daos/redis/miniGames.js";
-import MainProfileDAO from "@/daos/redis/mainProfile.js";
+import BillingDAO from "@/daos/billing.js";
+import EnergyGeneratorDAO from "@/daos/energyGenerator.js";
+import MiniGamesDAO from "@/daos/miniGames.js";
+import MainProfileDAO from "@/daos/mainProfile.js";
 import { auth } from "@colyseus/auth";
 import _ from "lodash";
 import crypto from "crypto";
 import { MINE_MAX_MINERALS_VALUE } from "@/constants/mine.js";
-import { MineDAO } from "@/daos/redis/mine.js";
-import { FactoryDAO } from "@/daos/redis/factory.js";
-import { LaunchSiteDAO } from "@/daos/redis/launchSite.js";
-import StatsDAO from "@/daos/redis/stats.js";
+import MineDAO from "@/daos/mine.js";
+import FactoryDAO from "@/daos/factory.js";
+import LaunchSiteDAO from "@/daos/launchSite.js";
+import StatsDAO from "@/daos/stats.js";
 import {
     EMPTY_LAUNCHES_BY_ITEM,
     EMPTY_LOOT_BOXES_OPENED_BY_TYPE,
 } from "@/constants/stats.js";
-import { LabDAO } from "@/daos/redis/lab.js";
+import LabDAO from "@/daos/lab.js";
 import {
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_2,
