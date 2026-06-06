@@ -1,7 +1,7 @@
-import MainProfileDAO from "@/daos/mainProfile.js";
+import MainProfileDAO from "@/daos/postgres/mainProfile.ts";
 import { MainProfile } from "@/types/mainProfile.js";
-import MineDAO from "@/daos/mine.js";
-import FactoryDAO from "@/daos/factory.js";
+import MineDAO from "@/daos/postgres/mine.ts";
+import FactoryDAO from "@/daos/postgres/factory.ts";
 import { ERRORS, AppError } from "@/common/errors/appError.js";
 import _ from "lodash";
 import {

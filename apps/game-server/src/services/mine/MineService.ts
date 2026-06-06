@@ -1,4 +1,4 @@
-import MineDAO from "@/daos/mine.js";
+import MineDAO from "@/daos/postgres/mine.ts";
 import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     MINE_MAX_MINER_COUNT,
@@ -70,7 +70,7 @@ export default class MineService {
             throw ERRORS.DB_ERROR(
                 `Failed to start miner upgrade: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -81,7 +81,7 @@ export default class MineService {
     static async upgradeMinerEnd(
         userId: string,
         minerId: MineMinerId,
-        skipWithGem: boolean,
+        skipWithGem: boolean
     ) {
         try {
             const mineProfile = await MineDAO.findMineByUserId(userId);
@@ -150,7 +150,7 @@ export default class MineService {
             throw ERRORS.DB_ERROR(
                 `Failed to complete miner upgrade: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }

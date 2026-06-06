@@ -1,5 +1,5 @@
 import OxaPay from "@/daos/oxaPay/index.js";
-import BillingDAO from "@/daos/billing.js";
+import BillingDAO from "@/daos/postgres/billing.ts";
 import _ from "lodash";
 import { paymentLogger } from "@/utils/logger.js";
 import {
@@ -24,7 +24,7 @@ export default class InvoiceService {
     static async findExistingInvoice(
         userId: string,
         itemType: ShopItemType,
-        itemIndex: number,
+        itemIndex: number
     ): Promise<string> {
         const userBillingProfile = await BillingDAO.findBillingById(userId);
 
@@ -66,7 +66,7 @@ export default class InvoiceService {
         userId: string,
         itemType: ShopItemType,
         itemIndex: number,
-        amount: number,
+        amount: number
     ) {
         const paymentDetails = await OxaPay.createInvoice({
             userId,
@@ -133,7 +133,7 @@ export default class InvoiceService {
         userId: string,
         chargeId: string,
         itemType: string,
-        itemIndex: number,
+        itemIndex: number
     ): Promise<void> {
         const billingProfile = await BillingDAO.findBillingById(userId);
         if (!billingProfile) {

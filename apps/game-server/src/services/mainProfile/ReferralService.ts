@@ -5,7 +5,7 @@ import {
     REFERRAL_CODE_INVALID,
     REFERRAL_SELF_USE,
 } from "@/api/v1/errors/index.js";
-import MainProfileDAO from "@/daos/mainProfile.js";
+import MainProfileDAO from "@/daos/postgres/mainProfile.ts";
 
 /**
  * Service for referral code operations.
@@ -19,7 +19,8 @@ export default class ReferralService {
             throw REFERRAL_ALREADY_USED;
         }
 
-        const referrerProfile = await ProfileService.findProfileByRefCode(refCode);
+        const referrerProfile =
+            await ProfileService.findProfileByRefCode(refCode);
         if (!referrerProfile) {
             throw REFERRAL_CODE_INVALID;
         }
@@ -35,20 +36,23 @@ export default class ReferralService {
         return refereeProfile;
     }
 
-    private static applyReferralRewards(profile: any, type: "referee" | "referrer") {
+    private static applyReferralRewards(
+        profile: any,
+        type: "referee" | "referrer"
+    ) {
         if (type === "referee") {
             profile.gems += REFERRAL_REWARDS.referee.gems;
             profile.coins += REFERRAL_REWARDS.referee.coins;
             profile.energy = Math.min(
                 profile.energy + REFERRAL_REWARDS.referee.energy,
-                profile.energy_max,
+                profile.energy_max
             );
         } else {
             profile.gems += REFERRAL_REWARDS.referrer.gems;
             profile.coins += REFERRAL_REWARDS.referrer.coins;
             profile.energy = Math.min(
                 profile.energy + REFERRAL_REWARDS.referrer.energy,
-                profile.energy_max,
+                profile.energy_max
             );
         }
     }

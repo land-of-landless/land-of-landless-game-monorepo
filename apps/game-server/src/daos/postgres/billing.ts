@@ -1,4 +1,4 @@
-import { db } from "@/daos/connection.js";
+import { db } from "@/daos/postgres/connection.ts";
 import { billings, invoices } from "@/models/schema.js";
 import { eq } from "drizzle-orm";
 import { ERRORS } from "@/common/errors/appError.js";

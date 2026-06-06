@@ -1,5 +1,5 @@
 import OxaPay from "@/daos/oxaPay/index.js";
-import BillingDAO from "@/daos/billing.js";
+import BillingDAO from "@/daos/postgres/billing.ts";
 import ShopService from "@/services/shop/ShopService.js";
 import { AdditionalJson } from "@/constants/payment.js";
 import _ from "lodash";
@@ -22,7 +22,9 @@ export default class PaymentService {
     /**
      * Validates payment callback data from OxaPay webhook order_id
      */
-    static validatePaymentCallback(orderId: string | null | undefined): AdditionalJson {
+    static validatePaymentCallback(
+        orderId: string | null | undefined
+    ): AdditionalJson {
         if (_.isNil(orderId) || orderId === "") {
             paymentLogger.warn("Payment callback missing order_id");
             throw INVALID_INPUT("Invalid order_id");
@@ -40,7 +42,7 @@ export default class PaymentService {
         userId: string,
         itemType: string,
         itemIndex: number,
-        expectedTrackId?: string,
+        expectedTrackId?: string
     ): Promise<string> {
         const userBillingProfile = await BillingDAO.findBillingById(userId);
 
@@ -76,14 +78,14 @@ export default class PaymentService {
             throw INVALID_INPUT("Invalid request - invoice not found");
         }
 
-        if (
-            expectedTrackId &&
-            targetChargeId !== expectedTrackId
-        ) {
-            paymentLogger.warn("Payment track_id mismatch with ongoing invoice", {
-                userId,
-                expectedTrackId,
-            });
+        if (expectedTrackId && targetChargeId !== expectedTrackId) {
+            paymentLogger.warn(
+                "Payment track_id mismatch with ongoing invoice",
+                {
+                    userId,
+                    expectedTrackId,
+                }
+            );
             throw INVALID_INPUT("Invalid request - invoice mismatch");
         }
 
@@ -103,7 +105,7 @@ export default class PaymentService {
      * Verifies invoice status with payment provider
      */
     static async verifyInvoiceStatus(
-        chargeId: string,
+        chargeId: string
     ): Promise<ProviderInvoice> {
         let invoice: ProviderInvoice;
 
@@ -127,13 +129,13 @@ export default class PaymentService {
         userId: string,
         chargeId: string,
         itemType: string,
-        itemIndex: number,
+        itemIndex: number
     ): Promise<void> {
         await ShopService.applyPaidInvoiceToProfile(
             userId,
             chargeId,
             itemType,
-            itemIndex,
+            itemIndex
         );
     }
 
@@ -143,7 +145,7 @@ export default class PaymentService {
     static async handlePaymentCallback(
         trackId: string,
         orderId: string | null | undefined,
-        webhookStatus?: ProviderInvoiceStatus,
+        webhookStatus?: ProviderInvoiceStatus
     ): Promise<{ success: boolean }> {
         paymentLogger.info("Starting payment callback processing", {
             trackId,
@@ -157,15 +159,13 @@ export default class PaymentService {
             userId,
             itemType,
             itemIndex,
-            trackId,
+            trackId
         );
 
         const statusToFulfill =
             webhookStatus === "paid"
                 ? "paid"
-                : (
-                      await OxaPay.getPaymentInfo(targetChargeId)
-                  ).status;
+                : (await OxaPay.getPaymentInfo(targetChargeId)).status;
 
         if (statusToFulfill === "pending" || statusToFulfill === "paying") {
             paymentLogger.info("Payment callback acknowledged (not paid yet)", {
@@ -177,11 +177,14 @@ export default class PaymentService {
         }
 
         if (statusToFulfill !== "paid") {
-            paymentLogger.info("Payment callback ignored (terminal non-paid status)", {
-                userId,
-                chargeId: targetChargeId,
-                status: statusToFulfill,
-            });
+            paymentLogger.info(
+                "Payment callback ignored (terminal non-paid status)",
+                {
+                    userId,
+                    chargeId: targetChargeId,
+                    status: statusToFulfill,
+                }
+            );
             return { success: true };
         }
 
@@ -189,7 +192,7 @@ export default class PaymentService {
             userId,
             targetChargeId,
             itemType,
-            itemIndex,
+            itemIndex
         );
         paymentLogger.info("Payment processed successfully", {
             userId,

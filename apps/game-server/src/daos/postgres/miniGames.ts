@@ -3,7 +3,7 @@ import {
     miniGames,
     mg2RemainingNumbers,
     mg3BoxesState,
-} from "../models/schema.js";
+} from "../../models/schema.ts";
 import { eq } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -20,23 +20,28 @@ export default class MiniGamesDAO {
      */
     static async createMiniGamesProfile(miniGamesData: any) {
         try {
-            return await db.transaction(async (tx) => {
+            return await db.transaction(async tx => {
                 await tx.insert(miniGames).values({
                     userId: miniGamesData.userId,
                     mg2TargetNumber: miniGamesData.miniGame2?.target_number,
-                    mg2UserCorrectGuesses: miniGamesData.miniGame2?.user_correct_guesses,
-                    mg3UserCorrectGuesses: miniGamesData.miniGame3?.user_correct_guesses,
+                    mg2UserCorrectGuesses:
+                        miniGamesData.miniGame2?.user_correct_guesses,
+                    mg3UserCorrectGuesses:
+                        miniGamesData.miniGame3?.user_correct_guesses,
                     mg3IsStarted: miniGamesData.miniGame3?.is_started,
                     mg4IsStarted: miniGamesData.miniGame4?.is_started,
-                    mg4UserCorrectGuesses: miniGamesData.miniGame4?.user_correct_guesses,
+                    mg4UserCorrectGuesses:
+                        miniGamesData.miniGame4?.user_correct_guesses,
                 });
 
                 if (miniGamesData.miniGame2?.remaining_numbers?.length > 0) {
                     await tx.insert(mg2RemainingNumbers).values(
-                        miniGamesData.miniGame2.remaining_numbers.map((num: number) => ({
-                            userId: miniGamesData.userId,
-                            num,
-                        })),
+                        miniGamesData.miniGame2.remaining_numbers.map(
+                            (num: number) => ({
+                                userId: miniGamesData.userId,
+                                num,
+                            })
+                        )
                     );
                 }
 
@@ -47,8 +52,8 @@ export default class MiniGamesDAO {
                                 userId: miniGamesData.userId,
                                 position: index,
                                 state,
-                            }),
-                        ),
+                            })
+                        )
                     );
                 }
 
@@ -57,10 +62,10 @@ export default class MiniGamesDAO {
         } catch (error) {
             logger.error(
                 `[MiniGamesDAO.createMiniGamesProfile] Error for userId: ${miniGamesData.userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to create mini-games profile: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to create mini-games profile: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -92,10 +97,10 @@ export default class MiniGamesDAO {
                 miniGame2: {
                     target_number: res.mg2TargetNumber,
                     user_correct_guesses: res.mg2UserCorrectGuesses,
-                    remaining_numbers: mg2Nums.map((n) => n.num),
+                    remaining_numbers: mg2Nums.map(n => n.num),
                 },
                 miniGame3: {
-                    boxes_state: mg3States.map((s) => s.state),
+                    boxes_state: mg3States.map(s => s.state),
                     user_correct_guesses: res.mg3UserCorrectGuesses,
                     is_started: res.mg3IsStarted,
                 },
@@ -107,10 +112,10 @@ export default class MiniGamesDAO {
         } catch (error) {
             logger.error(
                 `[MiniGamesDAO.findMiniGamesProfileByUserId] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to find mini-games profile: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to find mini-games profile: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -122,12 +127,13 @@ export default class MiniGamesDAO {
      */
     static async saveMiniGamesProfile(miniGamesProfile: any) {
         try {
-            return await db.transaction(async (tx) => {
+            return await db.transaction(async tx => {
                 await tx
                     .insert(miniGames)
                     .values({
                         userId: miniGamesProfile.userId,
-                        mg2TargetNumber: miniGamesProfile.miniGame2?.target_number,
+                        mg2TargetNumber:
+                            miniGamesProfile.miniGame2?.target_number,
                         mg2UserCorrectGuesses:
                             miniGamesProfile.miniGame2?.user_correct_guesses,
                         mg3UserCorrectGuesses:
@@ -140,27 +146,37 @@ export default class MiniGamesDAO {
                     .onConflictDoUpdate({
                         target: miniGames.userId,
                         set: {
-                            mg2TargetNumber: miniGamesProfile.miniGame2?.target_number,
+                            mg2TargetNumber:
+                                miniGamesProfile.miniGame2?.target_number,
                             mg2UserCorrectGuesses:
-                                miniGamesProfile.miniGame2?.user_correct_guesses,
+                                miniGamesProfile.miniGame2
+                                    ?.user_correct_guesses,
                             mg3UserCorrectGuesses:
-                                miniGamesProfile.miniGame3?.user_correct_guesses,
-                            mg3IsStarted: miniGamesProfile.miniGame3?.is_started,
-                            mg4IsStarted: miniGamesProfile.miniGame4?.is_started,
+                                miniGamesProfile.miniGame3
+                                    ?.user_correct_guesses,
+                            mg3IsStarted:
+                                miniGamesProfile.miniGame3?.is_started,
+                            mg4IsStarted:
+                                miniGamesProfile.miniGame4?.is_started,
                             mg4UserCorrectGuesses:
-                                miniGamesProfile.miniGame4?.user_correct_guesses,
+                                miniGamesProfile.miniGame4
+                                    ?.user_correct_guesses,
                         },
                     });
 
                 await tx
                     .delete(mg2RemainingNumbers)
-                    .where(eq(mg2RemainingNumbers.userId, miniGamesProfile.userId));
+                    .where(
+                        eq(mg2RemainingNumbers.userId, miniGamesProfile.userId)
+                    );
                 if (miniGamesProfile.miniGame2?.remaining_numbers?.length > 0) {
                     await tx.insert(mg2RemainingNumbers).values(
-                        miniGamesProfile.miniGame2.remaining_numbers.map((num: number) => ({
-                            userId: miniGamesProfile.userId,
-                            num,
-                        })),
+                        miniGamesProfile.miniGame2.remaining_numbers.map(
+                            (num: number) => ({
+                                userId: miniGamesProfile.userId,
+                                num,
+                            })
+                        )
                     );
                 }
 
@@ -174,8 +190,8 @@ export default class MiniGamesDAO {
                                 userId: miniGamesProfile.userId,
                                 position: index,
                                 state,
-                            }),
-                        ),
+                            })
+                        )
                     );
                 }
 
@@ -184,10 +200,10 @@ export default class MiniGamesDAO {
         } catch (error) {
             logger.error(
                 `[MiniGamesDAO.saveMiniGamesProfile] Error for userId: ${miniGamesProfile.userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to save mini-games profile: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to save mini-games profile: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }

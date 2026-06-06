@@ -1,4 +1,4 @@
-import EnergyGeneratorDAO from "@/daos/energyGenerator.js";
+import EnergyGeneratorDAO from "@/daos/postgres/energyGenerator.ts";
 import ProfileService from "@/services/mainProfile/ProfileService.js";
 import {
     ENERGY_GENERATOR_COST_PER_PANEL,
@@ -49,7 +49,7 @@ export default class EnergyGeneratorService {
             await ProfileService.deductCoins(userId, coinsToBePaid);
 
             await EnergyGeneratorDAO.saveEnergyGeneratorProfile(
-                energyGeneratorProfile,
+                energyGeneratorProfile
             );
             return energyGeneratorProfile.upgrade_timer;
         } catch (error) {
@@ -58,12 +58,12 @@ export default class EnergyGeneratorService {
             }
             logger.error(
                 `[EnergyGeneratorService.upgradeEnergyGeneratorStart] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to start energy generator upgrade: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -76,7 +76,7 @@ export default class EnergyGeneratorService {
      */
     static async upgradeEnergyGeneratorEnd(
         userId: string,
-        skipWithGem: boolean,
+        skipWithGem: boolean
     ) {
         try {
             const energyGeneratorProfile =
@@ -126,7 +126,7 @@ export default class EnergyGeneratorService {
             energyGeneratorProfile.upgrade_timer = "";
 
             await EnergyGeneratorDAO.saveEnergyGeneratorProfile(
-                energyGeneratorProfile,
+                energyGeneratorProfile
             );
             return energyGeneratorProfile;
         } catch (error) {
@@ -135,12 +135,12 @@ export default class EnergyGeneratorService {
             }
             logger.error(
                 `[EnergyGeneratorService.upgradeEnergyGeneratorEnd] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to complete energy generator upgrade: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }
@@ -161,7 +161,7 @@ export default class EnergyGeneratorService {
 
             if (energyGeneratorProfile.upgrade_timer !== "") {
                 throw ERRORS.VALIDATION(
-                    "wait for energy generator upgrade to finish",
+                    "wait for energy generator upgrade to finish"
                 );
             }
 
@@ -173,8 +173,9 @@ export default class EnergyGeneratorService {
             }
 
             if (
-                ENERGY_GENERATOR_UPGRADE_INFO[currentLevel as EnergyGeneratorLevelsType].maxPanels <
-                newPanelCount
+                ENERGY_GENERATOR_UPGRADE_INFO[
+                    currentLevel as EnergyGeneratorLevelsType
+                ].maxPanels < newPanelCount
             ) {
                 throw ERRORS.VALIDATION("Max panel count reached");
             }
@@ -186,11 +187,11 @@ export default class EnergyGeneratorService {
 
             await ProfileService.updateEnergyGenerationRate(
                 userId,
-                newPanelCount,
+                newPanelCount
             );
 
             await EnergyGeneratorDAO.saveEnergyGeneratorProfile(
-                energyGeneratorProfile,
+                energyGeneratorProfile
             );
             return energyGeneratorProfile;
         } catch (error) {
@@ -199,12 +200,12 @@ export default class EnergyGeneratorService {
             }
             logger.error(
                 `[EnergyGeneratorService.addPanel] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
                 `Failed to add panel: ${
                     error instanceof Error ? error.message : "Unknown error"
-                }`,
+                }`
             );
         }
     }

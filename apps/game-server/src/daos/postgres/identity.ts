@@ -1,5 +1,5 @@
 import { db } from "./connection.js";
-import { identities, identityIps } from "../models/schema.js";
+import { identities, identityIps } from "../../models/schema.ts";
 import { eq } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -16,7 +16,7 @@ export default class IdentityDAO {
      */
     static async createIdentity(identityData: any) {
         try {
-            return await db.transaction(async (tx) => {
+            return await db.transaction(async tx => {
                 await tx
                     .insert(identities)
                     .values({ userId: identityData.userId })
@@ -31,7 +31,7 @@ export default class IdentityDAO {
                             userId: identityData.userId,
                             ip,
                             count: identityData.ips_count?.[index] || 0,
-                        })),
+                        }))
                     );
                 }
 
@@ -40,10 +40,10 @@ export default class IdentityDAO {
         } catch (error) {
             logger.error(
                 `[IdentityDAO.createIdentity] Error for userId: ${identityData.userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to create identity: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to create identity: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -67,16 +67,16 @@ export default class IdentityDAO {
 
             return {
                 userId: res.userId,
-                ips: ips.map((i) => i.ip),
-                ips_count: ips.map((i) => i.count),
+                ips: ips.map(i => i.ip),
+                ips_count: ips.map(i => i.count),
             };
         } catch (error) {
             logger.error(
                 `[IdentityDAO.findIdentityByUserId] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to find identity: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to find identity: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -88,7 +88,7 @@ export default class IdentityDAO {
      */
     static async saveIdentityProfile(identityProfile: any) {
         try {
-            return await db.transaction(async (tx) => {
+            return await db.transaction(async tx => {
                 await tx
                     .insert(identities)
                     .values({ userId: identityProfile.userId })
@@ -99,11 +99,13 @@ export default class IdentityDAO {
                     .where(eq(identityIps.userId, identityProfile.userId));
                 if (identityProfile.ips?.length > 0) {
                     await tx.insert(identityIps).values(
-                        identityProfile.ips.map((ip: string, index: number) => ({
-                            userId: identityProfile.userId,
-                            ip,
-                            count: identityProfile.ips_count?.[index] || 0,
-                        })),
+                        identityProfile.ips.map(
+                            (ip: string, index: number) => ({
+                                userId: identityProfile.userId,
+                                ip,
+                                count: identityProfile.ips_count?.[index] || 0,
+                            })
+                        )
                     );
                 }
 
@@ -112,10 +114,10 @@ export default class IdentityDAO {
         } catch (error) {
             logger.error(
                 `[IdentityDAO.saveIdentityProfile] Error for userId: ${identityProfile.userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to save identity: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to save identity: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }

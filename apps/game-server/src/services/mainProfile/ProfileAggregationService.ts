@@ -1,11 +1,11 @@
 import ProfileService from "@/services/mainProfile/ProfileService.js";
-import MineDAO from "@/daos/mine.js";
-import EnergyGeneratorDAO from "@/daos/energyGenerator.js";
-import FactoryDAO from "@/daos/factory.js";
-import LabDAO from "@/daos/lab.js";
-import LaunchSiteDAO from "@/daos/launchSite.js";
-import MiniGamesDAO from "@/daos/miniGames.js";
-import StatsDAO from "@/daos/stats.js";
+import MineDAO from "@/daos/postgres/mine.ts";
+import EnergyGeneratorDAO from "@/daos/postgres/energyGenerator.ts";
+import FactoryDAO from "@/daos/postgres/factory.ts";
+import LabDAO from "@/daos/postgres/lab.ts";
+import LaunchSiteDAO from "@/daos/postgres/launchSite.ts";
+import MiniGamesDAO from "@/daos/postgres/miniGames.ts";
+import StatsDAO from "@/daos/postgres/stats.ts";
 import { dbLogger } from "@/utils/logger.js";
 
 /**
@@ -34,6 +34,15 @@ export default class ProfileAggregationService {
             StatsDAO.findStatsByUserId(userId),
         ]);
 
-        return { mainProfile, mine, energyGenerator, factory, lab, launchSite, miniGames, stats };
+        return {
+            mainProfile,
+            mine,
+            energyGenerator,
+            factory,
+            lab,
+            launchSite,
+            miniGames,
+            stats,
+        };
     }
 }

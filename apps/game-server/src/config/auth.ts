@@ -1,20 +1,20 @@
-import BillingDAO from "@/daos/billing.js";
-import EnergyGeneratorDAO from "@/daos/energyGenerator.js";
-import MiniGamesDAO from "@/daos/miniGames.js";
-import MainProfileDAO from "@/daos/mainProfile.js";
+import BillingDAO from "@/daos/postgres/billing.ts";
+import EnergyGeneratorDAO from "@/daos/postgres/energyGenerator.ts";
+import MiniGamesDAO from "@/daos/postgres/miniGames.ts";
+import MainProfileDAO from "@/daos/postgres/mainProfile.ts";
 import { auth } from "@colyseus/auth";
 import _ from "lodash";
 import crypto from "crypto";
 import { MINE_MAX_MINERALS_VALUE } from "@/constants/mine.js";
-import MineDAO from "@/daos/mine.js";
-import FactoryDAO from "@/daos/factory.js";
-import LaunchSiteDAO from "@/daos/launchSite.js";
-import StatsDAO from "@/daos/stats.js";
+import MineDAO from "@/daos/postgres/mine.ts";
+import FactoryDAO from "@/daos/postgres/factory.ts";
+import LaunchSiteDAO from "@/daos/postgres/launchSite.ts";
+import StatsDAO from "@/daos/postgres/stats.ts";
 import {
     EMPTY_LAUNCHES_BY_ITEM,
     EMPTY_LOOT_BOXES_OPENED_BY_TYPE,
 } from "@/constants/stats.js";
-import LabDAO from "@/daos/lab.js";
+import LabDAO from "@/daos/postgres/lab.ts";
 import {
     PROFILE_MAX_NUM_OF_TRASH_TYPE_1,
     PROFILE_MAX_NUM_OF_TRASH_TYPE_2,
@@ -97,7 +97,9 @@ const generateRandomRefCode = (digits: number) => {
  * @returns A random name string.
  */
 const generateRandomName = () => {
-    const randomIndex = Math.floor(Math.random() * PROFILE_DEFAULT_NAMES.length);
+    const randomIndex = Math.floor(
+        Math.random() * PROFILE_DEFAULT_NAMES.length
+    );
 
     return PROFILE_DEFAULT_NAMES[randomIndex];
 };
@@ -107,9 +109,7 @@ const generateRandomName = () => {
  * @returns A random number representing the profile picture index.
  */
 const generateRandomProfilePicture = () => {
-    const randomIndex = Math.floor(
-        Math.random() * PROFILE_PFP_IDS.length
-    );
+    const randomIndex = Math.floor(Math.random() * PROFILE_PFP_IDS.length);
 
     return PROFILE_PFP_IDS[randomIndex];
 };

@@ -1,4 +1,4 @@
-import LabDAO from "@/daos/lab.js";
+import LabDAO from "@/daos/postgres/lab.ts";
 import ProfileService from "@/services/mainProfile/ProfileService.js";
 import { turnTimeInMsToGemsToBePaid } from "@/utils/index.js";
 import {
@@ -58,10 +58,10 @@ export default class LabService {
             }
             logger.error(
                 `[LabService.upgradeLabStart] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to start lab upgrade: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to start lab upgrade: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -117,10 +117,10 @@ export default class LabService {
             }
             logger.error(
                 `[LabService.upgradeLabEnd] Error for userId: ${userId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to complete lab upgrade: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to complete lab upgrade: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -159,7 +159,7 @@ export default class LabService {
             await ProfileService.deductMineralAndCoin(
                 userId,
                 mineralsToBePaid,
-                coinsToBePaid,
+                coinsToBePaid
             );
 
             labProfile[itemId] = targetItemLevel;
@@ -172,17 +172,17 @@ export default class LabService {
             }
             logger.error(
                 `[LabService.upgradeItem] Error for userId: ${userId}, itemId: ${itemId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to upgrade lab item: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to upgrade lab item: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
 
     static async checkIfItemFromFactoryHasTheTech(
         userId: string,
-        itemId: FactoryItem,
+        itemId: FactoryItem
     ): Promise<boolean> {
         try {
             const labProfile = await LabDAO.findLabByUserId(userId);
@@ -202,10 +202,10 @@ export default class LabService {
             }
             logger.error(
                 `[LabService.checkIfItemFromFactoryHasTheTech] Error for userId: ${userId}, itemId: ${itemId}`,
-                { error },
+                { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to check factory item tech requirement: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to check factory item tech requirement: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }

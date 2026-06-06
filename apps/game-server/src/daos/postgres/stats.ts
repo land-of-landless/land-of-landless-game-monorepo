@@ -1,9 +1,5 @@
 import { db } from "./connection.js";
-import {
-    stats,
-    lootBoxesByType,
-    launchesByItem,
-} from "../models/schema.js";
+import { stats, lootBoxesByType, launchesByItem } from "../../models/schema.ts";
 import { eq } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -21,10 +17,11 @@ export default class StatsDAO {
      */
     static async createStats(statsData: any) {
         try {
-            return await db.transaction(async (tx) => {
+            return await db.transaction(async tx => {
                 await tx.insert(stats).values({
                     userId: statsData.userId,
-                    lootBoxesOpenedTotal: statsData.loot_boxes_opened_total ?? 0,
+                    lootBoxesOpenedTotal:
+                        statsData.loot_boxes_opened_total ?? 0,
                     launchesTotal: statsData.launches_total ?? 0,
                 });
 
@@ -37,7 +34,7 @@ export default class StatsDAO {
                             userId: statsData.userId,
                             boxType,
                             count,
-                        })),
+                        }))
                     );
                 }
 
@@ -50,16 +47,19 @@ export default class StatsDAO {
                             userId: statsData.userId,
                             itemType,
                             count,
-                        })),
+                        }))
                     );
                 }
 
                 return statsData;
             });
         } catch (error) {
-            logger.error(`[StatsDAO.createStats] Error for userId: ${statsData.userId}`, { error });
+            logger.error(
+                `[StatsDAO.createStats] Error for userId: ${statsData.userId}`,
+                { error }
+            );
             throw ERRORS.DB_ERROR(
-                `Failed to create stats: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to create stats: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -81,8 +81,11 @@ export default class StatsDAO {
 
             if (!statsProfile) return null;
 
-            const { lootBoxesByType: lootBoxRows, launchesByItem: launchRows, ...statsData } =
-                statsProfile;
+            const {
+                lootBoxesByType: lootBoxRows,
+                launchesByItem: launchRows,
+                ...statsData
+            } = statsProfile;
 
             const loot_boxes_opened_by_type: Record<string, number> = {};
             for (const row of lootBoxRows) {
@@ -102,9 +105,12 @@ export default class StatsDAO {
                 launches_by_item,
             };
         } catch (error) {
-            logger.error(`[StatsDAO.findStatsByUserId] Error for userId: ${userId}`, { error });
+            logger.error(
+                `[StatsDAO.findStatsByUserId] Error for userId: ${userId}`,
+                { error }
+            );
             throw ERRORS.DB_ERROR(
-                `Failed to find stats: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to find stats: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }
@@ -116,18 +122,20 @@ export default class StatsDAO {
      */
     static async saveStatsProfile(statsProfile: any) {
         try {
-            return await db.transaction(async (tx) => {
+            return await db.transaction(async tx => {
                 await tx
                     .insert(stats)
                     .values({
                         userId: statsProfile.userId,
-                        lootBoxesOpenedTotal: statsProfile.loot_boxes_opened_total ?? 0,
+                        lootBoxesOpenedTotal:
+                            statsProfile.loot_boxes_opened_total ?? 0,
                         launchesTotal: statsProfile.launches_total ?? 0,
                     })
                     .onConflictDoUpdate({
                         target: stats.userId,
                         set: {
-                            lootBoxesOpenedTotal: statsProfile.loot_boxes_opened_total ?? 0,
+                            lootBoxesOpenedTotal:
+                                statsProfile.loot_boxes_opened_total ?? 0,
                             launchesTotal: statsProfile.launches_total ?? 0,
                         },
                     });
@@ -144,7 +152,7 @@ export default class StatsDAO {
                             userId: statsProfile.userId,
                             boxType,
                             count,
-                        })),
+                        }))
                     );
                 }
 
@@ -160,16 +168,19 @@ export default class StatsDAO {
                             userId: statsProfile.userId,
                             itemType,
                             count,
-                        })),
+                        }))
                     );
                 }
 
                 return statsProfile;
             });
         } catch (error) {
-            logger.error(`[StatsDAO.saveStatsProfile] Error for userId: ${statsProfile.userId}`, { error });
+            logger.error(
+                `[StatsDAO.saveStatsProfile] Error for userId: ${statsProfile.userId}`,
+                { error }
+            );
             throw ERRORS.DB_ERROR(
-                `Failed to save stats: ${error instanceof Error ? error.message : "Unknown error"}`,
+                `Failed to save stats: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
     }

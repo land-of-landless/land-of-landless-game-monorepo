@@ -1,4 +1,4 @@
-import MainProfileDAO from "@/daos/mainProfile.js";
+import MainProfileDAO from "@/daos/postgres/mainProfile.ts";
 import logger from "@/utils/logger.js";
 
 /**
@@ -18,7 +18,7 @@ const runWorker = async () => {
 
             try {
                 logger.info(
-                    "Profile update task: checking for users needing updates",
+                    "Profile update task: checking for users needing updates"
                 );
 
                 // TODO: Implement batch profile updates
@@ -34,7 +34,7 @@ const runWorker = async () => {
                     "An error occurred during the profile update task:",
                     {
                         error: error instanceof Error ? error.message : error,
-                    },
+                    }
                 );
             }
 
@@ -58,14 +58,14 @@ const runWorker = async () => {
 // Graceful shutdown handling
 process.on("SIGTERM", () => {
     logger.info(
-        "Profile Update Worker received SIGTERM, shutting down gracefully",
+        "Profile Update Worker received SIGTERM, shutting down gracefully"
     );
     process.exit(0);
 });
 
 process.on("SIGINT", () => {
     logger.info(
-        "Profile Update Worker received SIGINT, shutting down gracefully",
+        "Profile Update Worker received SIGINT, shutting down gracefully"
     );
     process.exit(0);
 });
