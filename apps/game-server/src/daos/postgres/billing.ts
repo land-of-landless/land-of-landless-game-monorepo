@@ -1,5 +1,5 @@
 import { db } from "@/daos/postgres/connection.ts";
-import { billings, invoices } from "@/models/schema.js";
+import { billings, invoices } from "@/models/postgres/schema.js";
 import { eq } from "drizzle-orm";
 import { ERRORS } from "@/common/errors/appError.js";
 import logger from "@/utils/logger.js";
@@ -13,13 +13,13 @@ export default class BillingDAO {
             return await db.transaction(async tx => {
                 await tx
                     .insert(billings)
-                    .values({ userId: billingData.userId })
+                    .values({ user_id: billingData.userId })
                     .onConflictDoNothing();
                 if (billingData.finishedInvoices?.length > 0) {
                     await tx.insert(invoices).values(
                         billingData.finishedInvoices.map((id: string) => ({
                             id,
-                            userId: billingData.userId,
+                            user_id: billingData.userId,
                             status: "finished",
                         }))
                     );
@@ -28,7 +28,7 @@ export default class BillingDAO {
                     await tx.insert(invoices).values(
                         billingData.ongoingInvoices.map((id: string) => ({
                             id,
-                            userId: billingData.userId,
+                            user_id: billingData.userId,
                             status: "ongoing",
                         }))
                     );
@@ -49,16 +49,16 @@ export default class BillingDAO {
     static async findBillingById(userId: string) {
         try {
             const result = await db.query.billings.findFirst({
-                where: eq(billings.userId, userId),
+                where: eq(billings.user_id, userId),
             });
             if (!result) return null;
 
             const invs = await db
                 .select()
                 .from(invoices)
-                .where(eq(invoices.userId, userId));
+                .where(eq(invoices.user_id, userId));
             return {
-                userId: result.userId,
+                userId: result.user_id,
                 finishedInvoices: invs
                     .filter(i => i.status === "finished")
                     .map(i => i.id),
@@ -82,16 +82,16 @@ export default class BillingDAO {
             return await db.transaction(async tx => {
                 await tx
                     .insert(billings)
-                    .values({ userId: billingProfile.userId })
+                    .values({ user_id: billingProfile.userId })
                     .onConflictDoNothing();
                 await tx
                     .delete(invoices)
-                    .where(eq(invoices.userId, billingProfile.userId));
+                    .where(eq(invoices.user_id, billingProfile.userId));
                 if (billingProfile.finishedInvoices?.length > 0) {
                     await tx.insert(invoices).values(
                         billingProfile.finishedInvoices.map((id: string) => ({
                             id,
-                            userId: billingProfile.userId,
+                            user_id: billingProfile.userId,
                             status: "finished",
                         }))
                     );
@@ -100,7 +100,7 @@ export default class BillingDAO {
                     await tx.insert(invoices).values(
                         billingProfile.ongoingInvoices.map((id: string) => ({
                             id,
-                            userId: billingProfile.userId,
+                            user_id: billingProfile.userId,
                             status: "ongoing",
                         }))
                     );

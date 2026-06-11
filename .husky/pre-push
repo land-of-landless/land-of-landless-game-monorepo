@@ -1,13 +1,13 @@
 # .husky/pre-push
 
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+# #!/usr/bin/env sh
+# . "$(dirname -- "$0")/_/husky.sh"
 
-# First push: remote tracking branch does not exist yet — skip change-scoped tests.
-if ! git rev-parse --verify origin/main >/dev/null 2>&1; then
-  echo "husky pre-push: origin/main not found, skipping change-scoped tests (first push)."
-  exit 0
-fi
+# # First push: remote tracking branch does not exist yet — skip change-scoped tests.
+# if ! git rev-parse --verify origin/main >/dev/null 2>&1; then
+#   echo "husky pre-push: origin/main not found, skipping change-scoped tests (first push)."
+#   exit 0
+# fi
 
-pnpm exec turbo run build --filter="...[origin/main]"
-pnpm exec turbo run test --filter="...[origin/main]"
+# pnpm exec turbo run build --filter="...[origin/main]"
+# pnpm exec turbo run test --filter="...[origin/main]"

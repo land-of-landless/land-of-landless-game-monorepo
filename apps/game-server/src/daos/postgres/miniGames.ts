@@ -3,7 +3,7 @@ import {
     miniGames,
     mg2RemainingNumbers,
     mg3BoxesState,
-} from "../../models/schema.ts";
+} from "@/models/postgres/schema.js";
 import { eq } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -22,15 +22,15 @@ export default class MiniGamesDAO {
         try {
             return await db.transaction(async tx => {
                 await tx.insert(miniGames).values({
-                    userId: miniGamesData.userId,
-                    mg2TargetNumber: miniGamesData.miniGame2?.target_number,
-                    mg2UserCorrectGuesses:
+                    user_id: miniGamesData.userId,
+                    mg2_target_number: miniGamesData.miniGame2?.target_number,
+                    mg2_user_correct_guesses:
                         miniGamesData.miniGame2?.user_correct_guesses,
-                    mg3UserCorrectGuesses:
+                    mg3_user_correct_guesses:
                         miniGamesData.miniGame3?.user_correct_guesses,
-                    mg3IsStarted: miniGamesData.miniGame3?.is_started,
-                    mg4IsStarted: miniGamesData.miniGame4?.is_started,
-                    mg4UserCorrectGuesses:
+                    mg3_is_started: miniGamesData.miniGame3?.is_started,
+                    mg4_is_started: miniGamesData.miniGame4?.is_started,
+                    mg4_user_correct_guesses:
                         miniGamesData.miniGame4?.user_correct_guesses,
                 });
 
@@ -38,7 +38,7 @@ export default class MiniGamesDAO {
                     await tx.insert(mg2RemainingNumbers).values(
                         miniGamesData.miniGame2.remaining_numbers.map(
                             (num: number) => ({
-                                userId: miniGamesData.userId,
+                                user_id: miniGamesData.userId,
                                 num,
                             })
                         )
@@ -49,7 +49,7 @@ export default class MiniGamesDAO {
                     await tx.insert(mg3BoxesState).values(
                         miniGamesData.miniGame3.boxes_state.map(
                             (state: number, index: number) => ({
-                                userId: miniGamesData.userId,
+                                user_id: miniGamesData.userId,
                                 position: index,
                                 state,
                             })
@@ -78,35 +78,35 @@ export default class MiniGamesDAO {
     static async findMiniGamesProfileByUserId(userId: string) {
         try {
             const res = await db.query.miniGames.findFirst({
-                where: eq(miniGames.userId, userId),
+                where: eq(miniGames.user_id, userId),
             });
             if (!res) return null;
 
             const mg2Nums = await db
                 .select()
                 .from(mg2RemainingNumbers)
-                .where(eq(mg2RemainingNumbers.userId, userId));
+                .where(eq(mg2RemainingNumbers.user_id, userId));
             const mg3States = await db
                 .select()
                 .from(mg3BoxesState)
-                .where(eq(mg3BoxesState.userId, userId))
+                .where(eq(mg3BoxesState.user_id, userId))
                 .orderBy(mg3BoxesState.position);
 
             return {
-                userId: res.userId,
+                userId: res.user_id,
                 miniGame2: {
-                    target_number: res.mg2TargetNumber,
-                    user_correct_guesses: res.mg2UserCorrectGuesses,
+                    target_number: res.mg2_target_number,
+                    user_correct_guesses: res.mg2_user_correct_guesses,
                     remaining_numbers: mg2Nums.map(n => n.num),
                 },
                 miniGame3: {
                     boxes_state: mg3States.map(s => s.state),
-                    user_correct_guesses: res.mg3UserCorrectGuesses,
-                    is_started: res.mg3IsStarted,
+                    user_correct_guesses: res.mg3_user_correct_guesses,
+                    is_started: res.mg3_is_started,
                 },
                 miniGame4: {
-                    is_started: res.mg4IsStarted,
-                    user_correct_guesses: res.mg4UserCorrectGuesses,
+                    is_started: res.mg4_is_started,
+                    user_correct_guesses: res.mg4_user_correct_guesses,
                 },
             };
         } catch (error) {
@@ -131,34 +131,34 @@ export default class MiniGamesDAO {
                 await tx
                     .insert(miniGames)
                     .values({
-                        userId: miniGamesProfile.userId,
-                        mg2TargetNumber:
+                        user_id: miniGamesProfile.userId,
+                        mg2_target_number:
                             miniGamesProfile.miniGame2?.target_number,
-                        mg2UserCorrectGuesses:
+                        mg2_user_correct_guesses:
                             miniGamesProfile.miniGame2?.user_correct_guesses,
-                        mg3UserCorrectGuesses:
+                        mg3_user_correct_guesses:
                             miniGamesProfile.miniGame3?.user_correct_guesses,
-                        mg3IsStarted: miniGamesProfile.miniGame3?.is_started,
-                        mg4IsStarted: miniGamesProfile.miniGame4?.is_started,
-                        mg4UserCorrectGuesses:
+                        mg3_is_started: miniGamesProfile.miniGame3?.is_started,
+                        mg4_is_started: miniGamesProfile.miniGame4?.is_started,
+                        mg4_user_correct_guesses:
                             miniGamesProfile.miniGame4?.user_correct_guesses,
                     })
                     .onConflictDoUpdate({
-                        target: miniGames.userId,
+                        target: miniGames.user_id,
                         set: {
-                            mg2TargetNumber:
+                            mg2_target_number:
                                 miniGamesProfile.miniGame2?.target_number,
-                            mg2UserCorrectGuesses:
+                            mg2_user_correct_guesses:
                                 miniGamesProfile.miniGame2
                                     ?.user_correct_guesses,
-                            mg3UserCorrectGuesses:
+                            mg3_user_correct_guesses:
                                 miniGamesProfile.miniGame3
                                     ?.user_correct_guesses,
-                            mg3IsStarted:
+                            mg3_is_started:
                                 miniGamesProfile.miniGame3?.is_started,
-                            mg4IsStarted:
+                            mg4_is_started:
                                 miniGamesProfile.miniGame4?.is_started,
-                            mg4UserCorrectGuesses:
+                            mg4_user_correct_guesses:
                                 miniGamesProfile.miniGame4
                                     ?.user_correct_guesses,
                         },
@@ -167,13 +167,13 @@ export default class MiniGamesDAO {
                 await tx
                     .delete(mg2RemainingNumbers)
                     .where(
-                        eq(mg2RemainingNumbers.userId, miniGamesProfile.userId)
+                        eq(mg2RemainingNumbers.user_id, miniGamesProfile.userId)
                     );
                 if (miniGamesProfile.miniGame2?.remaining_numbers?.length > 0) {
                     await tx.insert(mg2RemainingNumbers).values(
                         miniGamesProfile.miniGame2.remaining_numbers.map(
                             (num: number) => ({
-                                userId: miniGamesProfile.userId,
+                                user_id: miniGamesProfile.userId,
                                 num,
                             })
                         )
@@ -182,12 +182,12 @@ export default class MiniGamesDAO {
 
                 await tx
                     .delete(mg3BoxesState)
-                    .where(eq(mg3BoxesState.userId, miniGamesProfile.userId));
+                    .where(eq(mg3BoxesState.user_id, miniGamesProfile.userId));
                 if (miniGamesProfile.miniGame3?.boxes_state?.length > 0) {
                     await tx.insert(mg3BoxesState).values(
                         miniGamesProfile.miniGame3.boxes_state.map(
                             (state: number, index: number) => ({
-                                userId: miniGamesProfile.userId,
+                                user_id: miniGamesProfile.userId,
                                 position: index,
                                 state,
                             })

@@ -3,7 +3,7 @@ import {
     launchSites,
     satelliteTimers,
     dysonSphereTimers,
-} from "../../models/schema.ts";
+} from "@/models/postgres/schema.js";
 import { eq } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -22,18 +22,18 @@ export default class LaunchSiteDAO {
         try {
             return await db.transaction(async tx => {
                 await tx.insert(launchSites).values({
-                    userId: launchSiteData.userId,
+                    user_id: launchSiteData.userId,
                     level: launchSiteData.level,
-                    launchSiteUpgradeTimer:
+                    launch_site_upgrade_timer:
                         launchSiteData.launch_site_upgrade_timer
                             ? new Date(launchSiteData.launch_site_upgrade_timer)
                             : null,
-                    satellitesLaunched: launchSiteData.satellites_launched,
-                    wormholesLaunched: launchSiteData.wormholes_launched,
-                    astroidDiggersLaunched:
+                    satellites_launched: launchSiteData.satellites_launched,
+                    wormholes_launched: launchSiteData.wormholes_launched,
+                    astroid_diggers_launched:
                         launchSiteData.astroid_diggers_launched,
-                    cyborgsLaunched: launchSiteData.cyborgs_launched,
-                    dysonSpherePartsLaunched:
+                    cyborgs_launched: launchSiteData.cyborgs_launched,
+                    dyson_sphere_parts_launched:
                         launchSiteData.dyson_sphere_parts_launched,
                 });
 
@@ -41,7 +41,7 @@ export default class LaunchSiteDAO {
                     await tx.insert(satelliteTimers).values(
                         launchSiteData.satellite_timers.map(
                             (timer: string) => ({
-                                userId: launchSiteData.userId,
+                                user_id: launchSiteData.userId,
                                 timer: new Date(timer),
                             })
                         )
@@ -52,7 +52,7 @@ export default class LaunchSiteDAO {
                     await tx.insert(dysonSphereTimers).values(
                         launchSiteData.dyson_sphere_timers.map(
                             (timer: string) => ({
-                                userId: launchSiteData.userId,
+                                user_id: launchSiteData.userId,
                                 timer: new Date(timer),
                             })
                         )
@@ -80,7 +80,7 @@ export default class LaunchSiteDAO {
     static async findLaunchSiteByUserId(userId: string) {
         try {
             const res = await db.query.launchSites.findFirst({
-                where: (launchSites, { eq }) => eq(launchSites.userId, userId),
+                where: (launchSites, { eq }) => eq(launchSites.user_id, userId),
                 with: {
                     satelliteTimers: true,
                     dysonSphereTimers: true,
@@ -90,18 +90,18 @@ export default class LaunchSiteDAO {
             if (!res) return null;
 
             return {
-                userId: res.userId,
+                userId: res.user_id,
                 level: res.level,
                 launch_site_upgrade_timer:
-                    res.launchSiteUpgradeTimer?.toISOString() || "",
-                satellites_launched: res.satellitesLaunched,
+                    res.launch_site_upgrade_timer?.toISOString() || "",
+                satellites_launched: res.satellites_launched,
                 satellite_timers: res.satelliteTimers.map(t =>
                     t.timer.toISOString()
                 ),
-                wormholes_launched: res.wormholesLaunched,
-                astroid_diggers_launched: res.astroidDiggersLaunched,
-                cyborgs_launched: res.cyborgsLaunched,
-                dyson_sphere_parts_launched: res.dysonSpherePartsLaunched,
+                wormholes_launched: res.wormholes_launched,
+                astroid_diggers_launched: res.astroid_diggers_launched,
+                cyborgs_launched: res.cyborgs_launched,
+                dyson_sphere_parts_launched: res.dyson_sphere_parts_launched,
                 dyson_sphere_timers: res.dysonSphereTimers.map(t =>
                     t.timer.toISOString()
                 ),
@@ -128,41 +128,43 @@ export default class LaunchSiteDAO {
                 await tx
                     .insert(launchSites)
                     .values({
-                        userId: launchSiteProfile.userId,
+                        user_id: launchSiteProfile.userId,
                         level: launchSiteProfile.level,
-                        launchSiteUpgradeTimer:
+                        launch_site_upgrade_timer:
                             launchSiteProfile.launch_site_upgrade_timer
                                 ? new Date(
                                       launchSiteProfile.launch_site_upgrade_timer
                                   )
                                 : null,
-                        satellitesLaunched:
+                        satellites_launched:
                             launchSiteProfile.satellites_launched,
-                        wormholesLaunched: launchSiteProfile.wormholes_launched,
-                        astroidDiggersLaunched:
+                        wormholes_launched:
+                            launchSiteProfile.wormholes_launched,
+                        astroid_diggers_launched:
                             launchSiteProfile.astroid_diggers_launched,
-                        cyborgsLaunched: launchSiteProfile.cyborgs_launched,
-                        dysonSpherePartsLaunched:
+                        cyborgs_launched: launchSiteProfile.cyborgs_launched,
+                        dyson_sphere_parts_launched:
                             launchSiteProfile.dyson_sphere_parts_launched,
                     })
                     .onConflictDoUpdate({
-                        target: launchSites.userId,
+                        target: launchSites.user_id,
                         set: {
                             level: launchSiteProfile.level,
-                            launchSiteUpgradeTimer:
+                            launch_site_upgrade_timer:
                                 launchSiteProfile.launch_site_upgrade_timer
                                     ? new Date(
                                           launchSiteProfile.launch_site_upgrade_timer
                                       )
                                     : null,
-                            satellitesLaunched:
+                            satellites_launched:
                                 launchSiteProfile.satellites_launched,
-                            wormholesLaunched:
+                            wormholes_launched:
                                 launchSiteProfile.wormholes_launched,
-                            astroidDiggersLaunched:
+                            astroid_diggers_launched:
                                 launchSiteProfile.astroid_diggers_launched,
-                            cyborgsLaunched: launchSiteProfile.cyborgs_launched,
-                            dysonSpherePartsLaunched:
+                            cyborgs_launched:
+                                launchSiteProfile.cyborgs_launched,
+                            dyson_sphere_parts_launched:
                                 launchSiteProfile.dyson_sphere_parts_launched,
                         },
                     });
@@ -170,13 +172,13 @@ export default class LaunchSiteDAO {
                 await tx
                     .delete(satelliteTimers)
                     .where(
-                        eq(satelliteTimers.userId, launchSiteProfile.userId)
+                        eq(satelliteTimers.user_id, launchSiteProfile.userId)
                     );
                 if (launchSiteProfile.satellite_timers?.length > 0) {
                     await tx.insert(satelliteTimers).values(
                         launchSiteProfile.satellite_timers.map(
                             (timer: string) => ({
-                                userId: launchSiteProfile.userId,
+                                user_id: launchSiteProfile.userId,
                                 timer: new Date(timer),
                             })
                         )
@@ -186,13 +188,13 @@ export default class LaunchSiteDAO {
                 await tx
                     .delete(dysonSphereTimers)
                     .where(
-                        eq(dysonSphereTimers.userId, launchSiteProfile.userId)
+                        eq(dysonSphereTimers.user_id, launchSiteProfile.userId)
                     );
                 if (launchSiteProfile.dyson_sphere_timers?.length > 0) {
                     await tx.insert(dysonSphereTimers).values(
                         launchSiteProfile.dyson_sphere_timers.map(
                             (timer: string) => ({
-                                userId: launchSiteProfile.userId,
+                                user_id: launchSiteProfile.userId,
                                 timer: new Date(timer),
                             })
                         )

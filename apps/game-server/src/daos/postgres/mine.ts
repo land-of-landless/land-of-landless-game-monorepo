@@ -1,5 +1,5 @@
 import { db } from "./connection.js";
-import { mines, miners } from "../../models/schema.ts";
+import { mines, miners } from "@/models/postgres/schema.js";
 import { eq } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
@@ -18,10 +18,10 @@ export default class MineDAO {
         try {
             return await db.transaction(async tx => {
                 await tx.insert(mines).values({
-                    userId: mineData.userId,
-                    beingUpgradedMinerId:
+                    user_id: mineData.userId,
+                    being_upgraded_miner_id:
                         mineData.being_upgraded_miner_id ?? -1,
-                    upgradeTimer: mineData.upgrade_timer
+                    upgrade_timer: mineData.upgrade_timer
                         ? new Date(mineData.upgrade_timer)
                         : null,
                 });
@@ -30,18 +30,18 @@ export default class MineDAO {
                 if (minersInfo) {
                     const minerRows = [
                         {
-                            userId: mineData.userId,
-                            minerId: 1,
+                            user_id: mineData.userId,
+                            miner_id: 1,
                             level: minersInfo.miner1?.level ?? 0,
                         },
                         {
-                            userId: mineData.userId,
-                            minerId: 2,
+                            user_id: mineData.userId,
+                            miner_id: 2,
                             level: minersInfo.miner2?.level ?? 0,
                         },
                         {
-                            userId: mineData.userId,
-                            minerId: 3,
+                            user_id: mineData.userId,
+                            miner_id: 3,
                             level: minersInfo.miner3?.level ?? 0,
                         },
                     ];
@@ -69,7 +69,7 @@ export default class MineDAO {
     static async findMineByUserId(userId: string) {
         try {
             const mine = await db.query.mines.findFirst({
-                where: eq(mines.userId, userId),
+                where: eq(mines.user_id, userId),
                 with: {
                     miners: true,
                 },
@@ -85,7 +85,7 @@ export default class MineDAO {
                 miner3: { level: 0 },
             };
             for (const miner of minerRows) {
-                const key = `miner${miner.minerId}` as
+                const key = `miner${miner.miner_id}` as
                     | "miner1"
                     | "miner2"
                     | "miner3";
@@ -93,9 +93,9 @@ export default class MineDAO {
             }
 
             return {
-                userId: mineData.userId,
-                being_upgraded_miner_id: mineData.beingUpgradedMinerId,
-                upgrade_timer: mineData.upgradeTimer?.toISOString() || "",
+                userId: mineData.user_id,
+                being_upgraded_miner_id: mineData.being_upgraded_miner_id,
+                upgrade_timer: mineData.upgrade_timer?.toISOString() || "",
                 miners_info: minersInfo,
             };
         } catch (error) {
@@ -120,19 +120,19 @@ export default class MineDAO {
                 await tx
                     .insert(mines)
                     .values({
-                        userId: mineProfile.userId,
-                        beingUpgradedMinerId:
+                        user_id: mineProfile.userId,
+                        being_upgraded_miner_id:
                             mineProfile.being_upgraded_miner_id ?? -1,
-                        upgradeTimer: mineProfile.upgrade_timer
+                        upgrade_timer: mineProfile.upgrade_timer
                             ? new Date(mineProfile.upgrade_timer)
                             : null,
                     })
                     .onConflictDoUpdate({
-                        target: mines.userId,
+                        target: mines.user_id,
                         set: {
-                            beingUpgradedMinerId:
+                            being_upgraded_miner_id:
                                 mineProfile.being_upgraded_miner_id ?? -1,
-                            upgradeTimer: mineProfile.upgrade_timer
+                            upgrade_timer: mineProfile.upgrade_timer
                                 ? new Date(mineProfile.upgrade_timer)
                                 : null,
                         },
@@ -140,24 +140,24 @@ export default class MineDAO {
 
                 await tx
                     .delete(miners)
-                    .where(eq(miners.userId, mineProfile.userId));
+                    .where(eq(miners.user_id, mineProfile.userId));
 
                 const minersInfo = mineProfile.miners_info;
                 if (minersInfo) {
                     const minerRows = [
                         {
-                            userId: mineProfile.userId,
-                            minerId: 1,
+                            user_id: mineProfile.userId,
+                            miner_id: 1,
                             level: minersInfo.miner1?.level ?? 0,
                         },
                         {
-                            userId: mineProfile.userId,
-                            minerId: 2,
+                            user_id: mineProfile.userId,
+                            miner_id: 2,
                             level: minersInfo.miner2?.level ?? 0,
                         },
                         {
-                            userId: mineProfile.userId,
-                            minerId: 3,
+                            user_id: mineProfile.userId,
+                            miner_id: 3,
                             level: minersInfo.miner3?.level ?? 0,
                         },
                     ];

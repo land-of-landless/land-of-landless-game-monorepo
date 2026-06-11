@@ -2,6 +2,7 @@ import MainProfileDAO from "@/daos/postgres/mainProfile.ts";
 import { MainProfile } from "@/types/mainProfile.js";
 import MineDAO from "@/daos/postgres/mine.ts";
 import FactoryDAO from "@/daos/postgres/factory.ts";
+import StatsDAO from "@/daos/postgres/stats.ts";
 import { ERRORS, AppError } from "@/common/errors/appError.js";
 import _ from "lodash";
 import {
@@ -407,6 +408,25 @@ export default class ProfileService {
 
             await MainProfileDAO.saveProfile(profile);
 
+            // Update stats
+            try {
+                const stats = await StatsDAO.findStatsByUserId(userId);
+                if (stats) {
+                    stats.loot_boxes_opened_total += 1;
+                    if (stats.loot_boxes_opened_by_type) {
+                        stats.loot_boxes_opened_by_type[targetLootBox] =
+                            (stats.loot_boxes_opened_by_type[targetLootBox] ||
+                                0) + 1;
+                    }
+                    await StatsDAO.saveStatsProfile(stats);
+                }
+            } catch (statsError) {
+                logger.error(
+                    `[ProfileService.openLootBoxEnd] Failed to update stats for ${userId}`,
+                    { statsError }
+                );
+            }
+
             return { rewards, profile };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
@@ -495,6 +515,26 @@ export default class ProfileService {
             profile.lootBoxes[lootBoxIndex] = "";
 
             await MainProfileDAO.saveProfile(profile);
+
+            // Update stats
+            try {
+                const stats = await StatsDAO.findStatsByUserId(userId);
+                if (stats) {
+                    stats.loot_boxes_opened_total += 1;
+                    if (stats.loot_boxes_opened_by_type) {
+                        stats.loot_boxes_opened_by_type[targetLootBox] =
+                            (stats.loot_boxes_opened_by_type[targetLootBox] ||
+                                0) + 1;
+                    }
+                    await StatsDAO.saveStatsProfile(stats);
+                }
+            } catch (statsError) {
+                logger.error(
+                    `[ProfileService.openLootBoxEndWithGems] Failed to update stats for ${userId}`,
+                    { statsError }
+                );
+            }
+
             return { profile, rewards };
         } catch (error: any) {
             if (error instanceof AppError) throw error;
@@ -558,6 +598,25 @@ export default class ProfileService {
             profile.lootBoxesTimers[lootBoxIndex] = "";
             profile.lootBoxes[lootBoxIndex] = "";
             await MainProfileDAO.saveProfile(profile);
+
+            // Update stats
+            try {
+                const stats = await StatsDAO.findStatsByUserId(userId);
+                if (stats) {
+                    stats.loot_boxes_opened_total += 1;
+                    if (stats.loot_boxes_opened_by_type) {
+                        stats.loot_boxes_opened_by_type[targetLootBox] =
+                            (stats.loot_boxes_opened_by_type[targetLootBox] ||
+                                0) + 1;
+                    }
+                    await StatsDAO.saveStatsProfile(stats);
+                }
+            } catch (statsError) {
+                logger.error(
+                    `[ProfileService.openLootBoxEndWithKey] Failed to update stats for ${userId}`,
+                    { statsError }
+                );
+            }
 
             return { rewards, profile };
         } catch (error: any) {

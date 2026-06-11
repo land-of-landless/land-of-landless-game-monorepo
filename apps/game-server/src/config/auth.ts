@@ -115,6 +115,7 @@ const generateRandomProfilePicture = () => {
 };
 
 interface OAuthData {
+    provider: string;
     profile: {
         sub: string;
         name: string;

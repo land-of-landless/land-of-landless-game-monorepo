@@ -1,5 +1,5 @@
 import { db } from "./connection.js";
-import { energyGenerators } from "../../models/schema.ts";
+import { energyGenerators } from "@/models/postgres/schema.ts";
 import { eq } from "drizzle-orm";
 import { ERRORS } from "@/common/errors/appError.js";
 import logger from "@/utils/logger.js";
@@ -13,19 +13,19 @@ export default class EnergyGeneratorDAO {
             await db
                 .insert(energyGenerators)
                 .values({
-                    userId: energyGeneratorData.userId,
-                    panelCount: energyGeneratorData.panel_count,
+                    user_id: energyGeneratorData.userId,
+                    panel_count: energyGeneratorData.panel_count,
                     level: energyGeneratorData.level,
-                    upgradeTimer: energyGeneratorData.upgrade_timer
+                    upgrade_timer: energyGeneratorData.upgrade_timer
                         ? new Date(energyGeneratorData.upgrade_timer)
                         : null,
                 })
                 .onConflictDoUpdate({
-                    target: energyGenerators.userId,
+                    target: energyGenerators.user_id,
                     set: {
-                        panelCount: energyGeneratorData.panel_count,
+                        panel_count: energyGeneratorData.panel_count,
                         level: energyGeneratorData.level,
-                        upgradeTimer: energyGeneratorData.upgrade_timer
+                        upgrade_timer: energyGeneratorData.upgrade_timer
                             ? new Date(energyGeneratorData.upgrade_timer)
                             : null,
                     },
@@ -47,14 +47,14 @@ export default class EnergyGeneratorDAO {
     static async findEnergyGeneratorByUserId(userId: string) {
         try {
             const res = await db.query.energyGenerators.findFirst({
-                where: eq(energyGenerators.userId, userId),
+                where: eq(energyGenerators.user_id, userId),
             });
             if (!res) return null;
             return {
-                userId: res.userId,
-                panel_count: res.panelCount,
+                userId: res.user_id,
+                panel_count: res.panel_count,
                 level: res.level,
-                upgrade_timer: res.upgradeTimer?.toISOString() || "",
+                upgrade_timer: res.upgrade_timer?.toISOString() || "",
             };
         } catch (error) {
             logger.error(
@@ -76,19 +76,19 @@ export default class EnergyGeneratorDAO {
             await db
                 .insert(energyGenerators)
                 .values({
-                    userId: energyGeneratorProfile.userId,
-                    panelCount: energyGeneratorProfile.panel_count,
+                    user_id: energyGeneratorProfile.userId,
+                    panel_count: energyGeneratorProfile.panel_count,
                     level: energyGeneratorProfile.level,
-                    upgradeTimer: energyGeneratorProfile.upgrade_timer
+                    upgrade_timer: energyGeneratorProfile.upgrade_timer
                         ? new Date(energyGeneratorProfile.upgrade_timer)
                         : null,
                 })
                 .onConflictDoUpdate({
-                    target: energyGenerators.userId,
+                    target: energyGenerators.user_id,
                     set: {
-                        panelCount: energyGeneratorProfile.panel_count,
+                        panel_count: energyGeneratorProfile.panel_count,
                         level: energyGeneratorProfile.level,
-                        upgradeTimer: energyGeneratorProfile.upgrade_timer
+                        upgrade_timer: energyGeneratorProfile.upgrade_timer
                             ? new Date(energyGeneratorProfile.upgrade_timer)
                             : null,
                     },

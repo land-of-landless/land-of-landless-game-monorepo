@@ -1,53 +1,64 @@
 import { db } from "./connection.js";
-import { stats, lootBoxesByType, launchesByItem } from "../../models/schema.ts";
+import {
+    stats,
+    lootBoxesByType,
+    launchesByItem,
+} from "@/models/postgres/schema.ts";
 import { eq } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
+import {
+    EMPTY_LOOT_BOXES_OPENED_BY_TYPE,
+    LootBoxesOpenedByType,
+    LaunchesByItem,
+} from "../../constants/stats.ts";
+import { MiniGamesLootBox } from "@/constants/miniGames.js";
+import { LaunchableItem } from "@/constants/launchSite.js";
 
 /**
- * Data Access Object for user Stats operations.
- * Handles database persistence and retrieval for stats profiles in PostgreSQL.
- * Stores lifetime counters (loot boxes opened, launches, etc.).
+ * Data Access Object for Stats-related operations.
+ * Handles database persistence and retrieval for player stats in PostgreSQL.
  */
 export default class StatsDAO {
     /**
      * Creates a new Stats profile for a user.
-     * @param statsData - The initial stats data to persist.
+     * @param statsData - The initial stats data.
      * @returns The created stats data.
      */
     static async createStats(statsData: any) {
         try {
             return await db.transaction(async tx => {
                 await tx.insert(stats).values({
-                    userId: statsData.userId,
-                    lootBoxesOpenedTotal:
+                    user_id: statsData.userId,
+                    loot_boxes_opened_total:
                         statsData.loot_boxes_opened_total ?? 0,
-                    launchesTotal: statsData.launches_total ?? 0,
+                    launches_total: statsData.launches_total ?? 0,
                 });
 
-                const lootBoxesByTypeObj: Record<string, number> =
-                    statsData.loot_boxes_opened_by_type ?? {};
-                const lootBoxEntries = Object.entries(lootBoxesByTypeObj);
-                if (lootBoxEntries.length > 0) {
+                const lootBoxesOpenedByType =
+                    statsData.loot_boxes_opened_by_type;
+                if (lootBoxesOpenedByType) {
                     await tx.insert(lootBoxesByType).values(
-                        lootBoxEntries.map(([boxType, count]) => ({
-                            userId: statsData.userId,
-                            boxType,
-                            count,
-                        }))
+                        Object.entries(lootBoxesOpenedByType).map(
+                            ([boxType, count]) => ({
+                                user_id: statsData.userId,
+                                box_type: boxType,
+                                count: count as number,
+                            })
+                        )
                     );
                 }
 
-                const launchesByItemObj: Record<string, number> =
-                    statsData.launches_by_item ?? {};
-                const launchEntries = Object.entries(launchesByItemObj);
-                if (launchEntries.length > 0) {
+                const launchesByItemData = statsData.launches_by_item;
+                if (launchesByItemData) {
                     await tx.insert(launchesByItem).values(
-                        launchEntries.map(([itemType, count]) => ({
-                            userId: statsData.userId,
-                            itemType,
-                            count,
-                        }))
+                        Object.entries(launchesByItemData).map(
+                            ([itemType, count]) => ({
+                                user_id: statsData.userId,
+                                item_type: itemType,
+                                count: count as number,
+                            })
+                        )
                     );
                 }
 
@@ -72,7 +83,7 @@ export default class StatsDAO {
     static async findStatsByUserId(userId: string) {
         try {
             const statsProfile = await db.query.stats.findFirst({
-                where: eq(stats.userId, userId),
+                where: eq(stats.user_id, userId),
                 with: {
                     lootBoxesByType: true,
                     launchesByItem: true,
@@ -81,26 +92,23 @@ export default class StatsDAO {
 
             if (!statsProfile) return null;
 
-            const {
-                lootBoxesByType: lootBoxRows,
-                launchesByItem: launchRows,
-                ...statsData
-            } = statsProfile;
-
-            const loot_boxes_opened_by_type: Record<string, number> = {};
-            for (const row of lootBoxRows) {
-                loot_boxes_opened_by_type[row.boxType] = row.count;
+            const loot_boxes_opened_by_type = {
+                ...EMPTY_LOOT_BOXES_OPENED_BY_TYPE,
+            } as LootBoxesOpenedByType;
+            for (const row of statsProfile.lootBoxesByType) {
+                loot_boxes_opened_by_type[row.box_type as MiniGamesLootBox] =
+                    row.count;
             }
 
-            const launches_by_item: Record<string, number> = {};
-            for (const row of launchRows) {
-                launches_by_item[row.itemType] = row.count;
+            const launches_by_item = {} as LaunchesByItem;
+            for (const row of statsProfile.launchesByItem) {
+                launches_by_item[row.item_type as LaunchableItem] = row.count;
             }
 
             return {
-                userId: statsData.userId,
-                loot_boxes_opened_total: statsData.lootBoxesOpenedTotal,
-                launches_total: statsData.launchesTotal,
+                userId: statsProfile.user_id,
+                loot_boxes_opened_total: statsProfile.loot_boxes_opened_total,
+                launches_total: statsProfile.launches_total,
                 loot_boxes_opened_by_type,
                 launches_by_item,
             };
@@ -126,49 +134,50 @@ export default class StatsDAO {
                 await tx
                     .insert(stats)
                     .values({
-                        userId: statsProfile.userId,
-                        lootBoxesOpenedTotal:
+                        user_id: statsProfile.userId,
+                        loot_boxes_opened_total:
                             statsProfile.loot_boxes_opened_total ?? 0,
-                        launchesTotal: statsProfile.launches_total ?? 0,
+                        launches_total: statsProfile.launches_total ?? 0,
                     })
                     .onConflictDoUpdate({
-                        target: stats.userId,
+                        target: stats.user_id,
                         set: {
-                            lootBoxesOpenedTotal:
+                            loot_boxes_opened_total:
                                 statsProfile.loot_boxes_opened_total ?? 0,
-                            launchesTotal: statsProfile.launches_total ?? 0,
+                            launches_total: statsProfile.launches_total ?? 0,
                         },
                     });
 
                 await tx
                     .delete(lootBoxesByType)
-                    .where(eq(lootBoxesByType.userId, statsProfile.userId));
-                const lootBoxesByTypeObj: Record<string, number> =
-                    statsProfile.loot_boxes_opened_by_type ?? {};
-                const lootBoxEntries = Object.entries(lootBoxesByTypeObj);
-                if (lootBoxEntries.length > 0) {
+                    .where(eq(lootBoxesByType.user_id, statsProfile.userId));
+                const lootBoxesOpenedByType =
+                    statsProfile.loot_boxes_opened_by_type;
+                if (lootBoxesOpenedByType) {
                     await tx.insert(lootBoxesByType).values(
-                        lootBoxEntries.map(([boxType, count]) => ({
-                            userId: statsProfile.userId,
-                            boxType,
-                            count,
-                        }))
+                        Object.entries(lootBoxesOpenedByType).map(
+                            ([boxType, count]) => ({
+                                user_id: statsProfile.userId,
+                                box_type: boxType,
+                                count: count as number,
+                            })
+                        )
                     );
                 }
 
                 await tx
                     .delete(launchesByItem)
-                    .where(eq(launchesByItem.userId, statsProfile.userId));
-                const launchesByItemObj: Record<string, number> =
-                    statsProfile.launches_by_item ?? {};
-                const launchEntries = Object.entries(launchesByItemObj);
-                if (launchEntries.length > 0) {
+                    .where(eq(launchesByItem.user_id, statsProfile.userId));
+                const launchesByItemData = statsProfile.launches_by_item;
+                if (launchesByItemData) {
                     await tx.insert(launchesByItem).values(
-                        launchEntries.map(([itemType, count]) => ({
-                            userId: statsProfile.userId,
-                            itemType,
-                            count,
-                        }))
+                        Object.entries(launchesByItemData).map(
+                            ([itemType, count]) => ({
+                                user_id: statsProfile.userId,
+                                item_type: itemType,
+                                count: count as number,
+                            })
+                        )
                     );
                 }
 
