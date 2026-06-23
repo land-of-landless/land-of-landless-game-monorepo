@@ -5,6 +5,7 @@
  * its rooms and lifecycle hooks. It's the central point for bootstrapping the server.
  */
 
+
 import config from "@colyseus/tools";
 import { defineServer } from "colyseus";
 import { monitor } from "@colyseus/monitor";

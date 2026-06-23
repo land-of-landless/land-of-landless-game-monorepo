@@ -1,3 +1,20 @@
 packages:
   - "apps/*"
   - "packages/*"
+allowBuilds:
+  '@swc/core': true
+  bufferutil: true
+  esbuild: true
+  msgpackr-extract: true
+  sharp: true
+  unrs-resolver: true
+  workerd: true
+
+# Disabling exotic subdeps (true) causes installation errors
+# for packages that depend on git repos (uWebSockets.js).
+# Allowing them (false) is required for these specific dependencies.
+blockExoticSubdeps: false
+
+overrides:
+  "@types/react": 18.3.12
+  "@types/react-dom": 18.3.1

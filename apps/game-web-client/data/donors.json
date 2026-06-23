@@ -1,0 +1,27 @@
+{
+  "recent": [
+    { "name": "Alex Morgan", "amount": 250 },
+    { "name": "Jordan Chen", "amount": 150 },
+    { "name": "Sam Rodriguez", "amount": 500 },
+    { "name": "Taylor Kim", "amount": 75 }
+  ],
+  "weekly": [
+    { "name": "Casey Blake", "amount": 100 },
+    { "name": "Morgan Hayes", "amount": 200 },
+    { "name": "Riley Park", "amount": 300 },
+    { "name": "Devon Martinez", "amount": 50 }
+  ],
+  "monthly": [
+    { "name": "Phoenix Grant", "amount": 1000 },
+    { "name": "Quinn Ellis", "amount": 800 },
+    { "name": "River Thomas", "amount": 600 },
+    { "name": "Sage Wilson", "amount": 500 }
+  ],
+  "allTime": [
+    { "name": "Knight Aurora", "amount": 5000 },
+    { "name": "Luna Starlight", "amount": 3500 },
+    { "name": "Orion Vex", "amount": 3000 },
+    { "name": "Nyx Cipher", "amount": 2500 },
+    { "name": "Astra Eclipse", "amount": 2000 }
+  ]
+}

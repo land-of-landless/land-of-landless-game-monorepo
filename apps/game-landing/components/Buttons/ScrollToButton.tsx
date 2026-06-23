@@ -51,7 +51,7 @@ const ScrollToButton = ({ targetElId, fixedToBottom, offset = 0 }: Props) => {
 
   if (fixedToBottom) {
     return (
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-8 w-auto z-10">
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-4 sm:bottom-8 w-auto z-10">
         {buttonContent}
       </div>
     );

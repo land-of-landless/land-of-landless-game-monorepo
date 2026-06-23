@@ -1,10 +1,7 @@
 import express, { Router, Request, Response, NextFunction } from "express";
 import PaymentController from "../controllers/payment.ts";
 import { auth } from "@colyseus/auth";
-import {
-    validateBody,
-    PROCESS_INVOICE_SCHEMA,
-} from "@/validators/schemas.js";
+import { validateBody, PROCESS_INVOICE_SCHEMA } from "@/validators/schemas.js";
 import {
     verifyOxaPayWebhook,
     OxaPayWebhookRequest,
@@ -18,7 +15,16 @@ paymentRouter.post(
     verifyOxaPayWebhook,
     async (req: OxaPayWebhookRequest, res: Response, next: NextFunction) => {
         await PaymentController.processPaymentCallback(req, res, next);
-    },
+    }
+);
+
+paymentRouter.post(
+    "/donation",
+    express.raw({ type: "application/json" }),
+    verifyOxaPayWebhook,
+    async (req: OxaPayWebhookRequest, res: Response, next: NextFunction) => {
+        await PaymentController.processDonationCallback(req, res, next);
+    }
 );
 
 paymentRouter.post(
@@ -27,7 +33,7 @@ paymentRouter.post(
     validateBody(PROCESS_INVOICE_SCHEMA),
     async (req: Request, res: Response, next: NextFunction) => {
         await PaymentController.processInvoice(req, res, next);
-    },
+    }
 );
 
 export default paymentRouter;

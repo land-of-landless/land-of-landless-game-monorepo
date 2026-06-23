@@ -10,6 +10,12 @@ const pages = [
     target: "_blank",
     prefetch: false,
   },
+  {
+    label: "Donate",
+    to: "/donation",
+    target: "",
+    prefetch: false,
+  },
 ];
 
 type Props = {
@@ -40,7 +46,7 @@ function Header({ handleOpen }: Props) {
               <Link
                 href={page.to}
                 key={page.to}
-                target={page.target}
+                target={page.target || undefined}
                 prefetch={page.prefetch}
                 className="text-[1.2rem] font-medium text-white transition-opacity hover:opacity-80"
               >

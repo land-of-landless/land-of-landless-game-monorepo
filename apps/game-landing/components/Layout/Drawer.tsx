@@ -1,5 +1,5 @@
 import React from "react";
-import { X, Gamepad2, FileText } from "lucide-react";
+import { X, Gamepad2, FileText, Heart } from "lucide-react";
 import DrawerSocials from "./DrawerSocials";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,6 +18,13 @@ const pages = [
     target: "_blank",
     prefetch: false,
     icon: <Gamepad2 size={32} />,
+  },
+  {
+    label: "Donate",
+    to: "/donation",
+    target: "",
+    prefetch: false,
+    icon: <Heart size={32} />,
   },
   {
     label: "More Info",
@@ -87,15 +94,31 @@ export default function SimpleBackdrop({ state, handleClose }: Props) {
                   {pages.map((page) => (
                     <div
                       key={page.to}
-                      className="w-40 p-1 flex items-center gap-4 rounded-lg transition-all hover:bg-[#9945ff14] hover:scale-105"
+                      className={`w-40 p-1 flex items-center gap-4 rounded-lg transition-all hover:scale-105 ${
+                        page.label === "Donate"
+                          ? "hover:bg-orange-500/10"
+                          : "hover:bg-[#9945ff14]"
+                      }`}
                     >
-                      <div className="text-gray-700">{page.icon}</div>
+                      <div
+                        className={`${
+                          page.label === "Donate"
+                            ? "text-orange-500"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {page.icon}
+                      </div>
                       <Link
                         href={page.to}
-                        target={page.target}
+                        target={page.target || undefined}
                         prefetch={page.prefetch}
                         onClick={() => handleLinkClick(page.to)}
-                        className="w-full text-left text-black block text-[1.2rem] font-medium no-underline focus:ring-2 focus:ring-[#9969ff] focus:rounded-lg outline-none"
+                        className={`w-full text-left block text-[1.2rem] font-medium no-underline outline-none focus:rounded-lg ${
+                          page.label === "Donate"
+                            ? "text-orange-500 font-bold focus:ring-2 focus:ring-orange-500"
+                            : "text-black focus:ring-2 focus:ring-[#9969ff]"
+                        }`}
                       >
                         {page.label}
                       </Link>

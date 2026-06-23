@@ -6,9 +6,12 @@ import {
     timestamp,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { mainProfiles } from "./mainProfile.js";
 
 export const miniGames = pgTable("mini_games", {
-    user_id: varchar("user_id", { length: 255 }).primaryKey(),
+    user_id: varchar("user_id", { length: 255 })
+        .primaryKey()
+        .references(() => mainProfiles.user_id, { onDelete: "cascade" }),
     updated_at: timestamp("updated_at", { withTimezone: true })
         .$onUpdate(() => new Date())
         .notNull()
@@ -41,6 +44,14 @@ export const miniGames = pgTable("mini_games", {
         .notNull()
         .default(0),
 });
+
+// Relations
+export const miniGamesRelations = relations(miniGames, ({ one }) => ({
+    profile: one(mainProfiles, {
+        fields: [miniGames.user_id],
+        references: [mainProfiles.user_id],
+    }),
+}));
 
 // Types
 export type MiniGame = typeof miniGames.$inferSelect;

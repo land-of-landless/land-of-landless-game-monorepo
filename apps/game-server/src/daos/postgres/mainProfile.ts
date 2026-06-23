@@ -11,7 +11,7 @@ import {
     NewMainProfileLootBox,
     mainProfileLootBoxes,
 } from "@/models/postgres/schema.js";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import logger from "@/utils/logger.js";
 import { ERRORS } from "@/common/errors/appError.js";
 import { MiniGamesLootBox } from "@/constants/miniGames.js";
@@ -40,7 +40,7 @@ export default class MainProfileDAO {
                 .insert(mainProfiles)
                 .values(profileData)
                 .returning();
-            if (data.length == 0) {
+            if (data.length === 0) {
                 throw ERRORS.DB_ERROR("Failed to create profile");
             }
             return data[0];
@@ -54,8 +54,9 @@ export default class MainProfileDAO {
             );
         }
     }
+
     /**
-     * create worker bot table
+     * Create worker bot table.
      * @param workerBotsData - The worker bots table data.
      * @returns The created worker bots table data.
      */
@@ -65,7 +66,7 @@ export default class MainProfileDAO {
                 .insert(mainProfileWorkerBots)
                 .values(workerBotsData)
                 .returning();
-            if (data.length == 0) {
+            if (data.length === 0) {
                 throw ERRORS.DB_ERROR("Failed to create worker bots");
             }
             return data;
@@ -76,8 +77,9 @@ export default class MainProfileDAO {
             );
         }
     }
+
     /**
-     * create loot box table
+     * Create loot box table.
      * @param lootBoxesData - The loot boxes table data.
      * @returns The created loot boxes table data.
      */
@@ -87,7 +89,7 @@ export default class MainProfileDAO {
                 .insert(mainProfileLootBoxes)
                 .values(lootBoxesData)
                 .returning();
-            if (data.length == 0) {
+            if (data.length === 0) {
                 throw ERRORS.DB_ERROR("Failed to create loot boxes");
             }
             return data;
@@ -100,23 +102,30 @@ export default class MainProfileDAO {
     }
 
     /**
-     * update an existing user main profile
-     * @param profileData - The main profile data to update.
+     * Update an existing user main profile.
+     * @param userId - The user ID to update.
+     * @param updates - The fields to update (excluding user_id).
      * @returns The updated main profile data.
      */
-    static async updateMainProfile(profileData: Partial<NewMainProfileTable>) {
+    static async updateMainProfile(
+        userId: string,
+        updates: Partial<Omit<NewMainProfileTable, "user_id">>
+    ) {
         try {
             const data = await db
                 .update(mainProfiles)
-                .set(profileData)
-                .where(eq(mainProfiles.user_id, profileData.user_id))
+                .set(updates)
+                .where(eq(mainProfiles.user_id, userId))
                 .returning();
-            if (data.length == 0) {
-                throw ERRORS.DB_ERROR("Failed to update main profile");
+            if (data.length === 0) {
+                throw ERRORS.DB_ERROR("Main profile not found");
             }
             return data[0];
         } catch (error) {
-            logger.error(`[MainProfileDAO.updateMainProfile] Error`, { error });
+            logger.error(
+                `[MainProfileDAO.updateMainProfile] Error for userId: ${userId}`,
+                { error }
+            );
             throw ERRORS.DB_ERROR(
                 `Failed to update main profile: ${error instanceof Error ? error.message : "Unknown error"}`
             );
@@ -124,21 +133,30 @@ export default class MainProfileDAO {
     }
 
     /**
-     * update worker bot table
-     * @param workerBotsData - The worker bots table data.
-     * @returns The updated worker bots table data.
+     * Update multiple worker bots in a single transaction.
+     * Each bot in the array must have an 'id' field.
+     * @param userId - The user id.
+     * @param workerBotsData - Array of worker bot updates with required 'id' field.
      */
     static async updateWorkerBots(
         userId: string,
-        workerBotsData: Partial<MainProfileWorkerBot>[]
+        workerBotsData: (Partial<Omit<MainProfileWorkerBot, "user_id">> & {
+            id: number;
+        })[]
     ) {
         try {
             await db.transaction(async tx => {
                 for (let workerBotData of workerBotsData) {
+                    const { id, ...updates } = workerBotData;
                     await tx
                         .update(mainProfileWorkerBots)
-                        .set(workerBotData)
-                        .where(eq(mainProfileWorkerBots.user_id, userId));
+                        .set(updates)
+                        .where(
+                            and(
+                                eq(mainProfileWorkerBots.user_id, userId),
+                                eq(mainProfileWorkerBots.id, id)
+                            )
+                        );
                 }
             });
         } catch (error) {
@@ -150,21 +168,68 @@ export default class MainProfileDAO {
     }
 
     /**
-     * update loot box table
-     * @param lootBoxesData - The loot boxes table data.
-     * @returns The updated loot boxes table data.
+     * Update a specific worker bot by ID.
+     * @param userId - The user ID.
+     * @param botId - The worker bot ID.
+     * @param botData - The fields to update.
+     * @returns The updated worker bot.
+     */
+    static async updateWorkerBotById(
+        userId: string,
+        botId: number,
+        botData: Partial<Omit<MainProfileWorkerBot, "user_id" | "id">>
+    ) {
+        try {
+            const data = await db
+                .update(mainProfileWorkerBots)
+                .set(botData)
+                .where(
+                    and(
+                        eq(mainProfileWorkerBots.user_id, userId),
+                        eq(mainProfileWorkerBots.id, botId)
+                    )
+                )
+                .returning();
+            if (data.length === 0) {
+                throw ERRORS.DB_ERROR("Worker bot not found");
+            }
+            return data[0];
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.updateWorkerBotById] Error for botId: ${botId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to update worker bot: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Update multiple loot boxes in a single transaction.
+     * Each box in the array must have an 'id' field.
+     * @param userId - The user id.
+     * @param lootBoxesData - Array of loot box updates with required 'id' field.
      */
     static async updateLootBoxes(
         userId: string,
-        lootBoxesData: Partial<MainProfileLootBox>[]
+        lootBoxesData: (Partial<Omit<MainProfileLootBox, "user_id">> & {
+            id: number;
+        })[]
     ) {
         try {
             await db.transaction(async tx => {
                 for (let lootBoxData of lootBoxesData) {
+                    const { id, ...updates } = lootBoxData;
                     await tx
                         .update(mainProfileLootBoxes)
-                        .set(lootBoxData)
-                        .where(eq(mainProfileLootBoxes.user_id, userId));
+                        .set(updates)
+                        .where(
+                            and(
+                                eq(mainProfileLootBoxes.user_id, userId),
+                                eq(mainProfileLootBoxes.id, id)
+                            )
+                        );
                 }
             });
         } catch (error) {
@@ -176,7 +241,45 @@ export default class MainProfileDAO {
     }
 
     /**
-     * delete a row from worker bots table
+     * Update a specific loot box by ID.
+     * @param userId - The user ID.
+     * @param boxId - The loot box ID.
+     * @param boxData - The fields to update.
+     * @returns The updated loot box.
+     */
+    static async updateLootBoxById(
+        userId: string,
+        boxId: number,
+        boxData: Partial<Omit<MainProfileLootBox, "user_id" | "id">>
+    ) {
+        try {
+            const data = await db
+                .update(mainProfileLootBoxes)
+                .set(boxData)
+                .where(
+                    and(
+                        eq(mainProfileLootBoxes.user_id, userId),
+                        eq(mainProfileLootBoxes.id, boxId)
+                    )
+                )
+                .returning();
+            if (data.length === 0) {
+                throw ERRORS.DB_ERROR("Loot box not found");
+            }
+            return data[0];
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.updateLootBoxById] Error for boxId: ${boxId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to update loot box: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Delete a row from worker bots table.
      * @param userId - The user id.
      * @param workerBotId - The worker bot id.
      */
@@ -199,7 +302,36 @@ export default class MainProfileDAO {
     }
 
     /**
-     * delete a row from loot box table
+     * Delete multiple worker bots by IDs.
+     * @param userId - The user id.
+     * @param botIds - Array of worker bot IDs to delete.
+     */
+    static async deleteWorkerBotsByIds(userId: string, botIds: number[]) {
+        try {
+            if (botIds.length === 0) {
+                return;
+            }
+            await db
+                .delete(mainProfileWorkerBots)
+                .where(
+                    and(
+                        eq(mainProfileWorkerBots.user_id, userId),
+                        inArray(mainProfileWorkerBots.id, botIds)
+                    )
+                );
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.deleteWorkerBotsByIds] Error for userId: ${userId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to delete worker bots: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Delete a row from loot box table.
      * @param userId - The user id.
      * @param lootBoxId - The loot box id.
      */
@@ -222,7 +354,27 @@ export default class MainProfileDAO {
     }
 
     /**
-     * delete a user main profile
+     * Delete all loot boxes for a user.
+     * @param userId - The user id.
+     */
+    static async deleteLootBoxesByUserId(userId: string) {
+        try {
+            await db
+                .delete(mainProfileLootBoxes)
+                .where(eq(mainProfileLootBoxes.user_id, userId));
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.deleteLootBoxesByUserId] Error for userId: ${userId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to delete loot boxes: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Delete a user main profile.
      * @param userId - The user id.
      */
     static async deleteMainProfile(userId: string) {
@@ -231,7 +383,10 @@ export default class MainProfileDAO {
                 .delete(mainProfiles)
                 .where(eq(mainProfiles.user_id, userId));
         } catch (error) {
-            logger.error(`[MainProfileDAO.deleteMainProfile] Error`, { error });
+            logger.error(
+                `[MainProfileDAO.deleteMainProfile] Error for userId: ${userId}`,
+                { error }
+            );
             throw ERRORS.DB_ERROR(
                 `Failed to delete main profile: ${error instanceof Error ? error.message : "Unknown error"}`
             );
@@ -239,13 +394,52 @@ export default class MainProfileDAO {
     }
 
     /**
-     * find a user main profile by userId
+     * Delete a complete profile (main profile + all related worker bots and loot boxes).
+     * Uses transactions to ensure atomicity.
+     * @param userId - The user id.
      */
-    static async findProfileByUserId(userId: string, withRelations?: boolean) {
+    static async deleteCompleteProfile(userId: string) {
         try {
-            let profile: MainProfileTable | MainProfileWithRelations | null;
+            return await db.transaction(async tx => {
+                // Delete loot boxes
+                await tx
+                    .delete(mainProfileLootBoxes)
+                    .where(eq(mainProfileLootBoxes.user_id, userId));
+
+                // Delete worker bots
+                await tx
+                    .delete(mainProfileWorkerBots)
+                    .where(eq(mainProfileWorkerBots.user_id, userId));
+
+                // Delete main profile
+                await tx
+                    .delete(mainProfiles)
+                    .where(eq(mainProfiles.user_id, userId));
+            });
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.deleteCompleteProfile] Error for userId: ${userId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to delete complete profile: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Find a user main profile by userId.
+     * @param userId - The user ID.
+     * @param withRelations - Whether to include related worker bots and loot boxes.
+     * @returns The profile if found, otherwise null.
+     */
+    static async findProfileByUserId(
+        userId: string,
+        withRelations: boolean = false
+    ): Promise<MainProfileTable | MainProfileWithRelations | null> {
+        try {
             if (withRelations) {
-                profile = (await db.query.mainProfiles.findFirst({
+                return (await db.query.mainProfiles.findFirst({
                     where: eq(mainProfiles.user_id, userId),
                     with: {
                         workerBots: {
@@ -255,22 +449,17 @@ export default class MainProfileDAO {
                             orderBy: asc(mainProfileLootBoxes.position),
                         },
                     },
-                })) as MainProfileWithRelations;
+                })) as MainProfileWithRelations | null;
             } else {
-                profile = (await db.query.mainProfiles.findFirst({
+                return (await db.query.mainProfiles.findFirst({
                     where: eq(mainProfiles.user_id, userId),
-                })) as MainProfileTable;
+                })) as MainProfileTable | null;
             }
-
-            if (_.isNil(profile)) {
-                return null;
-            }
-
-            return profile;
         } catch (error) {
-            logger.error(`[MainProfileDAO.findProfileByUserId] Error`, {
-                error,
-            });
+            logger.error(
+                `[MainProfileDAO.findProfileByUserId] Error for userId: ${userId}`,
+                { error }
+            );
             throw ERRORS.DB_ERROR(
                 `Failed to find main profile: ${error instanceof Error ? error.message : "Unknown error"}`
             );
@@ -278,148 +467,33 @@ export default class MainProfileDAO {
     }
 
     /**
-     * Finds a main profile by user ID.
-     * @param userId - The ID of the user.
-     * @returns The profile data if found, otherwise null.
-     */
-    static async findProfileByUserId(
-        userId: string
-    ): Promise<MainProfileTable | null> {
-        try {
-            const profile = await db.query.mainProfiles.findFirst({
-                where: eq(mainProfiles.user_id, userId),
-                with: {
-                    workerBots: {
-                        orderBy: (wb: any, { asc }: any) => [asc(wb.position)],
-                    },
-                    lootBoxes: {
-                        orderBy: (lb: any, { asc }: any) => [asc(lb.position)],
-                    },
-                },
-            });
-
-            if (!profile) return null;
-
-            // Fetch loot boxes opened from stats table
-            const dbLootBoxesOpened = await db
-                .select()
-                .from(lootBoxesByType)
-                .where(eq(lootBoxesByType.user_id, userId));
-
-            const boxTypes = [
-                "common",
-                "uncommon",
-                "rare",
-                "epic",
-                "legendary",
-                "custom",
-            ];
-            const lootBoxes_opened = boxTypes.map(type => {
-                const found = dbLootBoxesOpened.find(
-                    row => row.box_type === type
-                );
-                return found ? found.count : 0;
-            });
-
-            // Extract relations to prevent them from being included twice or as raw objects in the spread
-            const {
-                workerBots,
-                lootBoxes: dbLootBoxes,
-                tickets_type1,
-                tickets_type2,
-                game_pass,
-                game_pass_purchase_time,
-                loot_box_keys,
-                energy_generation_rate,
-                energy_max,
-                energy_updated_at,
-                mineral_generation_rate,
-                mineral_max,
-                mineral_updated_at,
-                atmosphere_trash_type1,
-                atmosphere_trash_type2,
-                atmosphere_trash_updated_at,
-                last_daily_reward_claimed_at,
-                ...profileData
-            } = profile;
-
-            return {
-                userId: profile.user_id,
-                profilePictureIndex: profile.profile_picture_index,
-                name: profile.name,
-                representedFlag: profile.represented_flag || undefined,
-                refCode: profile.ref_code,
-                game_pass,
-                game_pass_purchase_time:
-                    game_pass_purchase_time?.toISOString() || "",
-                worker_bots: workerBots.map(b => b.bot_type as WorkerBotType),
-                lootBoxes: dbLootBoxes.map(
-                    b => b.box_type as MiniGamesLootBox | ""
-                ),
-                lootBoxesTimers: dbLootBoxes.map(
-                    b => b.timer?.toISOString() || ""
-                ),
-                lootBox_keys: loot_box_keys,
-                lootBoxes_opened,
-                tickets_type1,
-                tickets_type2,
-                coins: profile.coins,
-                gems: profile.gems,
-                xp: profile.xp,
-                energy: profile.energy,
-                energy_generation_rate,
-                energy_max,
-                energy_updated_at: energy_updated_at?.toISOString() || "",
-                mineral: profile.mineral,
-                mineral_generation_rate,
-                mineral_max,
-                mineral_updated_at: mineral_updated_at?.toISOString() || "",
-                atmosphere_trash_type1,
-                atmosphere_trash_type2,
-                atmosphere_trash_updated_at:
-                    atmosphere_trash_updated_at?.toISOString() || "",
-                lastDailyRewardClaimedAt:
-                    last_daily_reward_claimed_at?.toISOString() || "",
-                dailyRewardClaimCounter: profile.daily_reward_claim_counter,
-                referredBy: profile.referred_by || "",
-                referrals: profile.referrals,
-                lootBoxesOpeningRate: profile.loot_boxes_opening_rate,
-            };
-        } catch (error) {
-            logger.error(
-                `[MainProfileDAO.findProfileByUserId] Error for userId: ${userId}`,
-                { error }
-            );
-            throw ERRORS.DB_ERROR(
-                `Failed to find profile: ${error instanceof Error ? error.message : "Unknown error"}`
-            );
-        }
-    }
-
-    /**
-    /**
      * Finds a main profile by referral code.
      * @param refCode - The referral code to look up.
+     * @param withRelations - Whether to include related worker bots and loot boxes.
      * @returns The profile data if found, otherwise null.
      */
     static async findProfileByRefCode(
-        refCode: string
-    ): Promise<MainProfileWithRelations | null> {
+        refCode: string,
+        withRelations: boolean = false
+    ): Promise<MainProfileTable | MainProfileWithRelations | null> {
         try {
-            const profile = await db.query.mainProfiles.findFirst({
-                where: eq(mainProfiles.ref_code, refCode),
-                with: {
-                    workerBots: {
-                        orderBy: asc(workerBots.position),
+            if (withRelations) {
+                return (await db.query.mainProfiles.findFirst({
+                    where: eq(mainProfiles.ref_code, refCode),
+                    with: {
+                        workerBots: {
+                            orderBy: asc(mainProfileWorkerBots.position),
+                        },
+                        lootBoxes: {
+                            orderBy: asc(mainProfileLootBoxes.position),
+                        },
                     },
-                    lootBoxes: {
-                        orderBy: asc(lootBoxes.position),
-                    },
-                },
-            });
-            if (!profile) return null;
-
-            return profile;
+                })) as MainProfileWithRelations | null;
+            } else {
+                return (await db.query.mainProfiles.findFirst({
+                    where: eq(mainProfiles.ref_code, refCode),
+                })) as MainProfileTable | null;
+            }
         } catch (error) {
             logger.error(
                 `[MainProfileDAO.findProfileByRefCode] Error for refCode: ${refCode}`,
@@ -432,18 +506,132 @@ export default class MainProfileDAO {
     }
 
     /**
+     * Find a worker bot by user ID and bot ID.
+     * @param userId - The user id.
+     * @param botId - The worker bot id.
+     * @returns The worker bot if found, otherwise null.
+     */
+    static async findWorkerBotById(
+        userId: string,
+        botId: number
+    ): Promise<MainProfileWorkerBot | null> {
+        try {
+            return await db.query.mainProfileWorkerBots.findFirst({
+                where: and(
+                    eq(mainProfileWorkerBots.user_id, userId),
+                    eq(mainProfileWorkerBots.id, botId)
+                ),
+            });
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.findWorkerBotById] Error for botId: ${botId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to find worker bot: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Find a loot box by user ID and box ID.
+     * @param userId - The user id.
+     * @param boxId - The loot box id.
+     * @returns The loot box if found, otherwise null.
+     */
+    static async findLootBoxById(
+        userId: string,
+        boxId: number
+    ): Promise<MainProfileLootBox | null> {
+        try {
+            return await db.query.mainProfileLootBoxes.findFirst({
+                where: and(
+                    eq(mainProfileLootBoxes.user_id, userId),
+                    eq(mainProfileLootBoxes.id, boxId)
+                ),
+            });
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.findLootBoxById] Error for boxId: ${boxId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to find loot box: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Find all worker bots for a user.
+     * @param userId - The user id.
+     * @returns Array of worker bots for the user.
+     */
+    static async findWorkerBotsByUserId(
+        userId: string
+    ): Promise<MainProfileWorkerBot[]> {
+        try {
+            return await db.query.mainProfileWorkerBots.findMany({
+                where: eq(mainProfileWorkerBots.user_id, userId),
+                orderBy: asc(mainProfileWorkerBots.position),
+            });
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.findWorkerBotsByUserId] Error for userId: ${userId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to find worker bots: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Find all loot boxes for a user.
+     * @param userId - The user id.
+     * @returns Array of loot boxes for the user.
+     */
+    static async findLootBoxesByUserId(
+        userId: string
+    ): Promise<MainProfileLootBox[]> {
+        try {
+            return await db.query.mainProfileLootBoxes.findMany({
+                where: eq(mainProfileLootBoxes.user_id, userId),
+                orderBy: asc(mainProfileLootBoxes.position),
+            });
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.findLootBoxesByUserId] Error for userId: ${userId}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to find loot boxes: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
      * Finds all main profiles.
+     * @param withRelations - Whether to include related worker bots and loot boxes.
      * @returns An array of all profile data.
      */
-    static async findAllProfiles() {
+    static async findAllProfiles(
+        withRelations: boolean = false
+    ): Promise<any[]> {
         try {
-            const allProfiles = await db.query.mainProfiles.findMany();
-            // This is expensive if we fetch relations for all, but for migration purposes:
-            return Promise.all(
-                allProfiles.map(p =>
-                    this.findProfileByUserId(p.user_id as string)
-                )
-            );
+            if (withRelations) {
+                return (await db.query.mainProfiles.findMany({
+                    with: {
+                        workerBots: {
+                            orderBy: asc(mainProfileWorkerBots.position),
+                        },
+                        lootBoxes: {
+                            orderBy: asc(mainProfileLootBoxes.position),
+                        },
+                    },
+                })) as any[];
+            } else {
+                return await db.query.mainProfiles.findMany();
+            }
         } catch (error) {
             logger.error(
                 `[MainProfileDAO.findAllProfiles] Error fetching all profiles`,
@@ -456,119 +644,165 @@ export default class MainProfileDAO {
     }
 
     /**
-     * Finds a user profile by their user ID using Relational Query API for performance.
-     * @param userId - The ID of the user.
-     * @returns The MainProfile entity if found, otherwise null.
+     * Create a complete profile with worker bots and loot boxes in a single transaction.
+     * Ensures all-or-nothing atomicity.
+     * @param profileData - The main profile data.
+     * @param workerBotsData - Optional array of worker bots to create.
+     * @param lootBoxesData - Optional array of loot boxes to create.
+     * @returns The created main profile.
      */
-    static async findProfileByIdFast(userId: string) {
+    static async createCompleteProfile(
+        profileData: NewMainProfileTable,
+        workerBotsData?: NewMainProfileWorkerBot[],
+        lootBoxesData?: NewMainProfileLootBox[]
+    ) {
         try {
-            const profile = await db.query.mainProfiles.findFirst({
-                where: (mainProfiles, { eq }) =>
-                    eq(mainProfiles.user_id, userId),
-                with: {
-                    workerBots: {
-                        orderBy: (wb: any, { asc }: any) => [asc(wb.position)],
-                    },
-                    lootBoxes: {
-                        orderBy: (lb: any, { asc }: any) => [asc(lb.position)],
-                    },
-                },
+            return await db.transaction(async tx => {
+                // 1. Create main profile
+                const profile = await tx
+                    .insert(mainProfiles)
+                    .values(profileData)
+                    .returning();
+
+                if (profile.length === 0) {
+                    throw ERRORS.DB_ERROR("Failed to create profile");
+                }
+
+                // 2. Create worker bots if provided
+                if (workerBotsData && workerBotsData.length > 0) {
+                    await tx
+                        .insert(mainProfileWorkerBots)
+                        .values(workerBotsData);
+                }
+
+                // 3. Create loot boxes if provided
+                if (lootBoxesData && lootBoxesData.length > 0) {
+                    await tx.insert(mainProfileLootBoxes).values(lootBoxesData);
+                }
+
+                return profile[0];
             });
-
-            if (!profile) return null;
-
-            // Fetch loot boxes opened from stats table
-            const dbLootBoxesOpened = await db
-                .select()
-                .from(lootBoxesByType)
-                .where(eq(lootBoxesByType.user_id, userId));
-
-            const boxTypes = [
-                "common",
-                "uncommon",
-                "rare",
-                "epic",
-                "legendary",
-                "custom",
-            ];
-            const lootBoxes_opened = boxTypes.map(type => {
-                const found = dbLootBoxesOpened.find(
-                    row => row.box_type === type
-                );
-                return found ? found.count : 0;
-            });
-
-            const {
-                workerBots,
-                lootBoxes: dbLootBoxes,
-                tickets_type1,
-                tickets_type2,
-                game_pass,
-                game_pass_purchase_time,
-                loot_box_keys,
-                energy_generation_rate,
-                energy_max,
-                energy_updated_at,
-                mineral_generation_rate,
-                mineral_max,
-                mineral_updated_at,
-                atmosphere_trash_type1,
-                atmosphere_trash_type2,
-                atmosphere_trash_updated_at,
-                last_daily_reward_claimed_at,
-                ...profileData
-            } = profile;
-
-            return {
-                userId: profile.user_id,
-                profilePictureIndex: profile.profile_picture_index,
-                name: profile.name,
-                representedFlag: profile.represented_flag || undefined,
-                refCode: profile.ref_code,
-                game_pass,
-                game_pass_purchase_time:
-                    game_pass_purchase_time?.toISOString() || "",
-                worker_bots: workerBots.map(b => b.bot_type as WorkerBotType),
-                lootBoxes: dbLootBoxes.map(
-                    b => b.box_type as MiniGamesLootBox | ""
-                ),
-                lootBoxesTimers: dbLootBoxes.map(
-                    b => b.timer?.toISOString() || ""
-                ),
-                lootBox_keys: loot_box_keys,
-                lootBoxes_opened,
-                tickets_type1,
-                tickets_type2,
-                coins: profile.coins,
-                gems: profile.gems,
-                xp: profile.xp,
-                energy: profile.energy,
-                energy_generation_rate,
-                energy_max,
-                energy_updated_at: energy_updated_at?.toISOString() || "",
-                mineral: profile.mineral,
-                mineral_generation_rate,
-                mineral_max,
-                mineral_updated_at: mineral_updated_at?.toISOString() || "",
-                atmosphere_trash_type1,
-                atmosphere_trash_type2,
-                atmosphere_trash_updated_at:
-                    atmosphere_trash_updated_at?.toISOString() || "",
-                lastDailyRewardClaimedAt:
-                    last_daily_reward_claimed_at?.toISOString() || "",
-                dailyRewardClaimCounter: profile.daily_reward_claim_counter,
-                referredBy: profile.referred_by || "",
-                referrals: profile.referrals,
-                lootBoxesOpeningRate: profile.loot_boxes_opening_rate,
-            };
         } catch (error) {
             logger.error(
-                `[MainProfileDAO.findProfileByIdFast] Error for userId: ${userId}`,
+                `[MainProfileDAO.createCompleteProfile] Error for userId: ${profileData.user_id}`,
                 { error }
             );
             throw ERRORS.DB_ERROR(
-                `Failed to find profile (fast): ${error instanceof Error ? error.message : "Unknown error"}`
+                `Failed to create complete profile: ${error instanceof Error ? error.message : "Unknown error"}`
             );
         }
+    }
+
+    /**
+     * Increment a numeric field in the profile by a given amount.
+     * Useful for adding resources like coins, gems, XP, etc.
+     * Prevents values from going negative.
+     * @param userId - The user id.
+     * @param field - The field to increment.
+     * @param amount - The amount to add (can be negative for subtraction).
+     * @returns The updated profile.
+     */
+    static async incrementProfileField(
+        userId: string,
+        field: "coins" | "gems" | "xp" | "referrals" | "loot_box_keys",
+        amount: number
+    ): Promise<MainProfileTable> {
+        try {
+            const profile = await db.query.mainProfiles.findFirst({
+                where: eq(mainProfiles.user_id, userId),
+            });
+
+            if (!profile) {
+                throw ERRORS.DB_ERROR("Profile not found");
+            }
+
+            const currentValue = profile[field] as number;
+            const newValue = Math.max(0, currentValue + amount);
+
+            const data = await db
+                .update(mainProfiles)
+                .set({ [field]: newValue })
+                .where(eq(mainProfiles.user_id, userId))
+                .returning();
+
+            if (data.length === 0) {
+                throw ERRORS.DB_ERROR("Failed to increment profile field");
+            }
+
+            return data[0];
+        } catch (error) {
+            logger.error(
+                `[MainProfileDAO.incrementProfileField] Error for userId: ${userId}, field: ${field}`,
+                { error }
+            );
+            throw ERRORS.DB_ERROR(
+                `Failed to increment profile field: ${error instanceof Error ? error.message : "Unknown error"}`
+            );
+        }
+    }
+
+    /**
+     * Add coins to a user's profile.
+     * @param userId - The user id.
+     * @param amount - The amount of coins to add.
+     * @returns The updated profile.
+     */
+    static async addCoins(
+        userId: string,
+        amount: number
+    ): Promise<MainProfileTable> {
+        return this.incrementProfileField(userId, "coins", amount);
+    }
+
+    /**
+     * Add gems to a user's profile.
+     * @param userId - The user id.
+     * @param amount - The amount of gems to add.
+     * @returns The updated profile.
+     */
+    static async addGems(
+        userId: string,
+        amount: number
+    ): Promise<MainProfileTable> {
+        return this.incrementProfileField(userId, "gems", amount);
+    }
+
+    /**
+     * Add XP to a user's profile.
+     * @param userId - The user id.
+     * @param amount - The amount of XP to add.
+     * @returns The updated profile.
+     */
+    static async addXp(
+        userId: string,
+        amount: number
+    ): Promise<MainProfileTable> {
+        return this.incrementProfileField(userId, "xp", amount);
+    }
+
+    /**
+     * Add loot box keys to a user's profile.
+     * @param userId - The user id.
+     * @param amount - The amount of keys to add.
+     * @returns The updated profile.
+     */
+    static async addLootBoxKeys(
+        userId: string,
+        amount: number
+    ): Promise<MainProfileTable> {
+        return this.incrementProfileField(userId, "loot_box_keys", amount);
+    }
+
+    /**
+     * Add referrals to a user's profile.
+     * @param userId - The user id.
+     * @param amount - The amount of referrals to add.
+     * @returns The updated profile.
+     */
+    static async addReferrals(
+        userId: string,
+        amount: number
+    ): Promise<MainProfileTable> {
+        return this.incrementProfileField(userId, "referrals", amount);
     }
 }

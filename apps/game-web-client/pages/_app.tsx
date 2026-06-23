@@ -41,12 +41,20 @@ export default function App({ Component, pageProps }: AppProps) {
       { name: Controls.jump, keys: ["Space"] },
       { name: Controls.run, keys: ["ShiftLeft", "ShiftRight"] },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
   return (
     <>
       <Head>
+        <title>{`${APP_NAME} | Land of Landless`}</title>
+        <meta
+          name="description"
+          content="Land of landless is a sci-fi game where you can build your own empire and conquer the galaxy"
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/icons/favicon.ico" />
         <meta name="application-name" content={APP_NAME} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -55,7 +63,6 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#FFFFFF" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />

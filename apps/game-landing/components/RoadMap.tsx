@@ -1,5 +1,6 @@
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { semangatRegular, semangatBold } from "@/fonts";
 import Footer from "./Layout/Footer";
 
@@ -123,6 +124,31 @@ const RoadMapComp = () => {
           </div>
         </div>
       </div>
+
+      {/* Donation CTA Section */}
+      <div className="w-full bg-gradient-to-r from-orange-600/20 to-orange-500/20 border-t border-orange-400/30 py-12 sm:py-16 px-4 sm:px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2
+            className={`${semangatBold.className} text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4`}
+          >
+            Help Us Build the Future 🚀
+          </h2>
+          <p
+            className={`${semangatRegular.className} text-base sm:text-lg text-gray-200 mb-8 max-w-2xl mx-auto`}
+          >
+            Your donation directly supports the development of Land of Landless.
+            Be part of our community and receive exclusive rewards!
+          </p>
+          <Link href="/donation">
+            <button
+              className={`${semangatBold.className} px-8 sm:px-12 py-3 sm:py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg sm:text-xl rounded-[25px] transition-all transform hover:scale-105 shadow-lg`}
+            >
+              💖 Support Us Today
+            </button>
+          </Link>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
