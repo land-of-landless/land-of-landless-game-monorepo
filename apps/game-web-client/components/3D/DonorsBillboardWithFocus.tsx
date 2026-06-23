@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { RigidBody, CuboidCollider } from "@react-three/rapier";
+import { RigidBody, CuboidCollider, RapierRigidBody } from "@react-three/rapier";
 import { useBillboardProximity } from "@/hooks/useProximity";
 import { useBillboardStore } from "@/stores/billboardStore";
 import { DonorsBillboard } from "./DonorsBillboard";
@@ -17,7 +17,8 @@ interface DonorsBillboardWithFocusProps {
 export const DonorsBillboardWithFocus: React.FC<
   DonorsBillboardWithFocusProps
 > = ({ position = [0, 5, -30], triggerDistance = 8 }) => {
-  const sensorRef = useRef<any>(null);
+  const sensorRef = useRef<RapierRigidBody>(null);
+
   const { isInProximity, setIsInProximity } = useBillboardProximity({
     billboardPosition: position,
     triggerDistance,

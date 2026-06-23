@@ -36,7 +36,6 @@ export default function Play() {
     voteLogs,
     archivePage,
     setArchivePage,
-    archivePages,
     coins,
     handleEnterZone,
     handleExitZone,
@@ -53,13 +52,18 @@ export default function Play() {
     }
   }, []);
 
+  const cameraProps = {
+    position: CANVAS_CONFIG.camera.position as unknown as [number, number, number],
+    fov: CANVAS_CONFIG.camera.fov,
+  };
+
   return (
     <div
       ref={containerRef}
       className={`play-page ${playPageFontClassName} w-full h-screen bg-[#07080b] overflow-hidden select-none`}
     >
       <Canvas
-        camera={CANVAS_CONFIG.camera as any}
+        camera={cameraProps}
         gl={CANVAS_CONFIG.gl}
         dpr={CANVAS_CONFIG.dpr}
       >

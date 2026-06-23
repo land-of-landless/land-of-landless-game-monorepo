@@ -1,13 +1,13 @@
 import React, { useMemo, useEffect, useRef } from "react";
 import * as THREE from "three";
-import { useDonors, Donor } from "@/hooks/useDonors";
+import { useDonors, Donor, DonorsData } from "@/hooks/useDonors";
 
 /**
  * Creates a high-quality canvas texture with donor information.
  * Uses canvas rendering to avoid pointer event capture issues.
  * Text is rendered with system fonts which are naturally sharp.
  */
-function DonorsCanvasTexture({ donors }: { donors: any }) {
+function DonorsCanvasTexture({ donors }: { donors: DonorsData }) {
   const canvas = useMemo(() => {
     const c = document.createElement("canvas");
     // Ultra-high resolution for maximum text clarity
@@ -136,7 +136,7 @@ function BillboardMesh({
   donors,
 }: {
   position: [number, number, number];
-  donors: any;
+  donors: DonorsData;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const canvas = DonorsCanvasTexture({ donors });
